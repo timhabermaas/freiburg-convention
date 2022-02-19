@@ -46,8 +46,19 @@ export class S3Store implements EventStore {
         }
       );
     } catch (e) {
-      logger.error(`Failed reading ${BUCKET_NAME}/${this.fileName}: ${e}`);
-      throw e;
+      // TODO: AWSError doesn't seem to be backed by an actual class
+      // (https://github.com/aws/aws-sdk-js/issues/2611)
+      // @ts-ignore
+      if (typeof e === "object" && e.code === "NoSuchKey") {
+        logger.warn(
+          `No key found under ${BUCKET_NAME}/${this.fileName}, returning empty array`
+        );
+        return [];
+      } else {
+        console.log(JSON.stringify(e));
+        logger.error(`Failed reading ${BUCKET_NAME}/${this.fileName}: ${e}`);
+        throw e;
+      }
     }
   }
 
