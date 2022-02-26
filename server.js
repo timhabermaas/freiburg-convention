@@ -7,6 +7,8 @@ import { createRequestHandler } from "@remix-run/express";
 import { replayEvents } from "./app/state";
 import { FileStore } from "./app/stores/file-store";
 import { S3Store } from "./app/stores/s3-store";
+import { logger } from "./app/logger";
+import { App } from "./app/writer";
 
 import * as build from "@remix-run/dev/server-build";
 
@@ -43,6 +45,9 @@ if (process.env.NODE_ENV === "production") {
   eventStore = new FileStore("temp/store.log");
 }
 
+let APP = new App(eventStore);
+APP.replay();
+
 replayEvents(eventStore);
 
 app.use(
@@ -70,11 +75,13 @@ app.all(
   createRequestHandler({
     build,
     mode: process.env.NODE_ENV,
-    getLoadContext: () => eventStore,
+    getLoadContext: () => {
+      return { app: APP, eventStore };
+    },
   })
 );
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Express server listening on port ${port}`);
+  logger.info(`Express server listening on port ${port}`);
 });

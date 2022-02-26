@@ -21,13 +21,8 @@ export class FileStore implements EventStore {
       }
 
       const l = JSON.parse(line);
-      console.log(l);
 
       result.push({
-        ...l,
-        timeStamp: new Date(Date.parse(l.timeStamp)),
-      });
-      console.log({
         ...l,
         timeStamp: new Date(Date.parse(l.timeStamp)),
       });
@@ -36,11 +31,11 @@ export class FileStore implements EventStore {
     return Promise.resolve(result);
   }
 
-  save(payload: Event): Promise<EventEnvelope<Event>> {
+  save(payload: Event, versionNumber: number): Promise<EventEnvelope<Event>> {
     const event = {
       payload,
       id: uuid(),
-      version: 1,
+      version: versionNumber,
       timeStamp: new Date(),
     };
 

@@ -38,6 +38,7 @@
     "dev": "NODE_ENV=development remix build && run-p dev:*",
     "dev:remix": "NODE_ENV=development remix watch",
     "dev:node": "node -r dotenv/config node_modules/nodemon/bin/nodemon.js ./build/index.js",
-    "start": "NODE_ENV=production node ./build/index.js"
+    "start": "NODE_ENV=production node ./build/index.js",
+    "typecheck": "tsc -b"
   }
 }

@@ -55,19 +55,21 @@ export class S3Store implements EventStore {
         );
         return [];
       } else {
-        console.log(JSON.stringify(e));
         logger.error(`Failed reading ${BUCKET_NAME}/${this.fileName}: ${e}`);
         throw e;
       }
     }
   }
 
-  async save(payload: Event): Promise<EventEnvelope<Event>> {
+  async save(
+    payload: Event,
+    versionNumber: number
+  ): Promise<EventEnvelope<Event>> {
     const all = await this.readAll();
     const event = {
       payload,
       id: uuid(),
-      version: all.length,
+      version: versionNumber,
       timeStamp: new Date(),
     };
 

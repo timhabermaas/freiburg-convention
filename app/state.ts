@@ -12,10 +12,16 @@ interface State {
   persons: Person[];
 }
 
-export function addEvent(store: EventStore, payload: Event) {
-  store.save(payload);
+export async function addEvent(
+  store: EventStore,
+  payload: Event,
+  versionNumber: number
+): Promise<EventEnvelope<Event>> {
+  const eventEnvelope = await store.save(payload, versionNumber);
 
   applyEvent(state, payload);
+
+  return eventEnvelope;
 }
 
 export function getEvents(store: EventStore): Promise<EventEnvelope<Event>[]> {

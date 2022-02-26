@@ -1,8 +1,4 @@
-export interface HasType {
-  type: string;
-}
-
-export interface EventEnvelope<E extends HasType> {
+export interface EventEnvelope<E> {
   id: string;
   version: number;
   payload: E;

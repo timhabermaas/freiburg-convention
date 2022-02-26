@@ -3,8 +3,7 @@ import { EventEnvelope, Event } from "~/types";
 import { getEvents } from "~/state";
 
 export const loader: LoaderFunction = async ({ context }) => {
-  console.log(context);
-  return getEvents(context);
+  return getEvents(context.eventStore);
 };
 
 export default function EventsIndex() {
@@ -15,7 +14,7 @@ export default function EventsIndex() {
       <ul>
         {events.map((event: EventEnvelope<Event>) => (
           <li key={event.id}>
-            {event.id} ({event.timeStamp.toString()}):{" "}
+            {event.id}/{event.version} ({event.timeStamp.toString()}):{" "}
             <pre>{JSON.stringify(event.payload, null, "\t")}</pre>
           </li>
         ))}

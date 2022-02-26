@@ -5,8 +5,7 @@ import {
   redirect,
   useLoaderData,
 } from "remix";
-import { addEvent, getPersons, Person } from "~/state";
-import { v4 as uuid } from "uuid";
+import { getPersons, Person } from "~/state";
 
 const badRequest = () => json({}, { status: 400 });
 
@@ -18,7 +17,7 @@ export const action: ActionFunction = async ({ context, request }) => {
       return badRequest();
     }
 
-    addEvent(context, { type: "DeletePersonEvent", personId });
+    await context.app.deletePerson(personId);
   } else {
     const name = formData.get("name");
 
@@ -26,7 +25,7 @@ export const action: ActionFunction = async ({ context, request }) => {
       return badRequest();
     }
 
-    addEvent(context, { name, type: "AddPersonEvent", personId: uuid() });
+    await context.app.registerPerson(name);
   }
 
   return redirect("/registration/new");
