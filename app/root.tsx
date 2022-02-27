@@ -7,22 +7,21 @@ import {
   redirect,
   Scripts,
   ScrollRestoration,
+  useLocation,
+  useNavigate,
   useParams,
 } from "remix";
 import type { MetaFunction } from "remix";
 import { LocaleContext, SupportedLanguages } from "./contexts/LocaleContext";
+import styles from "bootstrap/dist/css/bootstrap.css";
+import { LanguageButton } from "./components/LanguageButton";
 
 export const meta: MetaFunction = () => {
-  return { title: "New Remix App" };
+  return { title: "Freiburger Convention 2022" };
 };
 
 export function links() {
-  return [
-    {
-      rel: "stylesheet",
-      href: "https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css",
-    },
-  ];
+  return [{ rel: "stylesheet", href: styles }];
 }
 
 export let loader: LoaderFunction = async ({ request }) => {
@@ -34,9 +33,11 @@ export let loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function App() {
-  let { lang } = useParams();
-  let locale: SupportedLanguages =
+  const { lang } = useParams();
+  const locale: SupportedLanguages =
     lang === "de" ? "de" : lang === "en" ? "en" : "de";
+  const location = useLocation();
+  const locationWithoutLanguage = location.pathname.replace(/^\/[^/]+/, "");
 
   return (
     <html lang="en">
@@ -47,11 +48,28 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <div className="container">
-          <LocaleContext.Provider value={locale}>
+        <LocaleContext.Provider value={locale}>
+          <div className="container">
+            <div className="mb-4"></div>
+            <div className="row justify-content-end">
+              <div className="col-2 text-right">
+                <div className="btn-group btn-group-toggle">
+                  <LanguageButton
+                    title="DE"
+                    href={`/de${locationWithoutLanguage}`}
+                    active={locale === "de"}
+                  />
+                  <LanguageButton
+                    title="EN"
+                    href={`/en${locationWithoutLanguage}`}
+                    active={locale === "en"}
+                  />
+                </div>
+              </div>
+            </div>
             <Outlet />
-          </LocaleContext.Provider>
-        </div>
+          </div>
+        </LocaleContext.Provider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
