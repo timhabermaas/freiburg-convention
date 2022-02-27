@@ -6,10 +6,10 @@ export default function Index() {
       <h1>Welcome to Remix</h1>
       <ul>
         <li>
-          <Link to="/registration/new">Registrieren</Link>
+          <Link to="registration/new">Registrieren</Link>
         </li>
         <li>
-          <Link to="/events">Events</Link>
+          <Link to="events">Events</Link>
         </li>
       </ul>
     </div>
