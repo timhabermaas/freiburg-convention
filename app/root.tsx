@@ -67,6 +67,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+            <div className="mb-4"></div>
             <Outlet />
           </div>
         </LocaleContext.Provider>

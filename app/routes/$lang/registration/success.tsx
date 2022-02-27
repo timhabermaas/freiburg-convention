@@ -3,15 +3,6 @@ import { useTranslation } from "~/hooks/useTranslation";
 
 export default function RegistrationSuccessful() {
   const t = useTranslation();
-  /*
-  row $ do
-    colMd 12 $ do
-      H.h1 "Danke für deine Anmeldung!" ! A.class_ "text-center"
-      H.p ! A.class_ "text-center" $ do
-        "Du solltest in Kürze eine E-Mail von uns erhalten. Falls nicht, melde dich bitte unter "
-        mailLink "orga@jonglieren-in-freiburg.de" "orga@jonglieren-in-freiburg.de"
-        "."
-        */
 
   return (
     <div className="row">

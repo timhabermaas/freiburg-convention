@@ -23,8 +23,7 @@ export default function NewRegistration() {
 
   return (
     <>
-      <div className="mb-3"></div>
-      <div className="row mb-4">
+      <div className="row">
         <div className="col-md-12">
           <h1 className="text-center">{t("registrationTitle")}</h1>
           <h4 className="text-center">
