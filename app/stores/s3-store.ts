@@ -1,4 +1,4 @@
-import { EventEnvelope, Event } from "~/types";
+import { EventEnvelope, Event, EventEnvelopeArray } from "~/types";
 import { EventStore } from "./interface";
 import { v4 as uuid } from "uuid";
 import { logger as baseLogger } from "~/logger";
@@ -37,14 +37,9 @@ export class S3Store implements EventStore {
         throw response.$response.error;
       }
 
-      return JSON.parse(response.Body!.toString()).map(
-        (e: EventEnvelope<Event>) => {
-          // timeStamp is a string during runtime. Use io-ts or similar to
-          // properly implement parsing/validating.
-          // @ts-ignore
-          return { ...e, timeStamp: new Date(Date.parse(e.timeStamp)) };
-        }
-      );
+      const raw = JSON.parse(response.Body!.toString());
+
+      return EventEnvelopeArray.parse(raw);
     } catch (e) {
       // TODO: AWSError doesn't seem to be backed by an actual class
       // (https://github.com/aws/aws-sdk-js/issues/2611)

@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { v4 as uuid } from "uuid";
 import { EventStore } from "~/stores/interface";
-import { EventEnvelope, Event } from "~/types";
+import { EventEnvelope, Event, EventEnvelopeSchema } from "~/types";
 
 export class FileStore implements EventStore {
   private fileName: string;
@@ -13,19 +13,16 @@ export class FileStore implements EventStore {
   readAll(): Promise<EventEnvelope<Event>[]> {
     this.ensureFileExists();
     const data = fs.readFileSync(this.fileName);
-    const result = [];
+    const result: EventEnvelope<Event>[] = [];
 
     for (const line of data.toString().split("\n")) {
       if (line.trim() === "") {
         continue;
       }
 
-      const l = JSON.parse(line);
+      const raw = JSON.parse(line);
 
-      result.push({
-        ...l,
-        timeStamp: new Date(Date.parse(l.timeStamp)),
-      });
+      result.push(EventEnvelopeSchema.parse(raw));
     }
 
     return Promise.resolve(result);

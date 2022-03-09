@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export interface EventEnvelope<E> {
   id: string;
   version: number;
@@ -17,3 +19,26 @@ export interface DeletePersonEvent {
 }
 
 export type Event = AddPersonEvent | DeletePersonEvent;
+
+export const EventSchema = z.discriminatedUnion("type", [
+  z.object({
+    personId: z.string(),
+    name: z.string(),
+    type: z.literal("AddPersonEvent"),
+  }),
+  z.object({
+    personId: z.string(),
+    type: z.literal("DeletePersonEvent"),
+  }),
+]);
+
+const isoString = z.string().transform((s) => new Date(Date.parse(s)));
+
+export const EventEnvelopeSchema = z.object({
+  id: z.string(),
+  version: z.number(),
+  payload: EventSchema,
+  timeStamp: isoString,
+});
+
+export const EventEnvelopeArray = z.array(EventEnvelopeSchema);

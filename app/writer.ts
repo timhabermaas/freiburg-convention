@@ -24,7 +24,7 @@ export class App {
 
   // TODO: Make sure the mutating functions are pushed to queue (`fastq`) and handled serialized.
   public async registerPerson(name: string) {
-    if (this.state.personIds.size < 10) {
+    if (this.state.personIds.size < 100) {
       await this.saveEvent({
         type: "AddPersonEvent",
         name: name,

@@ -1,44 +1,112 @@
-import { ActionFunction, json, redirect } from "remix";
+import { ActionFunction, json, redirect, useActionData } from "remix";
+import { Col } from "~/components/Col";
+import { Row } from "~/components/Row";
 import { SubmitButton } from "~/components/SubmitButton";
+import { TextField } from "~/components/TextField";
 import { TextInput } from "~/components/TextInput";
 import { useTranslation } from "~/hooks/useTranslation";
+import { z } from "zod";
+import { parseFormData } from "~/utils";
 
-const badRequest = () => json({}, { status: 400 });
+const Form = z.object({
+  email: z.string().email(),
+  participant: z.object({ name: z.string() }),
+});
+
+function errorsForPath(path: string, issues: z.ZodIssue[]): string[] {
+  const result = [];
+
+  for (const issue of issues) {
+    if (issue.path.join(".") === path) {
+      result.push(issue.message + " " + issue.code);
+    }
+  }
+
+  return result;
+}
 
 export const action: ActionFunction = async ({ params, context, request }) => {
   const formData = await request.formData();
-  const email = formData.get("email");
 
-  if (typeof email !== "string") {
-    return badRequest();
+  const parsedFormData = parseFormData(formData);
+
+  const result = Form.safeParse(parsedFormData);
+
+  if (result.success) {
+    await context.app.registerPerson(result.data.email);
+
+    return redirect("success");
+  } else {
+    return json({ errors: result.error.issues, values: parsedFormData });
   }
-
-  await context.app.registerPerson(email);
-
-  return redirect("success");
 };
 
-export default function NewRegistration() {
+interface ParticipantFormProps {
+  index: number;
+}
+
+function ParticipantForm(props: ParticipantFormProps) {
   const t = useTranslation();
 
   return (
+    <Row>
+      <Col size="md" cols={12}></Col>
+      <h4>{t("participantHeader", { index: props.index.toString() })}</h4>
+    </Row>
+  );
+}
+
+export default function NewRegistration() {
+  const t = useTranslation();
+  // TODO: Typing
+  const actionData = useActionData();
+
+  return (
     <>
-      <div className="row">
-        <div className="col-md-12">
+      <Row>
+        <Col size="md" cols={12}>
           <h1 className="text-center">{t("registrationTitle")}</h1>
           <h4 className="text-center">
+            {/* TODO: format date according to locale using Intl */}
             <small className="text-muted">26.05.2022 – 29.05.2022</small>
           </h4>
-        </div>
-      </div>
-      <div className="row justify-content-center">
-        <div className="col-lg-6">
+        </Col>
+      </Row>
+      <Row centered>
+        <Col size="lg" cols={6}>
           <form method="post">
-            <TextInput label={t("email")} name="email" autoComplete="email" />
+            <TextInput
+              label={t("email")}
+              name="email"
+              autoComplete="email"
+              defaultValue={actionData?.values.email}
+              errorMessages={
+                actionData?.errors
+                  ? errorsForPath("email", actionData?.errors)
+                  : undefined
+              }
+            />
+            <TextInput
+              label={t("fullNameField")}
+              name="participant.name"
+              defaultValue={actionData?.values.participant.name}
+              errorMessages={
+                actionData?.errors
+                  ? errorsForPath("participant.name", actionData?.errors)
+                  : undefined
+              }
+            />
+            <TextInput label={"Full name"} name="bot" hidden />
+
+            {[1, 2, 3].map((i) => (
+              <ParticipantForm index={i}></ParticipantForm>
+            ))}
+
+            <TextField label={t("commentField")} name="comment" />
             <SubmitButton title={t("submitRegister")} />
           </form>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </>
   );
 }
