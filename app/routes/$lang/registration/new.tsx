@@ -7,6 +7,7 @@ import { TextInput } from "~/components/TextInput";
 import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import { parseFormData } from "~/utils";
+import { useLocale } from "~/hooks/useLocale";
 
 const Form = z.object({
   email: z.string().email(),
@@ -57,6 +58,8 @@ function ParticipantForm(props: ParticipantFormProps) {
 }
 
 export default function NewRegistration() {
+  const { dateTimeFormatter } = useLocale();
+
   const t = useTranslation();
   // TODO: Typing
   const actionData = useActionData();
@@ -67,8 +70,10 @@ export default function NewRegistration() {
         <Col size="md" cols={12}>
           <h1 className="text-center">{t("registrationTitle")}</h1>
           <h4 className="text-center">
-            {/* TODO: format date according to locale using Intl */}
-            <small className="text-muted">26.05.2022 – 29.05.2022</small>
+            <small className="text-muted">
+              {dateTimeFormatter.format(Date.parse("2022-05-26"))} –{" "}
+              {dateTimeFormatter.format(Date.parse("2022-05-29"))}
+            </small>
           </h4>
         </Col>
       </Row>
