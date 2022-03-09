@@ -55,6 +55,7 @@ export default function App() {
                 <div className="btn-group btn-group-toggle">
                   {Languages.map(({ title, locale }) => (
                     <LanguageButton
+                      key={locale}
                       title={title}
                       href={`/${locale}${locationWithoutLanguage}`}
                       active={locale === currentLocale}

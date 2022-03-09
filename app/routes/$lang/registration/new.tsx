@@ -104,7 +104,7 @@ export default function NewRegistration() {
             <TextInput label={"Full name"} name="bot" hidden />
 
             {[1, 2, 3].map((i) => (
-              <ParticipantForm index={i}></ParticipantForm>
+              <ParticipantForm key={i} index={i}></ParticipantForm>
             ))}
 
             <TextField label={t("commentField")} name="comment" />
