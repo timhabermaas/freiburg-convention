@@ -9,7 +9,7 @@ export default function Index() {
           <Link to="registration/new">Registrieren</Link>
         </li>
         <li>
-          <Link to="/admin/events">Events</Link>
+          <Link to="admin/events">Events</Link>
         </li>
       </ul>
     </div>

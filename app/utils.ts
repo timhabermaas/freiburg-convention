@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
     object[paths[0]] = value;
@@ -39,6 +41,7 @@ function convertToArray(object: any): any {
 
 export function parseFormData(formData: FormData): Record<string, unknown> {
   const result = {};
+
   for (const [key, value] of formData.entries()) {
     const paths = key.split(".");
 
@@ -47,4 +50,27 @@ export function parseFormData(formData: FormData): Record<string, unknown> {
     }
   }
   return convertToArray(result);
+}
+
+/**
+ * `start` and `end` are inclusive.
+ */
+export function arrayFromRange(start: number, end: number): number[] {
+  const result = [];
+  for (let i = start; i <= end; i += 1) {
+    result.push(i);
+  }
+  return result;
+}
+
+export function errorsForPath(path: string, issues: z.ZodIssue[]): string[] {
+  const result = [];
+
+  for (const issue of issues) {
+    if (issue.path.join(".") === path) {
+      result.push(issue.message + " " + issue.code);
+    }
+  }
+
+  return result;
 }

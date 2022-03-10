@@ -11,9 +11,33 @@ const TRANSLATION: Record<
     "en-US": "Full Name",
     de: "Name",
   },
+  birthdayField: {
+    "en-US": "Birthday",
+    de: "Geburtstag",
+  },
+  streetField: {
+    "en-US": "Street",
+    de: "Straße",
+  },
+  postalCodeField: {
+    "en-US": "Postal Code",
+    de: "PLZ",
+  },
+  cityField: {
+    "en-US": "City",
+    de: "Stadt",
+  },
+  countryField: {
+    "en-US": "Country",
+    de: "Land",
+  },
   commentField: {
     "en-US": "Anything you want to tell us?",
     de: "Willst du uns noch etwas mitteilen?",
+  },
+  moreParticipants: {
+    "en-US": "Register additional participants",
+    de: "Weitere Teilnehmer*innen anmelden",
   },
   registrationTitle: {
     "en-US": "Registration for Freiburg Juggling Convention 2022",
