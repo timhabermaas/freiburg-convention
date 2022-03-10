@@ -4,7 +4,7 @@ import { arrayFromRange } from "~/utils";
 interface DateInputProps {
   label: string;
   name: string;
-  defaultDate?: [number, number, number];
+  defaultDate?: [string, string, string];
 }
 
 export function DateInput(props: DateInputProps) {
@@ -20,8 +20,7 @@ export function DateInput(props: DateInputProps) {
   const years = arrayFromRange(1900, 2021);
 
   // TODO: props.defaultDate is a string at runtime
-  const defaultDate = props.defaultDate ?? [0, 0, 1900];
-  console.log(defaultDate);
+  const defaultDate = props.defaultDate ?? ["0", "0", "1900"];
 
   return (
     <div className="form-group">
@@ -30,7 +29,7 @@ export function DateInput(props: DateInputProps) {
         <div className="col-sm-3">
           <select name={withPrefix("day")} className="form-control">
             {days.map((d) => (
-              <option value={d} selected={defaultDate[0] === d}>
+              <option value={d} selected={defaultDate[0] === d.toString()}>
                 {d + 1}
               </option>
             ))}
@@ -41,7 +40,7 @@ export function DateInput(props: DateInputProps) {
             {months.map(({ monthName, monthIndex }) => (
               <option
                 value={monthIndex}
-                selected={defaultDate[1] === monthIndex}
+                selected={defaultDate[1] === monthIndex.toString()}
               >
                 {monthName}
               </option>
@@ -51,7 +50,7 @@ export function DateInput(props: DateInputProps) {
         <div className="col-sm-4 mt-2 mt-sm-0">
           <select name={withPrefix("year")} className="form-control">
             {years.map((y) => (
-              <option value={y} selected={defaultDate[2] === y}>
+              <option value={y} selected={defaultDate[2] === y.toString()}>
                 {y}
               </option>
             ))}

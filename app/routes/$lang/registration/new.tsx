@@ -26,7 +26,7 @@ const Birthday = z.object({
   year: Int,
 });
 const Participant = z.object({
-  fullName: z.string(),
+  fullName: z.string().nonempty(),
   birthday: Birthday,
   address: AddressForm,
 });
@@ -34,8 +34,18 @@ const Participant = z.object({
 type Participant = z.TypeOf<typeof Participant>;
 
 function participantIsEmpty(p: Participant): boolean {
-  if (typeof p.fullName === "string") {
-    return p.fullName.trim().length === 0;
+  if (
+    typeof p.fullName === "string" &&
+    typeof p.address?.street === "string" &&
+    typeof p.address?.postalCode === "string" &&
+    typeof p.address?.city === "string"
+  ) {
+    return (
+      p.fullName.trim().length === 0 &&
+      p.address.street.trim().length === 0 &&
+      p.address.postalCode.trim().length === 0 &&
+      p.address.city.trim().length === 0
+    );
   } else {
     return true;
   }
@@ -53,6 +63,7 @@ const Form = z.object({
     }
   }, z.array(Participant)),
   comment: z.string(),
+  bot: z.string().refine((b) => b.length === 0),
 });
 
 export const action: ActionFunction = async ({ params, context, request }) => {
@@ -73,6 +84,7 @@ export const action: ActionFunction = async ({ params, context, request }) => {
 
 interface ParticipantFormProps {
   index: number;
+  errors?: z.ZodIssue[];
   defaultParticipant?: Participant;
 }
 
@@ -91,6 +103,11 @@ function ParticipantForm(props: ParticipantFormProps) {
           label={t("fullNameField")}
           name={withPrefix("fullName")}
           defaultValue={props.defaultParticipant?.fullName}
+          errorMessages={
+            props.errors
+              ? errorsForPath(withPrefix("fullName"), props.errors)
+              : undefined
+          }
         />
         <DateInput
           label={t("birthdayField")}
@@ -98,9 +115,9 @@ function ParticipantForm(props: ParticipantFormProps) {
           defaultDate={
             props.defaultParticipant
               ? [
-                  props.defaultParticipant.birthday.day,
-                  props.defaultParticipant.birthday.month,
-                  props.defaultParticipant.birthday.year,
+                  props.defaultParticipant.birthday.day.toString(),
+                  props.defaultParticipant.birthday.month.toString(),
+                  props.defaultParticipant.birthday.year.toString(),
                 ]
               : undefined
           }
@@ -133,11 +150,13 @@ function ParticipantForm(props: ParticipantFormProps) {
 export default function NewRegistration() {
   const { dateTimeFormatter } = useLocale();
 
-  const [participantCount, setParticipantCount] = useState(1);
-
   const t = useTranslation();
   // TODO: Typing
   const actionData = useActionData();
+
+  const [participantCount, setParticipantCount] = useState<number>(
+    actionData?.values?.participants ? actionData.values.participants.length : 1
+  );
 
   return (
     <>
@@ -173,6 +192,7 @@ export default function NewRegistration() {
                 key={i}
                 index={i}
                 defaultParticipant={actionData?.values?.participants?.[i]}
+                errors={actionData?.errors}
               ></ParticipantForm>
             ))}
             <div>
@@ -190,7 +210,11 @@ export default function NewRegistration() {
             <br />
             <br />
 
-            <TextField label={t("commentField")} name="comment" />
+            <TextField
+              label={t("commentField")}
+              name="comment"
+              defaultValue={actionData?.values?.comment}
+            />
             <SubmitButton title={t("submitRegister")} />
           </form>
         </Col>
