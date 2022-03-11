@@ -16,7 +16,7 @@ import {
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useState } from "react";
-import { Address, Day, Participant } from "~/types";
+import { Address, Day, Participant } from "~/domain/types";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -27,11 +27,7 @@ const AddressSchema: z.ZodSchema<Address> = z.object({
 
 const Int = z.string().regex(/^\d+$/).transform(Number);
 
-const DaySchema: z.ZodSchema<
-  Day,
-  z.ZodTypeDef,
-  { day: string; month: string; year: string }
-> = z
+const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, unknown> = z
   .object({
     day: Int,
     month: Int,
@@ -39,19 +35,12 @@ const DaySchema: z.ZodSchema<
   })
   .transform(({ year, month, day }) => new Day(year, month, day));
 
-const ParticipantSchema: z.ZodSchema<
-  Participant,
-  z.ZodTypeDef,
-  {
-    fullName: string;
-    birthday: { day: string; month: string; year: string };
-    address: Address;
-  }
-> = z.object({
-  fullName: z.string().nonempty(),
-  birthday: DaySchema,
-  address: AddressSchema,
-});
+const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
+  z.object({
+    fullName: z.string().nonempty(),
+    birthday: DaySchema,
+    address: AddressSchema,
+  });
 
 // TODO: Signature is lying
 function participantIsEmpty(p: Participant): boolean {
@@ -102,7 +91,11 @@ export const action: ActionFunction = async ({ params, context, request }) => {
   console.log(JSON.stringify(result));
 
   if (result.success) {
-    await context.app.registerPerson(result.data.email);
+    await context.app.registerPerson(
+      result.data.email,
+      result.data.participants,
+      result.data.comment
+    );
 
     return redirect("success");
   } else {

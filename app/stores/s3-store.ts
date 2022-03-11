@@ -1,4 +1,4 @@
-import { EventEnvelope, Event, EventEnvelopeArray } from "~/types";
+import { EventEnvelope, Event, EventEnvelopeArray } from "~/domain/events";
 import { EventStore } from "./interface";
 import { v4 as uuid } from "uuid";
 import { logger as baseLogger } from "~/logger";

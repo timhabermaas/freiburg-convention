@@ -36,7 +36,9 @@ export function DateInput(props: DateInputProps) {
             defaultValue={getValue(defaultDate, "day")}
           >
             {days.map((d) => (
-              <option value={d}>{d}</option>
+              <option value={d} key={d}>
+                {d}
+              </option>
             ))}
           </select>
         </div>
@@ -47,7 +49,9 @@ export function DateInput(props: DateInputProps) {
             defaultValue={getValue(defaultDate, "month")}
           >
             {months.map(({ monthName, monthValue }) => (
-              <option value={monthValue}>{monthName}</option>
+              <option value={monthValue} key={monthValue}>
+                {monthName}
+              </option>
             ))}
           </select>
         </div>
@@ -58,7 +62,9 @@ export function DateInput(props: DateInputProps) {
             defaultValue={getValue(defaultDate, "year")}
           >
             {years.map((y) => (
-              <option value={y}>{y}</option>
+              <option value={y} key={y}>
+                {y}
+              </option>
             ))}
           </select>
         </div>

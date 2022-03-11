@@ -1,4 +1,4 @@
-import { EventEnvelope, Event } from "~/types";
+import { EventEnvelope, Event } from "~/domain/events";
 
 export interface EventStore {
   readAll(): Promise<EventEnvelope<Event>[]>;

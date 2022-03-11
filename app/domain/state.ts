@@ -1,5 +1,5 @@
 import { EventStore } from "~/stores/interface";
-import { EventEnvelope, Event } from "~/types";
+import { EventEnvelope, Event } from "~/domain/events";
 
 let state: State = { persons: [] };
 

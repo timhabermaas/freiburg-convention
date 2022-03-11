@@ -1,7 +1,8 @@
 import { addEvent } from "./state";
 import { EventStore } from "../stores/interface";
-import { Event, EventEnvelope } from "~/types";
+import { Event, EventEnvelope } from "~/domain/events";
 import { v4 as uuid } from "uuid";
+import { Participant } from "~/domain/types";
 
 interface State {
   personIds: Set<string>;
@@ -23,17 +24,23 @@ export class App {
   }
 
   // TODO: Make sure the mutating functions are pushed to queue (`fastq`) and handled serialized.
-  public async registerPerson(name: string) {
+  public async registerPerson(
+    email: string,
+    participants: Participant[],
+    comment: string
+  ) {
     if (this.state.personIds.size < 100) {
       await this.saveEvent({
-        type: "AddPersonEvent",
-        name: name,
-        personId: uuid(),
+        type: "RegisterEvent",
+        registrationId: uuid(),
+        participants,
+        email,
+        comment,
       });
     }
   }
 
-  public async deletePerson(personId: string) {
+  public async deleteRegistration(personId: string) {
     await this.saveEvent({
       type: "DeletePersonEvent",
       personId,
