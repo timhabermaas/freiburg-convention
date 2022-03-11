@@ -4,11 +4,11 @@ import compression from "compression";
 import winston from "winston";
 import expressWinston from "express-winston";
 import { createRequestHandler } from "@remix-run/express";
-import { replayEvents } from "./app/state";
+import { replayEvents } from "./app/domain/state";
 import { FileStore } from "./app/stores/file-store";
 import { S3Store } from "./app/stores/s3-store";
 import { logger } from "./app/logger";
-import { App } from "./app/writer";
+import { App } from "./app/domain/writer";
 
 import * as build from "@remix-run/dev/server-build";
 

@@ -1,5 +1,5 @@
 import { addEvent } from "./state";
-import { EventStore } from "./stores/interface";
+import { EventStore } from "../stores/interface";
 import { Event, EventEnvelope } from "~/types";
 import { v4 as uuid } from "uuid";
 

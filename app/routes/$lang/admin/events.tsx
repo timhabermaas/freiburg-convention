@@ -1,6 +1,6 @@
 import { LoaderFunction, useLoaderData } from "remix";
 import { EventEnvelope, Event } from "~/types";
-import { getEvents } from "~/state";
+import { getEvents } from "~/domain/state";
 
 export const loader: LoaderFunction = async ({ context }) => {
   return getEvents(context.eventStore);
