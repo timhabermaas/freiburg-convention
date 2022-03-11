@@ -15,7 +15,7 @@ export function DateInput(props: DateInputProps) {
   const days = [...Array(31).keys()].map((d) => d + 1);
   const months = [...Array(12).keys()].map((m) => ({
     monthName: monthFormatter.format(new Date(Date.UTC(2021, m))),
-    monthIndex: m,
+    monthValue: m + 1,
   }));
   const years = arrayFromRange(1900, new Date().getFullYear());
 
@@ -46,8 +46,8 @@ export function DateInput(props: DateInputProps) {
             className="form-control"
             defaultValue={getValue(defaultDate, "month")}
           >
-            {months.map(({ monthName, monthIndex }) => (
-              <option value={monthIndex}>{monthName}</option>
+            {months.map(({ monthName, monthValue }) => (
+              <option value={monthValue}>{monthName}</option>
             ))}
           </select>
         </div>

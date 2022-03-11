@@ -16,7 +16,7 @@ import {
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useState } from "react";
-import { Address, Participant } from "~/types";
+import { Address, Day, Participant } from "~/types";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -28,7 +28,7 @@ const AddressSchema: z.ZodSchema<Address> = z.object({
 const Int = z.string().regex(/^\d+$/).transform(Number);
 
 const DaySchema: z.ZodSchema<
-  Date,
+  Day,
   z.ZodTypeDef,
   { day: string; month: string; year: string }
 > = z
@@ -37,7 +37,7 @@ const DaySchema: z.ZodSchema<
     month: Int,
     year: Int,
   })
-  .transform(({ year, month, day }) => new Date(year, month, day));
+  .transform(({ year, month, day }) => new Day(year, month, day));
 
 const ParticipantSchema: z.ZodSchema<
   Participant,

@@ -9,7 +9,7 @@ export interface Address {
 
 export interface Participant {
   fullName: string;
-  birthday: Date;
+  birthday: Day;
   address: Address;
 }
 
@@ -55,3 +55,19 @@ export const EventEnvelopeSchema = z.object({
 });
 
 export const EventEnvelopeArray = z.array(EventEnvelopeSchema);
+
+export class Day {
+  private day: number;
+  private month: number;
+  private year: number;
+
+  constructor(year: number, month: number, day: number) {
+    this.day = day;
+    this.month = month;
+    this.year = year;
+  }
+
+  public toJSON(): string {
+    return `${this.year}-${this.month}-${this.day}`;
+  }
+}
