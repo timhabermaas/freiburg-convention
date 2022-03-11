@@ -57,9 +57,11 @@ export function parseFormData(formData: FormData): Record<string, unknown> {
  */
 export function arrayFromRange(start: number, end: number): number[] {
   const result = [];
+
   for (let i = start; i <= end; i += 1) {
     result.push(i);
   }
+
   return result;
 }
 
@@ -73,4 +75,61 @@ export function errorsForPath(path: string, issues: z.ZodIssue[]): string[] {
   }
 
   return result;
+}
+
+export interface NestedParams {
+  [key: string]: string | NestedParams | undefined;
+}
+
+export function getObject(
+  params: NestedParams,
+  ...path: string[]
+): NestedParams | undefined {
+  if (path.length === 0) {
+    return params;
+  }
+
+  let result: NestedParams = params;
+
+  while (path.length > 0) {
+    const key = path.pop()!;
+    const n = result[key];
+
+    if (typeof n === "object") {
+      result = n;
+    } else {
+      return undefined;
+    }
+  }
+
+  return result;
+}
+
+export function getValue(
+  param: NestedParams,
+  ...path: string[]
+): string | undefined {
+  const pathCopy = [...path];
+
+  if (pathCopy.length === 0) {
+    throw new Error("path must contain at least one element");
+  }
+
+  const lastKey = pathCopy.pop();
+
+  if (lastKey === undefined) {
+    return undefined;
+  }
+
+  const obj = getObject(param, ...pathCopy);
+  if (obj === undefined) {
+    return undefined;
+  }
+
+  const result = obj[lastKey];
+  if (typeof result === "string") {
+    return result;
+  } else {
+    return undefined;
+  }
 }

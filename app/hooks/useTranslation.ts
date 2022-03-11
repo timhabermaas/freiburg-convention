@@ -54,13 +54,26 @@ const TRANSLATION: Record<
     de: "Du solltest in Kürze eine E-Mail von uns erhalten. Falls nicht, melde dich bitte unter",
   },
   participantHeader: (p) => {
-    // TODO: Format ordinal for English language correctly.
     return {
-      "en-US": `${p.index}. Participant`,
+      "en-US": `${enUsOrdinal(parseInt(p.index, 10))} Participant`,
       de: `${p.index}. Teilnehmer*in`,
     };
   },
 };
+
+function enUsOrdinal(n: number): string {
+  const plural = new Intl.PluralRules("en-US", { type: "ordinal" });
+  const map = {
+    one: "st",
+    two: "nd",
+    few: "rd",
+    many: "th",
+    zero: "th",
+    other: "th",
+  };
+
+  return `${n}${map[plural.select(n)]}`;
+}
 
 export function useTranslation() {
   const { locale } = useLocale();

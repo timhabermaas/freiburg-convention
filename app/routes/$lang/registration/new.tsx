@@ -6,12 +6,19 @@ import { TextField } from "~/components/TextField";
 import { TextInput } from "~/components/TextInput";
 import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
-import { errorsForPath, parseFormData } from "~/utils";
+import {
+  errorsForPath,
+  getObject,
+  getValue,
+  NestedParams,
+  parseFormData,
+} from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useState } from "react";
+import { Address, Participant } from "~/types";
 
-const AddressForm = z.object({
+const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
   postalCode: z.string(),
   city: z.string(),
@@ -20,19 +27,33 @@ const AddressForm = z.object({
 
 const Int = z.string().regex(/^\d+$/).transform(Number);
 
-const Birthday = z.object({
-  day: Int,
-  month: Int,
-  year: Int,
-});
-const Participant = z.object({
+const DaySchema: z.ZodSchema<
+  Date,
+  z.ZodTypeDef,
+  { day: string; month: string; year: string }
+> = z
+  .object({
+    day: Int,
+    month: Int,
+    year: Int,
+  })
+  .transform(({ year, month, day }) => new Date(year, month, day));
+
+const ParticipantSchema: z.ZodSchema<
+  Participant,
+  z.ZodTypeDef,
+  {
+    fullName: string;
+    birthday: { day: string; month: string; year: string };
+    address: Address;
+  }
+> = z.object({
   fullName: z.string().nonempty(),
-  birthday: Birthday,
-  address: AddressForm,
+  birthday: DaySchema,
+  address: AddressSchema,
 });
 
-type Participant = z.TypeOf<typeof Participant>;
-
+// TODO: Signature is lying
 function participantIsEmpty(p: Participant): boolean {
   if (
     typeof p.fullName === "string" &&
@@ -55,13 +76,18 @@ const Form = z.object({
   email: z.string().email(),
   participants: z.preprocess((participants) => {
     if (Array.isArray(participants)) {
-      return participants.filter((participant) => {
+      return participants.filter((participant, i) => {
+        // Always keep first participant
+        if (i === 0) {
+          return true;
+        }
+
         return !participantIsEmpty(participant);
       });
     } else {
       return participants;
     }
-  }, z.array(Participant)),
+  }, z.array(ParticipantSchema)),
   comment: z.string(),
   bot: z.string().refine((b) => b.length === 0),
 });
@@ -70,8 +96,10 @@ export const action: ActionFunction = async ({ params, context, request }) => {
   const formData = await request.formData();
 
   const parsedFormData = parseFormData(formData);
+  console.log(JSON.stringify(parsedFormData));
 
   const result = Form.safeParse(parsedFormData);
+  console.log(JSON.stringify(result));
 
   if (result.success) {
     await context.app.registerPerson(result.data.email);
@@ -85,7 +113,7 @@ export const action: ActionFunction = async ({ params, context, request }) => {
 interface ParticipantFormProps {
   index: number;
   errors?: z.ZodIssue[];
-  defaultParticipant?: Participant;
+  defaultParticipant?: NestedParams;
 }
 
 function ParticipantForm(props: ParticipantFormProps) {
@@ -102,7 +130,7 @@ function ParticipantForm(props: ParticipantFormProps) {
         <TextInput
           label={t("fullNameField")}
           name={withPrefix("fullName")}
-          defaultValue={props.defaultParticipant?.fullName}
+          defaultValue={getValue(props.defaultParticipant ?? {}, "fullName")}
           errorMessages={
             props.errors
               ? errorsForPath(withPrefix("fullName"), props.errors)
@@ -112,35 +140,43 @@ function ParticipantForm(props: ParticipantFormProps) {
         <DateInput
           label={t("birthdayField")}
           name={withPrefix("birthday")}
-          defaultDate={
-            props.defaultParticipant
-              ? [
-                  props.defaultParticipant.birthday.day.toString(),
-                  props.defaultParticipant.birthday.month.toString(),
-                  props.defaultParticipant.birthday.year.toString(),
-                ]
-              : undefined
-          }
+          defaultDate={getObject(props.defaultParticipant ?? {}, "birthday")}
         />
         <TextInput
           label={t("streetField")}
           name={withPrefix("address.street")}
-          defaultValue={props.defaultParticipant?.address?.street}
+          defaultValue={getValue(
+            props.defaultParticipant ?? {},
+            "address",
+            "street"
+          )}
         />
         <TextInput
           label={t("postalCodeField")}
           name={withPrefix("address.postalCode")}
-          defaultValue={props.defaultParticipant?.address?.postalCode}
+          defaultValue={getValue(
+            props.defaultParticipant ?? {},
+            "address",
+            "postalCode"
+          )}
         />
         <TextInput
           label={t("cityField")}
           name={withPrefix("address.city")}
-          defaultValue={props.defaultParticipant?.address?.city}
+          defaultValue={getValue(
+            props.defaultParticipant ?? {},
+            "address",
+            "city"
+          )}
         />
         <TextInput
           label={t("countryField")}
           name={withPrefix("address.country")}
-          defaultValue={props.defaultParticipant?.address?.country}
+          defaultValue={getValue(
+            props.defaultParticipant ?? {},
+            "address",
+            "country"
+          )}
         />
       </Col>
     </Row>
@@ -204,7 +240,7 @@ export default function NewRegistration() {
                   setParticipantCount((c) => c + 1);
                 }}
               >
-                Weitere Teilnehmer*innen anmelden
+                {t("moreParticipants")}
               </a>
             </div>
             <br />
