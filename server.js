@@ -39,7 +39,11 @@ app.use(
 
 let eventStore;
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.EVENT_STORE === "file_store") {
+  eventStore = new FileStore("temp/store.log");
+} else if (process.env.EVENT_STORE === "s3_store") {
+  eventStore = new S3Store("events.json");
+} else if (process.env.NODE_ENV === "production") {
   eventStore = new S3Store("events.json");
 } else {
   eventStore = new FileStore("temp/store.log");
