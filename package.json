@@ -22,6 +22,7 @@
     "zod": "^3.13.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.19.2",
     "@remix-run/dev": "^1.2.1",
     "@types/jest": "^27.4.1",
     "@types/react": "^17.0.24",
@@ -45,6 +46,7 @@
     "dev:node": "node -r dotenv/config node_modules/nodemon/bin/nodemon.js ./build/index.js",
     "start": "NODE_ENV=production node ./build/index.js",
     "typecheck": "tsc -b",
-    "test": "jest"
+    "test": "jest",
+    "end2end": "npx playwright test"
   }
 }
