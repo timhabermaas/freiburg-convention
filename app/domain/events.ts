@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { Address, Day, Participant } from "./types";
+import {
+  Accommodation,
+  Address,
+  Category,
+  Day,
+  OrderedTicket,
+  Participant,
+} from "./types";
 
 export interface EventEnvelope<E> {
   id: string;
@@ -39,11 +46,32 @@ const AddressSchema: z.ZodSchema<Address> = z.object({
   country: z.string(),
 });
 
+const AccommodationSchema: z.ZodSchema<Accommodation, z.ZodTypeDef, unknown> =
+  z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
+
+const CategorySchema: z.ZodSchema<Category, z.ZodTypeDef, unknown> = z.union([
+  z.literal("Baby"),
+  z.literal("Child"),
+  z.literal("OlderThan12"),
+  z.literal("Supporter"),
+]);
+
+const OrderedTicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
+  z.object({
+    from: DaySchema,
+    to: DaySchema,
+    price: z.number(),
+    category: CategorySchema,
+    ticketId: z.string().uuid(),
+  });
+
 const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
   z.object({
     fullName: z.string(),
     birthday: DaySchema,
     address: AddressSchema,
+    ticket: OrderedTicketSchema,
+    accommodation: AccommodationSchema,
   });
 
 export type Event = AddPersonEvent | DeletePersonEvent | RegisterEvent;

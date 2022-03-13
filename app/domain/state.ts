@@ -1,4 +1,4 @@
-import { EventStore } from "~/stores/interface";
+import { EventStore } from "~/services/stores/interface";
 import { EventEnvelope, Event } from "~/domain/events";
 
 let state: State = { persons: [] };

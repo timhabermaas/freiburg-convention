@@ -8,7 +8,7 @@ import { replayEvents } from "./app/domain/state";
 import { FileStore } from "./app/stores/file-store";
 import { S3Store } from "./app/stores/s3-store";
 import { logger } from "./app/logger";
-import { App } from "./app/domain/writer";
+import { App } from "./app/domain/app";
 
 import * as build from "@remix-run/dev/server-build";
 

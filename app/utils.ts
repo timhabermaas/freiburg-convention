@@ -133,3 +133,7 @@ export function getValue(
     return undefined;
   }
 }
+
+export function assertNever(x: never): never {
+  throw new Error("Shouldn't get here, value is ${x} instead of never");
+}

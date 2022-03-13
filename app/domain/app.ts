@@ -1,8 +1,15 @@
 import { addEvent } from "./state";
-import { EventStore } from "../stores/interface";
+import { EventStore } from "../services/stores/interface";
 import { Event, EventEnvelope } from "~/domain/events";
 import { v4 as uuid } from "uuid";
-import { Participant } from "~/domain/types";
+import {
+  Accommodation,
+  Address,
+  Day,
+  Participant,
+  Ticket,
+} from "~/domain/types";
+import { TICKETS } from "./tickets";
 
 interface State {
   personIds: Set<string>;
@@ -26,14 +33,42 @@ export class App {
   // TODO: Make sure the mutating functions are pushed to queue (`fastq`) and handled serialized.
   public async registerPerson(
     email: string,
-    participants: Participant[],
+    participants: {
+      fullName: string;
+      address: Address;
+      ticketId: string;
+      birthday: Day;
+      accommodation: Accommodation;
+    }[],
     comment: string
   ) {
+    const persistedParticipants = participants.map((p) => {
+      const ticket = this.findTicket(p.ticketId);
+
+      if (!ticket) {
+        throw new Error(`couldn't find ticket ${p.ticketId}`);
+      }
+
+      return {
+        fullName: p.fullName,
+        address: p.address,
+        ticket: {
+          from: ticket.from,
+          to: ticket.to,
+          price: ticket.price,
+          category: ticket.category,
+          ticketId: ticket.id,
+        },
+        birthday: p.birthday,
+        accommodation: p.accommodation,
+      };
+    });
+
     if (this.state.personIds.size < 100) {
       await this.saveEvent({
         type: "RegisterEvent",
         registrationId: uuid(),
-        participants,
+        participants: persistedParticipants,
         email,
         comment,
       });
@@ -70,5 +105,9 @@ export class App {
     );
 
     this.apply(eventEnvelope);
+  }
+
+  private findTicket(ticketId: string): Ticket | undefined {
+    return TICKETS.find((t) => t.id === ticketId);
   }
 }

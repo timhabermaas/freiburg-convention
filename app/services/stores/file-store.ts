@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import { v4 as uuid } from "uuid";
-import { EventStore } from "~/stores/interface";
+import { EventStore } from "~/services/stores/interface";
 import { EventEnvelope, Event, EventEnvelopeSchema } from "~/domain/events";
 
 export class FileStore implements EventStore {

@@ -1,3 +1,5 @@
+import { ValidateErrorMessage } from "./ValidateErrorMessage";
+
 export interface TextInputProps {
   label: string;
   name: string;
@@ -9,6 +11,7 @@ export interface TextInputProps {
 
 export function TextInput(props: TextInputProps) {
   const errorMessages = props.errorMessages ?? [];
+
   return (
     <div className={`form-group ${props.hidden ? "d-none" : ""}`}>
       <label htmlFor={props.name}>{props.label}</label>
@@ -22,7 +25,7 @@ export function TextInput(props: TextInputProps) {
         defaultValue={props.defaultValue}
       />
       {errorMessages.length > 0 ? (
-        <div className="invalid-feedback">{errorMessages[0]}</div>
+        <ValidateErrorMessage text={errorMessages[0]} />
       ) : null}
     </div>
   );

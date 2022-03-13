@@ -16,7 +16,12 @@ import {
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useState } from "react";
-import { Address, Day, Participant } from "~/domain/types";
+import { Accommodation, Address, Day, Participant } from "~/domain/types";
+import { RadioGroup } from "~/components/RadioGroup";
+import { TICKETS } from "~/domain/tickets";
+import { Select } from "~/components/Select";
+import { ACCOMMODATIONS } from "~/domain/accommodation";
+import { App } from "~/domain/app";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -35,15 +40,19 @@ const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, unknown> = z
   })
   .transform(({ year, month, day }) => new Day(year, month, day));
 
-const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
-  z.object({
-    fullName: z.string().nonempty(),
-    birthday: DaySchema,
-    address: AddressSchema,
-  });
+const AccommodationSchema: z.ZodSchema<Accommodation, z.ZodTypeDef, unknown> =
+  z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
 
-// TODO: Signature is lying
-function participantIsEmpty(p: Participant): boolean {
+const ParticipantSchema = z.object({
+  fullName: z.string().nonempty(),
+  birthday: DaySchema,
+  address: AddressSchema,
+  ticketId: z.string().uuid(),
+  accommodation: AccommodationSchema,
+});
+
+// TODO: Signature is lying, it's not fully validated yet.
+function participantIsEmpty(p: z.infer<typeof ParticipantSchema>): boolean {
   if (
     typeof p.fullName === "string" &&
     typeof p.address?.street === "string" &&
@@ -82,6 +91,7 @@ const Form = z.object({
 });
 
 export const action: ActionFunction = async ({ params, context, request }) => {
+  const app = context.app as App;
   const formData = await request.formData();
 
   const parsedFormData = parseFormData(formData);
@@ -91,7 +101,7 @@ export const action: ActionFunction = async ({ params, context, request }) => {
   console.log(JSON.stringify(result));
 
   if (result.success) {
-    await context.app.registerPerson(
+    await app.registerPerson(
       result.data.email,
       result.data.participants,
       result.data.comment
@@ -170,6 +180,25 @@ function ParticipantForm(props: ParticipantFormProps) {
             "address",
             "country"
           )}
+        />
+        <RadioGroup
+          label={t("ticketField")}
+          name={withPrefix("ticketId")}
+          options={TICKETS.map((t) => ({ label: t.text, value: t.id }))}
+          defaultValue={getValue(props.defaultParticipant ?? {}, "ticketId")}
+          errorMessages={
+            props.errors
+              ? errorsForPath(withPrefix("ticketId"), props.errors)
+              : undefined
+          }
+        />
+        <Select
+          label={t("accommodationField")}
+          name={withPrefix("accommodation")}
+          options={ACCOMMODATIONS.map((a) => ({
+            label: t(`accommodationField${a}`),
+            value: a,
+          }))}
         />
       </Col>
     </Row>

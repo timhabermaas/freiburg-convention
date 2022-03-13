@@ -31,6 +31,26 @@ const TRANSLATION: Record<
     "en-US": "Country",
     de: "Land",
   },
+  ticketField: {
+    "en-US": "Ticket",
+    de: "Festivalticket",
+  },
+  accommodationField: {
+    "en-US": "Accommodation",
+    de: "Unterkunft",
+  },
+  accommodationFieldgym: {
+    "en-US": "Gym",
+    de: "Schlafhalle",
+  },
+  accommodationFieldtent: {
+    "en-US": "Tent",
+    de: "Zelt neben der Halle",
+  },
+  accommodationFieldselfOrganized: {
+    "en-US": "Self-organized",
+    de: "Ich sorge für meine eigene Übernachtung",
+  },
   commentField: {
     "en-US": "Anything you want to tell us?",
     de: "Willst du uns noch etwas mitteilen?",
