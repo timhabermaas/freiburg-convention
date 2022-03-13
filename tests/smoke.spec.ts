@@ -8,8 +8,7 @@ test.describe("smoke test", () => {
   test("filling out registration should lead to success message", async ({
     page,
   }) => {
-    await page.locator("text=Registrieren").click();
-    await expect(page).toHaveURL("http://localhost:6590/de/registration/new");
+    await expect(page).toHaveURL("http://localhost:6590/p/de/registration/new");
 
     await page.locator('input[name="email"]').fill("foo@bar.com");
     await page
@@ -48,7 +47,7 @@ test.describe("smoke test", () => {
 
     await page.locator('input:has-text("Anmelden")').click();
     await page.waitForNavigation({
-      url: "http://localhost:6590/de/registration/success",
+      url: "http://localhost:6590/p/de/registration/success",
     });
 
     expect(page.locator("h1")).toHaveText("Danke für deine Anmeldung!");

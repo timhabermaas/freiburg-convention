@@ -1,10 +1,8 @@
 import {
   Links,
   LiveReload,
-  LoaderFunction,
   Meta,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useLocation,
@@ -23,14 +21,6 @@ export const meta: MetaFunction = () => {
 export function links() {
   return [{ rel: "stylesheet", href: styles }];
 }
-
-export let loader: LoaderFunction = async ({ request }) => {
-  if (new URL(request.url).pathname === "/") {
-    return redirect("/de");
-  } else {
-    return null;
-  }
-};
 
 export default function App() {
   const { lang } = useParams();
