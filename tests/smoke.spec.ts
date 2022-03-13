@@ -39,6 +39,11 @@ test.describe("smoke test", () => {
       .locator('input[name="participants\\.0\\.address\\.country"]')
       .fill("Welt");
 
+    await page.locator("text=Do.–So., >12 Jahre: 30,00 €").click();
+    await page
+      .locator('select[name="participants\\.0\\.accommodation"]')
+      .selectOption("tent");
+
     await page.locator('textarea[name="comment"]').fill("Ne.");
 
     await page.locator('input:has-text("Anmelden")').click();
