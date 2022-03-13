@@ -11,19 +11,11 @@ export type Accommodation = "gym" | "tent" | "selfOrganized";
 
 export type Category = "Baby" | "Child" | "OlderThan12" | "Supporter";
 
-export interface OrderedTicket {
-  from: Day;
-  to: Day;
-  price: Cents;
-  category: Category;
-  ticketId: string;
-}
-
 export interface Participant {
   fullName: string;
   birthday: Day;
   address: Address;
-  ticket: OrderedTicket;
+  ticket: Ticket;
   accommodation: Accommodation;
 }
 
@@ -56,13 +48,24 @@ export class Day {
       .toString()
       .padStart(2, "0")}`;
   }
+
+  public toUtcDate(): Date {
+    return new Date(Date.UTC(this.year, this.month - 1, this.day));
+  }
 }
 
 export interface Ticket {
-  id: string;
+  ticketId: string;
   category: Category;
   from: Day;
   to: Day;
-  text: string;
   price: Cents;
+}
+
+export interface Mail {
+  from: string;
+  to: string[];
+  cc: string[];
+  subject: string;
+  body: string;
 }

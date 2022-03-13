@@ -13,7 +13,8 @@ import {
 import type { MetaFunction } from "remix";
 import styles from "bootstrap/dist/css/bootstrap.css";
 import { LanguageButton } from "~/components/LanguageButton";
-import { Languages, LocaleContext, SupportedLocales } from "~/hooks/useLocale";
+import { LocaleContext } from "~/hooks/useLocale";
+import { Languages, SupportedLocales } from "./i18n";
 
 export const meta: MetaFunction = () => {
   return { title: "Freiburger Convention 2022" };

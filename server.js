@@ -5,8 +5,10 @@ import winston from "winston";
 import expressWinston from "express-winston";
 import { createRequestHandler } from "@remix-run/express";
 import { replayEvents } from "./app/domain/state";
-import { FileStore } from "./app/stores/file-store";
-import { S3Store } from "./app/stores/s3-store";
+import { FileStore } from "./app/services/stores/file-store";
+import { S3Store } from "./app/services/stores/s3-store";
+import { SesSender } from "./app/services/email/ses-sender";
+import { ConsoleSender } from "./app/services/email/console-sender";
 import { logger } from "./app/logger";
 import { App } from "./app/domain/app";
 
@@ -49,7 +51,15 @@ if (process.env.EVENT_STORE === "file_store") {
   eventStore = new FileStore("temp/store.log");
 }
 
-let APP = new App(eventStore);
+let mailSender;
+
+if (process.env.MAIL_SENDER === "SES") {
+  mailSender = new SesSender();
+} else {
+  mailSender = new ConsoleSender();
+}
+
+let APP = new App(eventStore, mailSender);
 APP.replay();
 
 replayEvents(eventStore);

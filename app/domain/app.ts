@@ -5,11 +5,15 @@ import { v4 as uuid } from "uuid";
 import {
   Accommodation,
   Address,
+  Cents,
   Day,
-  Participant,
+  Mail,
   Ticket,
 } from "~/domain/types";
 import { TICKETS } from "./tickets";
+import { MailSender } from "~/services/email/interface";
+import { formatCurrency } from "~/i18n";
+import { formatTicket } from "~/utils";
 
 interface State {
   personIds: Set<string>;
@@ -18,10 +22,12 @@ interface State {
 
 export class App {
   private eventStore: EventStore;
+  private mailSender: MailSender;
   private state: State = { personIds: new Set(), latestVersion: 0 };
 
-  constructor(eventStore: EventStore) {
+  constructor(eventStore: EventStore, mailSender: MailSender) {
     this.eventStore = eventStore;
+    this.mailSender = mailSender;
   }
 
   public async replay(): Promise<void> {
@@ -43,22 +49,12 @@ export class App {
     comment: string
   ) {
     const persistedParticipants = participants.map((p) => {
-      const ticket = this.findTicket(p.ticketId);
-
-      if (!ticket) {
-        throw new Error(`couldn't find ticket ${p.ticketId}`);
-      }
+      const ticket = this.findTicketOrThrow(p.ticketId);
 
       return {
         fullName: p.fullName,
         address: p.address,
-        ticket: {
-          from: ticket.from,
-          to: ticket.to,
-          price: ticket.price,
-          category: ticket.category,
-          ticketId: ticket.id,
-        },
+        ticket: ticket,
         birthday: p.birthday,
         accommodation: p.accommodation,
       };
@@ -72,6 +68,18 @@ export class App {
         email,
         comment,
       });
+
+      this.mailSender.send(
+        composeMail(
+          email,
+          persistedParticipants[0].fullName,
+          persistedParticipants.map((p) => ({
+            name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
+            price: p.ticket.price,
+          })),
+          comment
+        )
+      );
     }
   }
 
@@ -107,7 +115,88 @@ export class App {
     this.apply(eventEnvelope);
   }
 
-  private findTicket(ticketId: string): Ticket | undefined {
-    return TICKETS.find((t) => t.id === ticketId);
+  private findTicketOrThrow(ticketId: string): Ticket {
+    const ticket = TICKETS.find((t) => t.ticketId === ticketId);
+
+    if (!ticket) {
+      throw new Error(`couldn't find ticket ${ticketId}`);
+    }
+
+    return ticket;
   }
+}
+
+function composeMail(
+  toMailAddress: string,
+  fullName: string,
+  tickets: { name: string; price: Cents }[],
+  comment: string
+): Mail {
+  const totalPrice = formatCurrency(
+    tickets.map((t) => t.price).reduce((a, b) => a + b, 0),
+    "EUR",
+    "de"
+  );
+  const paymentReason = "TODO";
+  const subject = "Bestellbestätigung Freiburger Jonglierfestival";
+  const ticketLines = tickets
+    .map((t) => `* ${t.name}: ${formatCurrency(t.price, "EUR", "de")}`)
+    .join("\n");
+
+  const body = `(English version below)
+
+Liebe/r ${fullName},
+
+du hast für das 23. Freiburger Jonglierfestival folgende Tickets bestellt:
+
+${ticketLines}
+
+Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
+
+Bitte überweise das Geld dafür bis zum 12.05.2022 auf unser Konto:
+
+Empfänger: Jonglieren in Freiburg e.V.
+Bank: Sparkasse Freiburg Nördlicher Breisgau
+IBAN: DE26 6805 0101 0012 0917 91
+BIC: FRSPDE66XXX
+Betrag: ${totalPrice}
+Verwendungszweck: ${paymentReason}
+
+Wir freuen uns Dich auf dem Festival zu sehen.
+Viele Grüße Dein
+Orgateam
+
+
+-------English-------
+
+
+Dear ${fullName},
+
+you ordered the following tickets for the Freiburg Juggling Convention:
+
+${ticketLines}
+
+You sent us the following comment: ${comment}
+
+Please transfer the money to our account until the 12th of May of 2022:
+
+Recipient: Jonglieren in Freiburg e.V.
+Bank: Sparkasse Freiburg Nördlicher Breisgau
+IBAN: DE26 6805 0101 0012 0917 91
+BIC: FRSPDE66XXX
+Amount: ${totalPrice}
+Reference: ${paymentReason}
+
+We're looking forward to meeting you at the festival!
+Cheers!
+Your orga team
+`;
+
+  return {
+    subject,
+    body,
+    from: "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>",
+    to: [toMailAddress],
+    cc: [],
+  };
 }

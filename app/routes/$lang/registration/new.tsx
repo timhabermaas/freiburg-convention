@@ -8,6 +8,7 @@ import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import {
   errorsForPath,
+  formatTicket,
   getObject,
   getValue,
   NestedParams,
@@ -16,7 +17,7 @@ import {
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useState } from "react";
-import { Accommodation, Address, Day, Participant } from "~/domain/types";
+import { Accommodation, Address, Day } from "~/domain/types";
 import { RadioGroup } from "~/components/RadioGroup";
 import { TICKETS } from "~/domain/tickets";
 import { Select } from "~/components/Select";
@@ -120,6 +121,7 @@ interface ParticipantFormProps {
 }
 
 function ParticipantForm(props: ParticipantFormProps) {
+  const { locale } = useLocale();
   const t = useTranslation();
   const withPrefix = (name: string): string =>
     `participants.${props.index}.${name}`;
@@ -184,7 +186,10 @@ function ParticipantForm(props: ParticipantFormProps) {
         <RadioGroup
           label={t("ticketField")}
           name={withPrefix("ticketId")}
-          options={TICKETS.map((t) => ({ label: t.text, value: t.id }))}
+          options={TICKETS.map((t) => ({
+            label: formatTicket(t, locale),
+            value: t.ticketId,
+          }))}
           defaultValue={getValue(props.defaultParticipant ?? {}, "ticketId")}
           errorMessages={
             props.errors

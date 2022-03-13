@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { Ticket } from "./domain/types";
+import { formatCurrency, SupportedLocales, translateCategory } from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
@@ -135,5 +137,19 @@ export function getValue(
 }
 
 export function assertNever(x: never): never {
-  throw new Error("Shouldn't get here, value is ${x} instead of never");
+  throw new Error(`Shouldn't get here, value is ${x} instead of never`);
+}
+
+export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
+  const from = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+    ticket.from.toUtcDate()
+  );
+  const to = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+    ticket.to.toUtcDate()
+  );
+
+  return `${from}.–${to}., ${translateCategory(
+    ticket.category,
+    locale
+  )}: ${formatCurrency(ticket.price, "EUR", locale)}`;
 }
