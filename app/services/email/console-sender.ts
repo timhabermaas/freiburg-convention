@@ -2,7 +2,7 @@ import { Mail } from "~/domain/types";
 import { MailSender } from "./interface";
 
 export class ConsoleSender implements MailSender {
-  send(mail: Mail): void {
+  send(mail: Mail): Promise<void> {
     console.log("===sending email===");
     console.log(`From: ${mail.from}`);
     console.log(`Cc: ${mail.cc}`);
@@ -12,5 +12,7 @@ export class ConsoleSender implements MailSender {
     console.log(mail.body);
     console.log("");
     console.log("===end sending email===");
+
+    return Promise.resolve();
   }
 }

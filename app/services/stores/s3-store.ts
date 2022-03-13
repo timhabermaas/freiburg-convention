@@ -15,7 +15,11 @@ export class S3Store implements EventStore {
 
   constructor(fileName: string) {
     this.fileName = fileName;
-    this.s3 = new S3();
+    this.s3 = new S3({
+      apiVersion: "2006-03-01",
+      region: "eu-central-1",
+      httpOptions: { timeout: 10000 },
+    });
   }
 
   async readAll(): Promise<EventEnvelope<Event>[]> {
