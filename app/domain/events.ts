@@ -15,17 +15,6 @@ export interface EventEnvelope<E> {
   timeStamp: Date;
 }
 
-export interface AddPersonEvent {
-  personId: string;
-  name: string;
-  type: "AddPersonEvent";
-}
-
-export interface DeletePersonEvent {
-  personId: string;
-  type: "DeletePersonEvent";
-}
-
 export interface RegisterEvent {
   registrationId: string;
   participants: Participant[];
@@ -75,28 +64,19 @@ const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
     accommodation: AccommodationSchema,
   });
 
-export type Event = AddPersonEvent | DeletePersonEvent | RegisterEvent;
+export type Event = RegisterEvent;
 
 export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
-  z.discriminatedUnion("type", [
-    z.object({
-      personId: z.string(),
-      name: z.string(),
-      type: z.literal("AddPersonEvent"),
-    }),
-    z.object({
-      personId: z.string(),
-      type: z.literal("DeletePersonEvent"),
-    }),
-    z.object({
-      registrationId: z.string(),
-      participants: z.array(ParticipantSchema),
-      email: z.string(),
-      comment: z.string(),
-      paymentReason: z.string(),
-      type: z.literal("RegisterEvent"),
-    }),
-  ]);
+  //z.discriminatedUnion("type", [
+  z.object({
+    registrationId: z.string(),
+    participants: z.array(ParticipantSchema),
+    email: z.string(),
+    comment: z.string(),
+    paymentReason: z.string(),
+    type: z.literal("RegisterEvent"),
+  });
+//]);
 
 const isoString = z.string().transform((s) => new Date(Date.parse(s)));
 

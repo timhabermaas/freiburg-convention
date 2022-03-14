@@ -251,12 +251,15 @@ export default function NewRegistration() {
             <TextInput label={"Full name"} name="bot" hidden />
 
             {[...Array(participantCount).keys()].map((i) => (
-              <ParticipantForm
-                key={i}
-                index={i}
-                defaultParticipant={actionData?.values?.participants?.[i]}
-                errors={actionData?.errors}
-              ></ParticipantForm>
+              <div>
+                <ParticipantForm
+                  key={i}
+                  index={i}
+                  defaultParticipant={actionData?.values?.participants?.[i]}
+                  errors={actionData?.errors}
+                ></ParticipantForm>
+                <div className="mb-3"></div>
+              </div>
             ))}
             <div>
               <button

@@ -1,4 +1,3 @@
-import { addEvent } from "./state";
 import { EventStore } from "../services/stores/interface";
 import { Event, EventEnvelope } from "~/domain/events";
 import { v4 as uuid } from "uuid";
@@ -20,7 +19,6 @@ import {
 } from "~/utils";
 
 interface State {
-  personIds: Set<string>;
   latestVersion: number;
   registrationCount: number;
 }
@@ -29,7 +27,6 @@ export class App {
   private eventStore: EventStore;
   private mailSender: MailSender;
   private state: State = {
-    personIds: new Set(),
     latestVersion: 0,
     registrationCount: 0,
   };
@@ -74,62 +71,44 @@ export class App {
       this.state.registrationCount
     );
 
-    if (this.state.personIds.size < 100) {
-      await this.saveEvent({
-        type: "RegisterEvent",
-        registrationId: uuid(),
-        participants: persistedParticipants,
-        paymentReason,
-        email,
-        comment,
-      });
-
-      this.mailSender.send(
-        composeMail(
-          email,
-          persistedParticipants[0].fullName,
-          paymentReason,
-          persistedParticipants.map((p) => ({
-            name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
-            price: p.ticket.price,
-          })),
-          comment
-        )
-      );
-    }
-  }
-
-  public async deleteRegistration(personId: string) {
     await this.saveEvent({
-      type: "DeletePersonEvent",
-      personId,
+      type: "RegisterEvent",
+      registrationId: uuid(),
+      participants: persistedParticipants,
+      paymentReason,
+      email,
+      comment,
     });
+
+    this.mailSender.send(
+      composeMail(
+        email,
+        persistedParticipants[0].fullName,
+        paymentReason,
+        persistedParticipants.map((p) => ({
+          name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
+          price: p.ticket.price,
+        })),
+        comment
+      )
+    );
   }
 
   private apply(event: EventEnvelope<Event>): void {
     switch (event.payload.type) {
-      case "AddPersonEvent": {
-        this.state.personIds.add(event.payload.personId);
-        break;
-      }
-      case "DeletePersonEvent": {
-        this.state.personIds.delete(event.payload.personId);
-        break;
-      }
       case "RegisterEvent": {
         this.state.registrationCount += 1;
         break;
       }
       default:
-        assertNever(event.payload);
+        assertNever(event.payload.type);
     }
 
     this.state.latestVersion = event.version;
   }
 
   private async saveEvent(event: Event): Promise<void> {
-    const eventEnvelope = await addEvent(
-      this.eventStore,
+    const eventEnvelope = await this.eventStore.save(
       event,
       this.state.latestVersion + 1
     );

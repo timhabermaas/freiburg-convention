@@ -4,7 +4,6 @@ import compression from "compression";
 import winston from "winston";
 import expressWinston from "express-winston";
 import { createRequestHandler } from "@remix-run/express";
-import { replayEvents } from "./app/domain/state";
 import { FileStore } from "./app/services/stores/file-store";
 import { S3Store } from "./app/services/stores/s3-store";
 import { SesSender } from "./app/services/email/ses-sender";
@@ -61,8 +60,6 @@ if (process.env.MAIL_SENDER === "SES") {
 
 let APP = new App(eventStore, mailSender);
 APP.replay();
-
-replayEvents(eventStore);
 
 app.use(
   expressWinston.logger({

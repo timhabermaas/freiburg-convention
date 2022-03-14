@@ -1,9 +1,8 @@
 import { LoaderFunction, useLoaderData } from "remix";
 import { EventEnvelope, Event } from "~/domain/events";
-import { getEvents } from "~/domain/state";
 
 export const loader: LoaderFunction = async ({ context }) => {
-  return getEvents(context.eventStore);
+  return context.eventStore.readAll();
 };
 
 export default function EventsIndex() {
