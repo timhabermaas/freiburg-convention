@@ -15,17 +15,19 @@ export default function Public() {
     <LocaleContext.Provider value={currentLocale}>
       <div className="container">
         <div className="mb-4"></div>
-        <div className="row justify-content-end">
-          <div className="col-2 text-right">
-            <div className="btn-group btn-group-toggle">
-              {Languages.map(({ title, locale }) => (
-                <LanguageButton
-                  key={locale}
-                  title={title}
-                  href={`/p/${locale}${locationWithoutLanguage}`}
-                  active={locale === currentLocale}
-                />
-              ))}
+        <div className="row">
+          <div className="col">
+            <div className="float-right">
+              <div className="btn-group btn-group-toggle">
+                {Languages.map(({ title, locale }) => (
+                  <LanguageButton
+                    key={locale}
+                    title={title}
+                    href={`/p/${locale}${locationWithoutLanguage}`}
+                    active={locale === currentLocale}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
