@@ -13,17 +13,26 @@ import {
 import { TICKETS } from "./tickets";
 import { MailSender } from "~/services/email/interface";
 import { formatCurrency } from "~/i18n";
-import { formatTicket } from "~/utils";
+import {
+  assertNever,
+  formatTicket,
+  paymentReasonForRegistrationCount,
+} from "~/utils";
 
 interface State {
   personIds: Set<string>;
   latestVersion: number;
+  registrationCount: number;
 }
 
 export class App {
   private eventStore: EventStore;
   private mailSender: MailSender;
-  private state: State = { personIds: new Set(), latestVersion: 0 };
+  private state: State = {
+    personIds: new Set(),
+    latestVersion: 0,
+    registrationCount: 0,
+  };
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
     this.eventStore = eventStore;
@@ -61,11 +70,16 @@ export class App {
       };
     });
 
+    const paymentReason = paymentReasonForRegistrationCount(
+      this.state.registrationCount
+    );
+
     if (this.state.personIds.size < 100) {
       await this.saveEvent({
         type: "RegisterEvent",
         registrationId: uuid(),
         participants: persistedParticipants,
+        paymentReason,
         email,
         comment,
       });
@@ -74,6 +88,7 @@ export class App {
         composeMail(
           email,
           persistedParticipants[0].fullName,
+          paymentReason,
           persistedParticipants.map((p) => ({
             name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
             price: p.ticket.price,
@@ -101,6 +116,12 @@ export class App {
         this.state.personIds.delete(event.payload.personId);
         break;
       }
+      case "RegisterEvent": {
+        this.state.registrationCount += 1;
+        break;
+      }
+      default:
+        assertNever(event.payload);
     }
 
     this.state.latestVersion = event.version;
@@ -130,6 +151,7 @@ export class App {
 function composeMail(
   toMailAddress: string,
   fullName: string,
+  paymentReason: string,
   tickets: { name: string; price: Cents }[],
   comment: string
 ): Mail {
@@ -138,7 +160,6 @@ function composeMail(
     "EUR",
     "de"
   );
-  const paymentReason = "TODO";
   const subject = "Bestellbestätigung Freiburger Jonglierfestival";
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.price, "EUR", "de")}`)

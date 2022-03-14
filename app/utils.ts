@@ -153,3 +153,7 @@ export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
     locale
   )}: ${formatCurrency(ticket.price, "EUR", locale)}`;
 }
+
+export function paymentReasonForRegistrationCount(count: number): string {
+  return `JIF-${101 + count}`;
+}

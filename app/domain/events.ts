@@ -31,6 +31,7 @@ export interface RegisterEvent {
   participants: Participant[];
   email: string;
   comment: string;
+  paymentReason: string;
   type: "RegisterEvent";
 }
 
@@ -92,6 +93,7 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
       participants: z.array(ParticipantSchema),
       email: z.string(),
       comment: z.string(),
+      paymentReason: z.string(),
       type: z.literal("RegisterEvent"),
     }),
   ]);
