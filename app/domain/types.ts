@@ -12,6 +12,7 @@ export type Accommodation = "gym" | "tent" | "selfOrganized";
 export type Category = "Baby" | "Child" | "OlderThan12" | "Supporter";
 
 export interface Participant {
+  participantId: string;
   fullName: string;
   birthday: Day;
   address: Address;

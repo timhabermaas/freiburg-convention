@@ -66,6 +66,7 @@ const TicketSchema: z.ZodSchema<Ticket, z.ZodTypeDef, unknown> = z.object({
 
 const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
   z.object({
+    participantId: z.string().uuid(),
     fullName: z.string(),
     birthday: DaySchema,
     address: AddressSchema,

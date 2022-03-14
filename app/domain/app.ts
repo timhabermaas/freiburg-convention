@@ -52,6 +52,7 @@ export class App {
       const ticket = this.findTicketOrThrow(p.ticketId);
 
       return {
+        participantId: uuid(),
         fullName: p.fullName,
         address: p.address,
         ticket: ticket,
