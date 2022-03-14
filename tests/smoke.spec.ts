@@ -1,14 +1,18 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+
+const PORT = 6590;
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://localhost:6590");
+  await page.goto(`http://localhost:${PORT}`);
 });
 
 test.describe("smoke test", () => {
   test("filling out registration should lead to success message", async ({
     page,
   }) => {
-    await expect(page).toHaveURL("http://localhost:6590/p/de/registration/new");
+    await expect(page).toHaveURL(
+      `http://localhost:${PORT}/p/de/registration/new`
+    );
 
     await page.locator('input[name="email"]').fill("foo@bar.com");
     await page
@@ -47,7 +51,7 @@ test.describe("smoke test", () => {
 
     await page.locator('input:has-text("Anmelden")').click();
     await page.waitForNavigation({
-      url: "http://localhost:6590/p/de/registration/success",
+      url: `http://localhost:${PORT}/p/de/registration/success`,
     });
 
     expect(page.locator("h1")).toHaveText("Danke für deine Anmeldung!");
