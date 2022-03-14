@@ -259,16 +259,15 @@ export default function NewRegistration() {
               ></ParticipantForm>
             ))}
             <div>
-              <a
-                href="#"
-                id="link"
+              <button
+                className="btn btn-info"
                 onClick={(e) => {
                   e.preventDefault();
                   setParticipantCount((c) => c + 1);
                 }}
               >
                 {t("moreParticipants")}
-              </a>
+              </button>
             </div>
             <br />
             <br />
