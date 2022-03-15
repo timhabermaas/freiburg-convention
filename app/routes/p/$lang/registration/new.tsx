@@ -23,6 +23,7 @@ import { TICKETS } from "~/domain/tickets";
 import { Select } from "~/components/Select";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
+import * as i18n from "~/i18n";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -129,11 +130,9 @@ function ParticipantForm(props: ParticipantFormProps) {
   return (
     <Row>
       <Col size="md" cols={12}>
-        <h4>
-          {t("participantHeader", { index: (props.index + 1).toString() })}
-        </h4>
+        <h4>{t(i18n.participantHeader(props.index + 1))}</h4>
         <TextInput
-          label={t("fullNameField")}
+          label={t(i18n.fullNameField)}
           name={withPrefix("fullName")}
           defaultValue={getValue(props.defaultParticipant ?? {}, "fullName")}
           errorMessages={
@@ -143,12 +142,12 @@ function ParticipantForm(props: ParticipantFormProps) {
           }
         />
         <DateInput
-          label={t("birthdayField")}
+          label={t(i18n.birthdayField)}
           name={withPrefix("birthday")}
           defaultDate={getObject(props.defaultParticipant ?? {}, "birthday")}
         />
         <TextInput
-          label={t("streetField")}
+          label={t(i18n.streetField)}
           name={withPrefix("address.street")}
           defaultValue={getValue(
             props.defaultParticipant ?? {},
@@ -157,7 +156,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           )}
         />
         <TextInput
-          label={t("postalCodeField")}
+          label={t(i18n.postalCodeField)}
           name={withPrefix("address.postalCode")}
           defaultValue={getValue(
             props.defaultParticipant ?? {},
@@ -166,7 +165,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           )}
         />
         <TextInput
-          label={t("cityField")}
+          label={t(i18n.cityField)}
           name={withPrefix("address.city")}
           defaultValue={getValue(
             props.defaultParticipant ?? {},
@@ -175,7 +174,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           )}
         />
         <TextInput
-          label={t("countryField")}
+          label={t(i18n.countryField)}
           name={withPrefix("address.country")}
           defaultValue={getValue(
             props.defaultParticipant ?? {},
@@ -184,7 +183,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           )}
         />
         <RadioGroup
-          label={t("ticketField")}
+          label={t(i18n.ticketField)}
           name={withPrefix("ticketId")}
           options={TICKETS.map((t) => ({
             label: formatTicket(t, locale),
@@ -198,10 +197,10 @@ function ParticipantForm(props: ParticipantFormProps) {
           }
         />
         <Select
-          label={t("accommodationField")}
+          label={t(i18n.accommodationField)}
           name={withPrefix("accommodation")}
           options={ACCOMMODATIONS.map((a) => ({
-            label: t(`accommodationField${a}`),
+            label: t(i18n.accommodationFieldType(a)),
             value: a,
           }))}
         />
@@ -225,7 +224,7 @@ export default function NewRegistration() {
     <>
       <Row>
         <Col size="md" cols={12}>
-          <h1 className="text-center">{t("registrationTitle")}</h1>
+          <h1 className="text-center">{t(i18n.registrationTitle)}</h1>
           <h4 className="text-center">
             <small className="text-muted">
               {dateTimeFormatter.format(Date.parse("2022-05-26"))} –{" "}
@@ -238,7 +237,7 @@ export default function NewRegistration() {
         <Col size="lg" cols={6}>
           <form method="post">
             <TextInput
-              label={t("email")}
+              label={t(i18n.email)}
               name="email"
               autoComplete="email"
               defaultValue={actionData?.values?.email}
@@ -269,18 +268,18 @@ export default function NewRegistration() {
                   setParticipantCount((c) => c + 1);
                 }}
               >
-                {t("moreParticipants")}
+                {t(i18n.moreParticipants)}
               </button>
             </div>
             <br />
             <br />
 
             <TextField
-              label={t("commentField")}
+              label={t(i18n.commentField)}
               name="comment"
               defaultValue={actionData?.values?.comment}
             />
-            <SubmitButton title={t("submitRegister")} />
+            <SubmitButton title={t(i18n.submitRegister)} />
           </form>
         </Col>
       </Row>

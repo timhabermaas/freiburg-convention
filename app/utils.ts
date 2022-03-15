@@ -148,10 +148,9 @@ export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
     ticket.to.toUtcDate()
   );
 
-  return `${from}.–${to}., ${translateCategory(
-    ticket.category,
-    locale
-  )}: ${formatCurrency(ticket.price, "EUR", locale)}`;
+  return `${from}.–${to}., ${
+    translateCategory(ticket.category)[locale]
+  }: ${formatCurrency(ticket.price, "EUR", locale)}`;
 }
 
 export function paymentReasonForRegistrationCount(count: number): string {

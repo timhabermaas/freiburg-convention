@@ -1,19 +1,14 @@
-import { TRANSLATION } from "~/i18n";
+import { LanguageMap, SupportedLocales } from "~/i18n";
 import { useLocale } from "./useLocale";
 
-export function useTranslation() {
+function translateF(locale: SupportedLocales): (map: LanguageMap) => string {
+  return (map) => {
+    return map[locale];
+  };
+}
+
+export function useTranslation(): (m: LanguageMap) => string {
   const { locale } = useLocale();
 
-  const t = (key: string, props?: Record<string, string>): string => {
-    const entry = TRANSLATION[key];
-    if (entry && typeof entry === "function") {
-      return entry(props ?? {})[locale];
-    } else if (entry) {
-      return entry[locale];
-    } else {
-      return key;
-    }
-  };
-
-  return t;
+  return translateF(locale);
 }
