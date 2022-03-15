@@ -5,19 +5,12 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLocation,
-  useParams,
 } from "remix";
 import type { MetaFunction } from "remix";
-import styles from "bootstrap/dist/css/bootstrap.css";
 
 export const meta: MetaFunction = () => {
   return { title: "Freiburger Convention 2022" };
 };
-
-export function links() {
-  return [{ rel: "stylesheet", href: styles }];
-}
 
 export default function App() {
   return (

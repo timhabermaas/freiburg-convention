@@ -2,6 +2,11 @@ import { Outlet, useLocation, useParams } from "remix";
 import { LanguageButton } from "~/components/LanguageButton";
 import { LocaleContext } from "~/hooks/useLocale";
 import { Languages, SupportedLocales } from "~/i18n";
+import styles from "bootstrap/dist/css/bootstrap.css";
+
+export function links() {
+  return [{ rel: "stylesheet", href: styles }];
+}
 
 export default function Public() {
   const { lang } = useParams();
