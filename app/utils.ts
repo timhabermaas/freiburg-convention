@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { Ticket } from "./domain/types";
-import { formatCurrency, SupportedLocales, translateCategory } from "./i18n";
+import {
+  formatCurrency,
+  LocaleMap,
+  SupportedLocales,
+  translateCategory,
+} from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
@@ -67,12 +72,41 @@ export function arrayFromRange(start: number, end: number): number[] {
   return result;
 }
 
-export function errorsForPath(path: string, issues: z.ZodIssue[]): string[] {
+function translateIssue(issue: z.ZodIssue): LocaleMap {
+  const def = { de: issue.message, "en-US": issue.message };
+  const required = { de: "Muss ausgefüllt sein", "en-US": "Required" };
+
+  switch (issue.code) {
+    case "invalid_string":
+      return {
+        de: `Invalide ${capitalize(issue.validation)}`,
+        "en-US": `Invalid ${issue.validation}`,
+      };
+    case "invalid_type":
+      if (issue.received === "undefined") {
+        return { de: "Muss ausgefüllt sein", "en-US": "Required" };
+      }
+      break;
+    case "too_small":
+      if (issue.minimum === 1) {
+        return required;
+      }
+      break;
+  }
+
+  return def;
+}
+
+export function errorsForPath(
+  path: string,
+  issues: z.ZodIssue[],
+  locale: SupportedLocales
+): string[] {
   const result = [];
 
   for (const issue of issues) {
     if (issue.path.join(".") === path) {
-      result.push(issue.message + " " + issue.code);
+      result.push(translateIssue(issue)[locale]);
     }
   }
 
@@ -155,4 +189,8 @@ export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
 
 export function paymentReasonForRegistrationCount(count: number): string {
   return `JIF-${101 + count}`;
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

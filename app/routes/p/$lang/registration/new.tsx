@@ -137,7 +137,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           defaultValue={getValue(props.defaultParticipant ?? {}, "fullName")}
           errorMessages={
             props.errors
-              ? errorsForPath(withPrefix("fullName"), props.errors)
+              ? errorsForPath(withPrefix("fullName"), props.errors, locale)
               : undefined
           }
         />
@@ -192,7 +192,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           defaultValue={getValue(props.defaultParticipant ?? {}, "ticketId")}
           errorMessages={
             props.errors
-              ? errorsForPath(withPrefix("ticketId"), props.errors)
+              ? errorsForPath(withPrefix("ticketId"), props.errors, locale)
               : undefined
           }
         />
@@ -210,7 +210,7 @@ function ParticipantForm(props: ParticipantFormProps) {
 }
 
 export default function NewRegistration() {
-  const { dateTimeFormatter } = useLocale();
+  const { dateTimeFormatter, locale } = useLocale();
 
   const t = useTranslation();
   // TODO: Typing
@@ -243,7 +243,7 @@ export default function NewRegistration() {
               defaultValue={actionData?.values?.email}
               errorMessages={
                 actionData?.errors
-                  ? errorsForPath("email", actionData?.errors)
+                  ? errorsForPath("email", actionData?.errors, locale)
                   : undefined
               }
             />
