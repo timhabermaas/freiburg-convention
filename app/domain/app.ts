@@ -7,6 +7,8 @@ import {
   Cents,
   Day,
   Mail,
+  Participant,
+  Registration,
   Ticket,
 } from "~/domain/types";
 import { TICKETS } from "./tickets";
@@ -21,6 +23,8 @@ import {
 interface State {
   latestVersion: number;
   registrationCount: number;
+  participants: [string, Participant][];
+  registrations: Registration[];
 }
 
 export class App {
@@ -29,6 +33,8 @@ export class App {
   private state: State = {
     latestVersion: 0,
     registrationCount: 0,
+    participants: [],
+    registrations: [],
   };
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
@@ -94,10 +100,31 @@ export class App {
     );
   }
 
+  public getAllParticipants(): (Participant & { registrationId: string })[] {
+    return this.state.participants.map(([registrationId, p]) => {
+      return {
+        ...p,
+        registrationId,
+      };
+    });
+  }
+
+  public getAllRegistrations(): Registration[] {
+    return this.state.registrations;
+  }
+
   private apply(event: EventEnvelope<Event>): void {
     switch (event.payload.type) {
       case "RegisterEvent": {
         this.state.registrationCount += 1;
+        event.payload.participants.forEach((p) => {
+          this.state.participants.push([event.payload.registrationId, p]);
+        });
+        this.state.registrations.push({
+          registrationId: event.payload.registrationId,
+          comment: event.payload.comment,
+          email: event.payload.email,
+        });
         break;
       }
       default:

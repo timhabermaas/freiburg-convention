@@ -20,6 +20,12 @@ export interface Participant {
   accommodation: Accommodation;
 }
 
+export interface Registration {
+  registrationId: string;
+  email: string;
+  comment: string;
+}
+
 export class Day {
   private day: number;
   private month: number;

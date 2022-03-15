@@ -1,13 +1,13 @@
-import { LanguageMap, SupportedLocales } from "~/i18n";
+import { type LocaleMap, SupportedLocales } from "~/i18n";
 import { useLocale } from "./useLocale";
 
-function translateF(locale: SupportedLocales): (map: LanguageMap) => string {
+function translateF(locale: SupportedLocales): (map: LocaleMap) => string {
   return (map) => {
     return map[locale];
   };
 }
 
-export function useTranslation(): (m: LanguageMap) => string {
+export function useTranslation(): (m: LocaleMap) => string {
   const { locale } = useLocale();
 
   return translateF(locale);
