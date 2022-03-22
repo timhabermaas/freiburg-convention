@@ -20,7 +20,6 @@ import { useState } from "react";
 import { Accommodation, Address, Day } from "~/domain/types";
 import { RadioGroup } from "~/components/RadioGroup";
 import { TICKETS } from "~/domain/tickets";
-import { Select } from "~/components/Select";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
 import * as i18n from "~/i18n";
@@ -155,24 +154,30 @@ function ParticipantForm(props: ParticipantFormProps) {
             "street"
           )}
         />
-        <TextInput
-          label={t(i18n.postalCodeField)}
-          name={withPrefix("address.postalCode")}
-          defaultValue={getValue(
-            props.defaultParticipant ?? {},
-            "address",
-            "postalCode"
-          )}
-        />
-        <TextInput
-          label={t(i18n.cityField)}
-          name={withPrefix("address.city")}
-          defaultValue={getValue(
-            props.defaultParticipant ?? {},
-            "address",
-            "city"
-          )}
-        />
+        <Row>
+          <Col cols={4}>
+            <TextInput
+              label={t(i18n.postalCodeField)}
+              name={withPrefix("address.postalCode")}
+              defaultValue={getValue(
+                props.defaultParticipant ?? {},
+                "address",
+                "postalCode"
+              )}
+            />
+          </Col>
+          <Col cols={8}>
+            <TextInput
+              label={t(i18n.cityField)}
+              name={withPrefix("address.city")}
+              defaultValue={getValue(
+                props.defaultParticipant ?? {},
+                "address",
+                "city"
+              )}
+            />
+          </Col>
+        </Row>
         <TextInput
           label={t(i18n.countryField)}
           name={withPrefix("address.country")}
@@ -196,13 +201,22 @@ function ParticipantForm(props: ParticipantFormProps) {
               : undefined
           }
         />
-        <Select
+        <RadioGroup
           label={t(i18n.accommodationField)}
           name={withPrefix("accommodation")}
           options={ACCOMMODATIONS.map((a) => ({
             label: t(i18n.accommodationFieldType(a)),
             value: a,
           }))}
+          defaultValue={getValue(
+            props.defaultParticipant ?? {},
+            "accommodation"
+          )}
+          errorMessages={
+            props.errors
+              ? errorsForPath(withPrefix("accommodation"), props.errors, locale)
+              : undefined
+          }
         />
       </Col>
     </Row>

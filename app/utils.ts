@@ -87,6 +87,8 @@ function translateIssue(issue: z.ZodIssue): LocaleMap {
         return { de: "Muss ausgefüllt sein", "en-US": "Required" };
       }
       break;
+    case "invalid_union":
+      return { de: "Muss ausgefüllt sein", "en-US": "Required" };
     case "too_small":
       if (issue.minimum === 1) {
         return required;
