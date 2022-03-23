@@ -59,6 +59,14 @@ export class Day {
   public toUtcDate(): Date {
     return new Date(Date.UTC(this.year, this.month - 1, this.day));
   }
+
+  public isEqual(other: Day): boolean {
+    return (
+      this.day === other.day &&
+      this.month === other.month &&
+      this.year === other.year
+    );
+  }
 }
 
 export interface Ticket {

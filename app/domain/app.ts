@@ -25,7 +25,13 @@ interface State {
   registrationCount: number;
   participants: [string, Participant][];
   registrations: Registration[];
+  // Maps from the accommodation to Thu–Sun/Fri–Sun
+  accommodationMap: Map<Accommodation, [number, number]>;
 }
+
+const THURSDAY = new Day(2022, 5, 26);
+const FRIDAY = new Day(2022, 5, 27);
+const SUNDAY = new Day(2022, 5, 29);
 
 export class App {
   private eventStore: EventStore;
@@ -35,6 +41,7 @@ export class App {
     registrationCount: 0,
     participants: [],
     registrations: [],
+    accommodationMap: new Map(),
   };
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
@@ -113,6 +120,23 @@ export class App {
     return this.state.registrations;
   }
 
+  public getParticipantsFor(
+    accommodation: Accommodation,
+    thuSun: boolean,
+    friSun: boolean
+  ): number {
+    const daysTuple = this.state.accommodationMap.get(accommodation) ?? [0, 0];
+
+    let result = 0;
+    if (thuSun) {
+      result += daysTuple[0];
+    }
+    if (friSun) {
+      result += daysTuple[1];
+    }
+    return result;
+  }
+
   private apply(event: EventEnvelope<Event>): void {
     switch (event.payload.type) {
       case "RegisterEvent": {
@@ -125,6 +149,22 @@ export class App {
           comment: event.payload.comment,
           email: event.payload.email,
         });
+
+        event.payload.participants.forEach((p) => {
+          const tuple = this.state.accommodationMap.get(p.accommodation) ?? [
+            0, 0,
+          ];
+          if (p.ticket.from.isEqual(THURSDAY) && p.ticket.to.isEqual(SUNDAY)) {
+            tuple[0] += 1;
+          } else if (
+            p.ticket.from.isEqual(FRIDAY) &&
+            p.ticket.to.isEqual(SUNDAY)
+          ) {
+            tuple[1] += 1;
+          }
+          this.state.accommodationMap.set(p.accommodation, tuple);
+        });
+
         break;
       }
       default:

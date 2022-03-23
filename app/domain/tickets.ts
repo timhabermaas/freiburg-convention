@@ -15,4 +15,11 @@ export const TICKETS: Ticket[] = [
     category: "Supporter",
     price: 3500,
   },
+  {
+    ticketId: "40086a2b-ef9f-48f7-a9ed-1390b146e840",
+    from: new Day(2022, 5, 27),
+    to: new Day(2022, 5, 29),
+    category: "OlderThan12",
+    price: 2000,
+  },
 ];

@@ -4,10 +4,6 @@
   "description": "",
   "license": "",
   "dependencies": {
-    "@emotion/react": "^11.8.2",
-    "@emotion/styled": "^11.8.1",
-    "@mui/material": "^5.5.0",
-
     "@remix-run/express": "^1.2.1",
     "@remix-run/react": "^1.2.1",
     "aws-sdk": "^2.1076.0",

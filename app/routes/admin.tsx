@@ -1,19 +1,15 @@
-import { Container } from "@mui/material";
 import { Outlet } from "remix";
+import styles from "bootstrap/dist/css/bootstrap.css";
 
 export function links() {
-  return [
-    {
-      href: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
-      rel: "stylesheet",
-    },
-  ];
+  return [{ rel: "stylesheet", href: styles }];
 }
 
 export default function Admin() {
   return (
-    <Container>
+    <div className="container">
+      <div className="mb-4"></div>
       <Outlet />
-    </Container>
+    </div>
   );
 }
