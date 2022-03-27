@@ -54,6 +54,8 @@ jobs:
         run: npm run build
       - name: Run Playwright tests
         run: npm run end2end
+        env:
+          SESSION_SECRET: abc
       - uses: actions/upload-artifact@v2
         if: always()
         with:
