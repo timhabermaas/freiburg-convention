@@ -1,6 +1,6 @@
-import { LoaderFunction, Outlet, redirect } from "remix";
+import { LoaderFunction, redirect } from "remix";
 
-export let loader: LoaderFunction = async ({ request }) => {
+export let loader: LoaderFunction = async () => {
   return redirect("/p/de/registration/new");
 };
 

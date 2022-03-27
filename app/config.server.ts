@@ -1,6 +1,10 @@
+import { assertDefined } from "./utils";
+
 export interface Config {
   mailSender: "SES" | "CONSOLE";
   eventStore: "file_store" | "s3_store";
+  adminPassword: string;
+  sessionSecret: string;
 }
 
 function getConfigFromEnv(): Config {
@@ -11,6 +15,8 @@ function getConfigFromEnv(): Config {
       process.env.NODE_ENV === "production"
         ? "s3_store"
         : "file_store",
+    adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
+    sessionSecret: assertDefined(process.env.SESSION_SECRET),
   };
 }
 

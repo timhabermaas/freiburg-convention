@@ -1,31 +1,33 @@
 import { LoaderFunction, useLoaderData } from "remix";
 import { Col } from "~/components/Col";
-import { Navigation } from "~/components/Navigation";
 import { Row } from "~/components/Row";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
 import { Accommodation, Participant } from "~/domain/types";
 import * as i18n from "~/i18n";
+import { whenAuthorized } from "~/session";
 
 interface LoaderData {
   accommodationTable: [Accommodation, number, number, number][];
   participants: Participant[];
 }
 
-export const loader: LoaderFunction = async ({ context }) => {
-  const app = context.app as App;
+export const loader: LoaderFunction = async ({ context, request }) => {
+  return whenAuthorized<LoaderData>(request, () => {
+    const app = context.app as App;
 
-  const data: LoaderData = {
-    accommodationTable: ACCOMMODATIONS.map((a) => [
-      a,
-      app.getParticipantsFor(a, true, false),
-      app.getParticipantsFor(a, false, true),
-      app.getParticipantsFor(a, true, true),
-    ]),
-    participants: app.getAllParticipants(),
-  };
+    const data: LoaderData = {
+      accommodationTable: ACCOMMODATIONS.map((a) => [
+        a,
+        app.getParticipantsFor(a, true, false),
+        app.getParticipantsFor(a, false, true),
+        app.getParticipantsFor(a, true, true),
+      ]),
+      participants: app.getAllParticipants(),
+    };
 
-  return data;
+    return data;
+  });
 };
 
 export default function Participants() {
@@ -36,24 +38,6 @@ export default function Participants() {
       <Row>
         <Col cols={12}>
           <h1>Teilnehmer*innen</h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col cols={12}>
-          <Navigation
-            items={[
-              {
-                title: "Anmeldungen",
-                href: "/admin/registrations",
-                active: false,
-              },
-              {
-                title: "Teilnehmer*innen",
-                href: "/admin/participants",
-                active: true,
-              },
-            ]}
-          />
         </Col>
       </Row>
       <div className="mb-4"></div>

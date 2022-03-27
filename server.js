@@ -3,6 +3,7 @@ import express from "express";
 import compression from "compression";
 import winston from "winston";
 import expressWinston from "express-winston";
+import slowDown from "express-slow-down";
 import { createRequestHandler } from "@remix-run/express";
 import { FileStore } from "./app/services/stores/file-store";
 import { S3Store } from "./app/services/stores/s3-store";
@@ -19,6 +20,13 @@ const BROWSER_BUILD_DIR = "/build/";
 
 const app = express();
 app.use(compression());
+
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  delayAfter: 1000, // allow 1000 requests per 15 minutes, then...
+  delayMs: 50, // begin adding 50ms of delay per request above 1000:
+});
+app.use(speedLimiter);
 
 // http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
 app.disable("x-powered-by");
