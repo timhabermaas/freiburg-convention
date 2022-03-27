@@ -10,6 +10,7 @@ import { SesSender } from "./app/services/email/ses-sender";
 import { ConsoleSender } from "./app/services/email/console-sender";
 import { logger } from "./app/logger";
 import { App } from "./app/domain/app";
+import { CONFIG } from "./app/config.server";
 
 import * as build from "@remix-run/dev/server-build";
 
@@ -40,19 +41,17 @@ app.use(
 
 let eventStore;
 
-if (process.env.EVENT_STORE === "file_store") {
+if (CONFIG.eventStore === "file_store") {
   eventStore = new FileStore("temp/store.log");
-} else if (process.env.EVENT_STORE === "s3_store") {
-  eventStore = new S3Store("events.json");
-} else if (process.env.NODE_ENV === "production") {
+} else if (CONFIG.eventStore === "s3_store") {
   eventStore = new S3Store("events.json");
 } else {
-  eventStore = new FileStore("temp/store.log");
+  throw new Error("unknown event store");
 }
 
 let mailSender;
 
-if (process.env.MAIL_SENDER === "SES") {
+if (CONFIG.mailSender === "SES") {
   mailSender = new SesSender();
 } else {
   mailSender = new ConsoleSender();
