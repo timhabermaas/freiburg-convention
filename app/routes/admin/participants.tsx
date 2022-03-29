@@ -3,14 +3,25 @@ import { Col } from "~/components/Col";
 import { Row } from "~/components/Row";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
-import { Accommodation, Participant } from "~/domain/types";
+import { useLocale } from "~/hooks/useLocale";
 import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
+import * as z from "zod";
+import { AccommodationSchema, ParticipantSchema } from "~/domain/events";
+import { formatAddress, formatTicket } from "~/utils";
 
-interface LoaderData {
-  accommodationTable: [Accommodation, number, number, number][];
-  participants: Participant[];
-}
+const PaidStatusSchema = z.union([z.literal("paid"), z.literal("notPaid")]);
+
+const LoaderDataSchema = z.object({
+  accommodationTable: z.array(
+    z.tuple([AccommodationSchema, z.number(), z.number(), z.number()])
+  ),
+  participants: z.array(
+    z.tuple([ParticipantSchema, PaidStatusSchema, z.string()])
+  ),
+});
+
+type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
 
 export const loader: LoaderFunction = async ({ context, request }) => {
   return whenAuthorized<LoaderData>(request, () => {
@@ -23,7 +34,13 @@ export const loader: LoaderFunction = async ({ context, request }) => {
         app.getParticipantsFor(a, false, true),
         app.getParticipantsFor(a, true, true),
       ]),
-      participants: app.getAllParticipants(),
+      participants: app
+        .getAllParticipants()
+        .map((p) => [
+          p,
+          app.getPaidStatus(p.registrationId),
+          app.getComment(p.registrationId),
+        ]),
     };
 
     return data;
@@ -31,7 +48,8 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 };
 
 export default function Participants() {
-  const data = useLoaderData<LoaderData>();
+  const data = LoaderDataSchema.parse(useLoaderData<unknown>());
+  const { dateFormatter } = useLocale();
 
   return (
     <>
@@ -66,14 +84,60 @@ export default function Participants() {
                   </tr>
                 )
               )}
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td className="text-right">
+                  <strong>
+                    {data.accommodationTable
+                      .map((row) => row[3])
+                      .reduce((sum, x) => sum + x, 0)}
+                  </strong>
+                  <small> (max 130)</small>
+                </td>
+              </tr>
             </tbody>
           </table>
         </Col>
       </Row>
+      <div className="row mb-2"></div>
       <Row>
         <Col cols={12}>
-          <pre>{data.participants.length}</pre>
-          <pre>{JSON.stringify(data.participants, null, 2)}</pre>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Geburtsdatum</th>
+                <th>Postadresse</th>
+                <th>Ticket</th>
+                <th>Schlafgelegenheit</th>
+                <th>Bezahlt?</th>
+                <th>Mitteilung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.participants.map(([participant, paidStatus, comment]) => (
+                <tr>
+                  <td>{participant.fullName}</td>
+                  <td>
+                    {dateFormatter.format(participant.birthday.toUtcDate())}
+                  </td>
+                  <td>{formatAddress(participant.address)}</td>
+                  <td>{formatTicket(participant.ticket, "de")}</td>
+                  <td>
+                    {
+                      i18n.accommodationFieldTypeShort(
+                        participant.accommodation
+                      )["de"]
+                    }
+                  </td>
+                  <td>{paidStatus}</td>
+                  <td>{comment}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Col>
       </Row>
     </>

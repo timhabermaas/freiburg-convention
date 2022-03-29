@@ -36,8 +36,11 @@ const AddressSchema: z.ZodSchema<Address> = z.object({
   country: z.string(),
 });
 
-const AccommodationSchema: z.ZodSchema<Accommodation, z.ZodTypeDef, unknown> =
-  z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
+export const AccommodationSchema: z.ZodSchema<
+  Accommodation,
+  z.ZodTypeDef,
+  unknown
+> = z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
 
 const CategorySchema: z.ZodSchema<Category, z.ZodTypeDef, unknown> = z.union([
   z.literal("Baby"),
@@ -54,15 +57,18 @@ const TicketSchema: z.ZodSchema<Ticket, z.ZodTypeDef, unknown> = z.object({
   ticketId: z.string().uuid(),
 });
 
-const ParticipantSchema: z.ZodSchema<Participant, z.ZodTypeDef, unknown> =
-  z.object({
-    participantId: z.string().uuid(),
-    fullName: z.string(),
-    birthday: DaySchema,
-    address: AddressSchema,
-    ticket: TicketSchema,
-    accommodation: AccommodationSchema,
-  });
+export const ParticipantSchema: z.ZodSchema<
+  Participant,
+  z.ZodTypeDef,
+  unknown
+> = z.object({
+  participantId: z.string().uuid(),
+  fullName: z.string(),
+  birthday: DaySchema,
+  address: AddressSchema,
+  ticket: TicketSchema,
+  accommodation: AccommodationSchema,
+});
 
 export type Event = RegisterEvent;
 

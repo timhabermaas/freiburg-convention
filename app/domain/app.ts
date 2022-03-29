@@ -7,6 +7,7 @@ import {
   Cents,
   Day,
   Mail,
+  PaidStatus,
   Participant,
   Registration,
   Ticket,
@@ -25,6 +26,8 @@ interface State {
   registrationCount: number;
   participants: [string, Participant][];
   registrations: Registration[];
+  // Maps from registrationId to PaidStatus
+  paidMap: Map<string, PaidStatus>;
   // Maps from the accommodation to Thu–Sun/Fri–Sun
   accommodationMap: Map<Accommodation, [number, number]>;
 }
@@ -42,6 +45,7 @@ export class App {
     participants: [],
     registrations: [],
     accommodationMap: new Map(),
+    paidMap: new Map(),
   };
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
@@ -116,6 +120,17 @@ export class App {
     });
   }
 
+  public getPaidStatus(registrationId: string): PaidStatus {
+    return this.state.paidMap.get(registrationId) ?? "notPaid";
+  }
+
+  public getComment(registrationId: string): string {
+    return (
+      this.state.registrations.find((r) => r.registrationId === registrationId)
+        ?.comment ?? ""
+    );
+  }
+
   public getAllRegistrations(): Registration[] {
     return this.state.registrations;
   }
@@ -164,6 +179,8 @@ export class App {
           }
           this.state.accommodationMap.set(p.accommodation, tuple);
         });
+
+        this.state.paidMap.set(event.payload.registrationId, "notPaid");
 
         break;
       }

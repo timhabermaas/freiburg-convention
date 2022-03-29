@@ -65,6 +65,27 @@ export function accommodationFieldType(accommodation: Accommodation) {
       assertNever(accommodation);
   }
 }
+export function accommodationFieldTypeShort(accommodation: Accommodation) {
+  switch (accommodation) {
+    case "gym":
+      return {
+        "en-US": "Gym",
+        de: "Schlafhalle",
+      };
+    case "tent":
+      return {
+        "en-US": "Tent",
+        de: "Zelt",
+      };
+    case "selfOrganized":
+      return {
+        "en-US": "Self-organized",
+        de: "Woanders",
+      };
+    default:
+      assertNever(accommodation);
+  }
+}
 export const commentField = {
   "en-US": "Anything you want to tell us?",
   de: "Willst du uns noch etwas mitteilen?",

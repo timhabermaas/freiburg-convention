@@ -84,3 +84,5 @@ export interface Mail {
   subject: string;
   body: string;
 }
+
+export type PaidStatus = "paid" | "notPaid";

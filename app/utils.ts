@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Ticket } from "./domain/types";
+import { Address, Ticket } from "./domain/types";
 import {
   formatCurrency,
   LocaleMap,
@@ -203,4 +203,8 @@ export function paymentReasonForRegistrationCount(count: number): string {
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export function formatAddress(address: Address): string {
+  return `${address.street}, ${address.postalCode} ${address.city} (${address.country})`;
 }
