@@ -205,6 +205,21 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-export function formatAddress(address: Address): string {
-  return `${address.street}, ${address.postalCode} ${address.city} (${address.country})`;
+export function formatAddress(
+  address: Address,
+  locale: SupportedLocales
+): string {
+  let country = address.country;
+  try {
+    const translatedCountry = new Intl.DisplayNames(locale, {
+      type: "region",
+    }).of(address.country);
+    if (translatedCountry) {
+      country = translatedCountry;
+    }
+  } catch {
+    // Ignoring invalid_argument exception when translating country
+  }
+
+  return `${address.street}, ${address.postalCode} ${address.city} (${country})`;
 }

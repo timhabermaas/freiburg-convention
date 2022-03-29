@@ -123,7 +123,7 @@ export default function Participants() {
                   <td>
                     {dateFormatter.format(participant.birthday.toUtcDate())}
                   </td>
-                  <td>{formatAddress(participant.address)}</td>
+                  <td>{formatAddress(participant.address, "de")}</td>
                   <td>{formatTicket(participant.ticket, "de")}</td>
                   <td>
                     {

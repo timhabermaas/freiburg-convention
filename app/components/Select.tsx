@@ -15,7 +15,7 @@ export function Select(props: SelectProps) {
         defaultValue={props.defaultValue}
       >
         {props.options.map((option) => (
-          <option value={option.value} key={option.label}>
+          <option value={option.value} key={option.value}>
             {option.label}
           </option>
         ))}

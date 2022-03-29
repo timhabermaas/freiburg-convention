@@ -155,3 +155,25 @@ export function formatCurrency(
     currency: currency,
   }).format(n / 100);
 }
+
+export function sortedCountryList(
+  countryCodes: string[],
+  locale: SupportedLocales
+): { label: string; value: string }[] {
+  const countryFormatter = new Intl.DisplayNames(locale, { type: "region" });
+
+  return countryCodes
+    .map((code) => ({
+      label: countryFormatter.of(code) ?? code,
+      value: code,
+    }))
+    .sort((a, b) => compareStrings(a.label, b.label, locale));
+}
+
+export function compareStrings(
+  a: string,
+  b: string,
+  locale: SupportedLocales
+): number {
+  return new Intl.Collator(locale).compare(a, b);
+}

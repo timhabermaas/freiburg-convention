@@ -23,6 +23,8 @@ import { TICKETS } from "~/domain/tickets";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
 import * as i18n from "~/i18n";
+import { Select } from "~/components/Select";
+import { COUNTRIES } from "~/constants";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -178,14 +180,15 @@ function ParticipantForm(props: ParticipantFormProps) {
             />
           </Col>
         </Row>
-        <TextInput
+        <Select
           label={t(i18n.countryField)}
           name={withPrefix("address.country")}
           defaultValue={getValue(
-            props.defaultParticipant ?? {},
+            props.defaultParticipant ?? { address: { country: "DE" } },
             "address",
             "country"
           )}
+          options={i18n.sortedCountryList(COUNTRIES, locale)}
         />
         <RadioGroup
           label={t(i18n.ticketField)}

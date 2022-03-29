@@ -7,6 +7,7 @@ export function useLocale(): {
   locale: SupportedLocales;
   dateTimeFormatter: Intl.DateTimeFormat;
   dateFormatter: Intl.DateTimeFormat;
+  countryFormatter: Intl.DisplayNames;
 } {
   const locale = useContext(LocaleContext);
   return {
@@ -17,5 +18,6 @@ export function useLocale(): {
       month: "numeric",
       day: "numeric",
     }),
+    countryFormatter: new Intl.DisplayNames(locale, { type: "region" }),
   };
 }

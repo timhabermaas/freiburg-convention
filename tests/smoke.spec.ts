@@ -39,8 +39,8 @@ test.describe("smoke test", () => {
       .locator('input[name="participants\\.0\\.address\\.city"]')
       .fill("Münchhausen");
     await page
-      .locator('input[name="participants\\.0\\.address\\.country"]')
-      .fill("Welt");
+      .locator('select[name="participants\\.0\\.address\\.country"]')
+      .selectOption("AT");
 
     await page.locator("text=Do.–So., >12 Jahre: 30,00 €").click();
     await page.locator("text=Zelt").click();
