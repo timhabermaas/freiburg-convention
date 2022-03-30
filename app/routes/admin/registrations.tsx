@@ -8,8 +8,10 @@ import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
 import { isoDateString, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
-import { TextInput } from "~/components/TextInput";
 import Fuse from "fuse.js";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const LoaderDataSchema = z.object({
   registrations: z.array(
@@ -84,13 +86,24 @@ export default function Registrations() {
       </Row>
       <Row>
         <Col cols={12}>
-          <TextInput
-            label="foo"
-            name="search"
-            onChange={(text) => {
-              setSearchText(text);
-            }}
-          />
+          <div className="form-group">
+            <div className="input-group">
+              <div className="input-group-prepend">
+                <span className="input-group-text">🔎</span>
+              </div>
+              <input
+                className="form-control"
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                }}
+              />
+            </div>
+            {searchText.trim().length > 0 && (
+              <small className="form-text text-muted">
+                {registrations.length} Treffer
+              </small>
+            )}
+          </div>
         </Col>
       </Row>
       <Row>
@@ -146,21 +159,18 @@ export default function Registrations() {
                             action="/registrations/103/delete"
                             method="post"
                           >
-                            <input
-                              className="btn btn-danger"
+                            <button
+                              className="btn btn-danger btn-sm"
                               type="submit"
                               name="delete"
-                              value="Löschen"
-                            />
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
                           </form>
                         </div>
                         <div className="col-md-6">
                           <form action="/registrations/103/pay" method="post">
-                            <input
-                              className="btn btn-primary"
-                              type="submit"
-                              value="Bezahlt"
-                            />
+                            <PayButton />
                           </form>
                         </div>
                       </div>
@@ -209,5 +219,39 @@ function SubParticipantTable(props: SubParticipantTableProps) {
         ))}
       </tbody>
     </table>
+  );
+}
+
+function PayButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="btn-group">
+      <button
+        type="button"
+        className="btn btn-primary btn-sm"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <FontAwesomeIcon icon={faSackDollar} />
+      </button>
+      <button
+        type="button"
+        className="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
+      ></button>
+      <div
+        className={`dropdown-menu${open ? " show" : ""}`}
+        aria-labelledby="dropdownMenuButton"
+      >
+        <a className="dropdown-item" href="#">
+          Teilweise bezahlt
+        </a>
+      </div>
+    </div>
   );
 }
