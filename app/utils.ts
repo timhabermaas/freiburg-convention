@@ -223,3 +223,12 @@ export function formatAddress(
 
   return `${address.street}, ${address.postalCode} ${address.city} (${country})`;
 }
+
+export const isoDateString = z
+  .string()
+  .transform((s) => new Date(Date.parse(s)));
+
+export const PaidStatusSchema = z.union([
+  z.literal("paid"),
+  z.literal("notPaid"),
+]);

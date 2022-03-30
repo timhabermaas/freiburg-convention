@@ -8,9 +8,7 @@ import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import { AccommodationSchema, ParticipantSchema } from "~/domain/events";
-import { formatAddress, formatTicket } from "~/utils";
-
-const PaidStatusSchema = z.union([z.literal("paid"), z.literal("notPaid")]);
+import { formatAddress, formatTicket, PaidStatusSchema } from "~/utils";
 
 const LoaderDataSchema = z.object({
   accommodationTable: z.array(
@@ -30,9 +28,9 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     const data: LoaderData = {
       accommodationTable: ACCOMMODATIONS.map((a) => [
         a,
-        app.getParticipantsFor(a, true, false),
-        app.getParticipantsFor(a, false, true),
-        app.getParticipantsFor(a, true, true),
+        app.getParticipantsForAccommodation(a, true, false),
+        app.getParticipantsForAccommodation(a, false, true),
+        app.getParticipantsForAccommodation(a, true, true),
       ]),
       participants: app
         .getAllParticipants()
@@ -73,7 +71,7 @@ export default function Participants() {
             <tbody>
               {data.accommodationTable.map(
                 ([accommodation, thuSun, friSun, total]) => (
-                  <tr>
+                  <tr key={accommodation}>
                     <th>{i18n.accommodationFieldType(accommodation).de}</th>
                     <td className="text-right">{thuSun}</td>
                     <td className="text-right">{friSun}</td>
@@ -118,7 +116,7 @@ export default function Participants() {
             </thead>
             <tbody>
               {data.participants.map(([participant, paidStatus, comment]) => (
-                <tr>
+                <tr key={participant.participantId}>
                   <td>{participant.fullName}</td>
                   <td>
                     {dateFormatter.format(participant.birthday.toUtcDate())}

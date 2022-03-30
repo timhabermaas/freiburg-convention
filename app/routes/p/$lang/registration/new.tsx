@@ -227,7 +227,7 @@ function ParticipantForm(props: ParticipantFormProps) {
 }
 
 export default function NewRegistration() {
-  const { dateTimeFormatter, locale } = useLocale();
+  const { dateFormatter, locale } = useLocale();
 
   const t = useTranslation();
   // TODO: Typing
@@ -244,8 +244,8 @@ export default function NewRegistration() {
           <h1 className="text-center">{t(i18n.registrationTitle)}</h1>
           <h4 className="text-center">
             <small className="text-muted">
-              {dateTimeFormatter.format(Date.parse("2022-05-26"))} –{" "}
-              {dateTimeFormatter.format(Date.parse("2022-05-29"))}
+              {dateFormatter.format(Date.parse("2022-05-26"))} –{" "}
+              {dateFormatter.format(Date.parse("2022-05-29"))}
             </small>
           </h4>
         </Col>

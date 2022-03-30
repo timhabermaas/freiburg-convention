@@ -12,11 +12,10 @@ export function useLocale(): {
   const locale = useContext(LocaleContext);
   return {
     locale,
-    dateTimeFormatter: new Intl.DateTimeFormat(locale),
-    dateFormatter: new Intl.DateTimeFormat(locale, {
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
+    dateFormatter: new Intl.DateTimeFormat(locale),
+    dateTimeFormatter: new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "medium",
     }),
     countryFormatter: new Intl.DisplayNames(locale, { type: "region" }),
   };

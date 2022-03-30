@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isoDateString } from "~/utils";
 import {
   Accommodation,
   Address,
@@ -84,13 +85,11 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
   });
 //]);
 
-const isoString = z.string().transform((s) => new Date(Date.parse(s)));
-
 export const EventEnvelopeSchema = z.object({
   id: z.string(),
   version: z.number(),
   payload: EventSchema,
-  timeStamp: isoString,
+  timeStamp: isoDateString,
 });
 
 export const EventEnvelopeArray = z.array(EventEnvelopeSchema);

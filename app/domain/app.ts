@@ -146,7 +146,13 @@ export class App {
     return this.state.registrations;
   }
 
-  public getParticipantsFor(
+  public getParticipantsForRegistration(registrationId: string): Participant[] {
+    return this.state.participants
+      .filter(([rId, _p]) => rId === registrationId)
+      .map(([_rId, p]) => p);
+  }
+
+  public getParticipantsForAccommodation(
     accommodation: Accommodation,
     thuSun: boolean,
     friSun: boolean
@@ -174,6 +180,8 @@ export class App {
           registrationId: event.payload.registrationId,
           comment: event.payload.comment,
           email: event.payload.email,
+          paymentReason: event.payload.paymentReason,
+          registeredAt: event.timeStamp,
         });
 
         event.payload.participants.forEach((p) => {

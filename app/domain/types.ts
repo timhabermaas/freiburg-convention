@@ -24,6 +24,8 @@ export interface Registration {
   registrationId: string;
   email: string;
   comment: string;
+  paymentReason: string;
+  registeredAt: Date;
 }
 
 export class Day {
