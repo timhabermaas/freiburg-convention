@@ -5,6 +5,6 @@ node_modules
 /public/build
 /build
 .env
-/temp/store.log
+/temp
 test-results/
 playwright-report/

@@ -51,6 +51,17 @@ export class App {
   constructor(eventStore: EventStore, mailSender: MailSender) {
     this.eventStore = eventStore;
     this.mailSender = mailSender;
+
+    setTimeout(() => {
+      // Backup after startup, necessary for heroku and other cloud providers which don't keep the process running.
+      this.eventStore.backup();
+
+      // TODO: Clean up the interval at some point.
+      setInterval(() => {
+        this.eventStore.backup();
+        // Backup every 6 hours
+      }, 6 * 60 * 60 * 1000);
+    }, 1000);
   }
 
   public async replay(): Promise<void> {

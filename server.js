@@ -52,7 +52,7 @@ let eventStore;
 if (CONFIG.eventStore === "file_store") {
   eventStore = new FileStore("temp/store.log");
 } else if (CONFIG.eventStore === "s3_store") {
-  eventStore = new S3Store("events.json");
+  eventStore = new S3Store("events");
 } else {
   throw new Error("unknown event store");
 }

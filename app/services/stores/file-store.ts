@@ -28,7 +28,10 @@ export class FileStore implements EventStore {
     return Promise.resolve(result);
   }
 
-  save(payload: Event, versionNumber: number): Promise<EventEnvelope<Event>> {
+  async save(
+    payload: Event,
+    versionNumber: number
+  ): Promise<EventEnvelope<Event>> {
     const event = {
       payload,
       id: uuid(),
@@ -39,7 +42,16 @@ export class FileStore implements EventStore {
     this.ensureFileExists();
     fs.appendFileSync(this.fileName, JSON.stringify(event) + "\n");
 
-    return Promise.resolve(event);
+    return event;
+  }
+
+  async backup(): Promise<void> {
+    this.ensureFileExists();
+
+    fs.copyFileSync(
+      this.fileName,
+      `${this.fileName}-backup-${new Date().toISOString()}`
+    );
   }
 
   private ensureFileExists() {
