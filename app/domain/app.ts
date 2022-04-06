@@ -6,6 +6,7 @@ import {
   Address,
   Cents,
   Day,
+  Limits,
   Mail,
   PaidStatus,
   Participant,
@@ -31,6 +32,7 @@ interface State {
   paidMap: Map<string, PaidStatus>;
   // Maps from the accommodation to Thu–Sun/Fri–Sun
   accommodationMap: Map<Accommodation, [number, number]>;
+  limits: Limits;
 }
 
 const THURSDAY = new Day(2022, 5, 26);
@@ -47,6 +49,11 @@ export class App {
     registrations: [],
     accommodationMap: new Map(),
     paidMap: new Map(),
+    limits: {
+      total: 250,
+      gym: 25,
+      camping: 150,
+    },
   };
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
@@ -139,6 +146,10 @@ export class App {
         registrationId,
       };
     });
+  }
+
+  public getLimits(): Limits {
+    return this.state.limits;
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {

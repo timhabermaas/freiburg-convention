@@ -112,3 +112,9 @@ export interface Mail {
 }
 
 export type PaidStatus = "paid" | "notPaid";
+
+export interface Limits {
+  total?: number;
+  camping?: number;
+  gym?: number;
+}

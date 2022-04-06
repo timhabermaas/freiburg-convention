@@ -14,6 +14,21 @@ import {
   PaidStatusSchema,
   ticketPrice,
 } from "~/utils";
+import { Accommodation, Limits } from "~/domain/types";
+
+function getLimitFor(
+  accommodation: Accommodation,
+  limits: Limits
+): number | undefined {
+  switch (accommodation) {
+    case "gym":
+      return limits.gym;
+    case "tent":
+      return limits.camping;
+    default:
+      return undefined;
+  }
+}
 
 const LoaderDataSchema = z.object({
   accommodationTable: z.array(
@@ -22,6 +37,11 @@ const LoaderDataSchema = z.object({
   participants: z.array(
     z.tuple([ParticipantSchema, PaidStatusSchema, z.string()])
   ),
+  limits: z.object({
+    total: z.optional(z.number()),
+    camping: z.optional(z.number()),
+    gym: z.optional(z.number()),
+  }),
 });
 
 type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
@@ -44,6 +64,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
           app.getPaidStatus(p.registrationId),
           app.getComment(p.registrationId),
         ]),
+      limits: app.getLimits(),
     };
 
     return data;
@@ -82,7 +103,10 @@ export default function Participants() {
                     <td className="text-right">{friSun}</td>
                     <td className="text-right">
                       <strong>{total}</strong>
-                      <small> (max 65)</small>
+                      <small>
+                        {" "}
+                        (max {getLimitFor(accommodation, data.limits) ?? "∞"})
+                      </small>
                     </td>
                   </tr>
                 )
@@ -97,7 +121,7 @@ export default function Participants() {
                       .map((row) => row[3])
                       .reduce((sum, x) => sum + x, 0)}
                   </strong>
-                  <small> (max 130)</small>
+                  <small> (max {data.limits.total})</small>
                 </td>
               </tr>
             </tbody>
