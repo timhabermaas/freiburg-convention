@@ -1,11 +1,7 @@
 import { z } from "zod";
-import { Address, Ticket } from "./domain/types";
-import {
-  formatCurrency,
-  LocaleMap,
-  SupportedLocales,
-  translateCategory,
-} from "./i18n";
+import { Address, OrderedTicket, Ticket } from "./domain/types";
+import { LocaleMap, SupportedLocales, translateCategory } from "./i18n";
+import * as i18n from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
@@ -185,6 +181,22 @@ export function assertDefined<T>(x: T | null | undefined): T {
 }
 
 export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
+  return `${formatTimeSpan(ticket, locale)}, ${
+    translateCategory(ticket.ageCategory)[locale]
+  }`;
+}
+
+export function formatDuration(
+  ticket: Ticket,
+  locale: SupportedLocales
+): string {
+  return `${ticket.to.diffInDays(ticket.from) + 1} ${i18n.days[locale]}`;
+}
+
+export function formatTimeSpan(
+  ticket: Ticket,
+  locale: SupportedLocales
+): string {
   const from = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
     ticket.from.toUtcDate()
   );
@@ -192,9 +204,7 @@ export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
     ticket.to.toUtcDate()
   );
 
-  return `${from}.–${to}., ${
-    translateCategory(ticket.category)[locale]
-  }: ${formatCurrency(ticket.price, "EUR", locale)}`;
+  return `${from}.–${to}.`;
 }
 
 export function paymentReasonForRegistrationCount(count: number): string {
@@ -232,3 +242,7 @@ export const PaidStatusSchema = z.union([
   z.literal("paid"),
   z.literal("notPaid"),
 ]);
+
+export function ticketPrice(ticket: OrderedTicket): number {
+  return ticket.price + ticket.priceModifier;
+}

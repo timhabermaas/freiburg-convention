@@ -19,6 +19,7 @@ import {
   assertNever,
   formatTicket,
   paymentReasonForRegistrationCount,
+  ticketPrice,
 } from "~/utils";
 
 interface State {
@@ -79,6 +80,7 @@ export class App {
       ticketId: string;
       birthday: Day;
       accommodation: Accommodation;
+      priceModifier?: "Supporter" | "Cheaper";
     }[],
     comment: string
   ) {
@@ -89,7 +91,15 @@ export class App {
         participantId: uuid(),
         fullName: p.fullName,
         address: p.address,
-        ticket: ticket,
+        ticket: {
+          ...ticket,
+          priceModifier:
+            p.priceModifier === "Supporter"
+              ? 1000
+              : p.priceModifier === "Cheaper"
+              ? -1000
+              : 0,
+        },
         birthday: p.birthday,
         accommodation: p.accommodation,
       };
@@ -115,7 +125,7 @@ export class App {
         paymentReason,
         persistedParticipants.map((p) => ({
           name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
-          price: p.ticket.price,
+          fullPrice: ticketPrice(p.ticket),
         })),
         comment
       )
@@ -234,17 +244,17 @@ function composeMail(
   toMailAddress: string,
   fullName: string,
   paymentReason: string,
-  tickets: { name: string; price: Cents }[],
+  tickets: { name: string; fullPrice: Cents }[],
   comment: string
 ): Mail {
   const totalPrice = formatCurrency(
-    tickets.map((t) => t.price).reduce((a, b) => a + b, 0),
+    tickets.map((t) => t.fullPrice).reduce((a, b) => a + b, 0),
     "EUR",
     "de"
   );
   const subject = "Bestellbestätigung Freiburger Jonglierfestival";
   const ticketLines = tickets
-    .map((t) => `* ${t.name}: ${formatCurrency(t.price, "EUR", "de")}`)
+    .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
 
   const body = `(English version below)

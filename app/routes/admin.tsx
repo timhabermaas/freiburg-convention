@@ -25,6 +25,11 @@ export default function Admin() {
                 Teilnehmer*innen
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/admin/events">
+                Events
+              </Link>
+            </li>
           </ul>
           <form
             className="form-inline my-2 my-lg-0"

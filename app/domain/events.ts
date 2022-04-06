@@ -3,10 +3,10 @@ import { isoDateString } from "~/utils";
 import {
   Accommodation,
   Address,
-  Category,
+  AgeCategory,
   Day,
   Participant,
-  Ticket,
+  OrderedTicket,
 } from "./types";
 
 export interface EventEnvelope<E> {
@@ -43,20 +43,18 @@ export const AccommodationSchema: z.ZodSchema<
   unknown
 > = z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
 
-const CategorySchema: z.ZodSchema<Category, z.ZodTypeDef, unknown> = z.union([
-  z.literal("Baby"),
-  z.literal("Child"),
-  z.literal("OlderThan12"),
-  z.literal("Supporter"),
-]);
+const AgeCategorySchema: z.ZodSchema<AgeCategory, z.ZodTypeDef, unknown> =
+  z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
 
-const TicketSchema: z.ZodSchema<Ticket, z.ZodTypeDef, unknown> = z.object({
-  from: DaySchema,
-  to: DaySchema,
-  price: z.number(),
-  category: CategorySchema,
-  ticketId: z.string().uuid(),
-});
+const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
+  z.object({
+    from: DaySchema,
+    to: DaySchema,
+    price: z.number(),
+    ageCategory: AgeCategorySchema,
+    ticketId: z.string(),
+    priceModifier: z.number(),
+  });
 
 export const ParticipantSchema: z.ZodSchema<
   Participant,

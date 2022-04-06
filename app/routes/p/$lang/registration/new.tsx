@@ -8,7 +8,6 @@ import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import {
   errorsForPath,
-  formatTicket,
   getObject,
   getValue,
   NestedParams,
@@ -16,7 +15,7 @@ import {
 } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Accommodation, Address, Day } from "~/domain/types";
 import { RadioGroup } from "~/components/RadioGroup";
 import { TICKETS } from "~/domain/tickets";
@@ -25,6 +24,7 @@ import { App } from "~/domain/app";
 import * as i18n from "~/i18n";
 import { Select } from "~/components/Select";
 import { COUNTRIES } from "~/constants";
+import { TicketCardGroup } from "~/components/TicketCardGroup";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string(),
@@ -50,7 +50,10 @@ const ParticipantSchema = z.object({
   fullName: z.string().nonempty(),
   birthday: DaySchema,
   address: AddressSchema,
-  ticketId: z.string().uuid(),
+  ticketId: z.string(),
+  priceModifier: z.optional(
+    z.union([z.literal("Supporter"), z.literal("Cheaper")])
+  ),
   accommodation: AccommodationSchema,
 });
 
@@ -124,6 +127,14 @@ interface ParticipantFormProps {
 
 function ParticipantForm(props: ParticipantFormProps) {
   const { locale } = useLocale();
+  const [selectedTicketId, setSelectedTicketId] = useState<string | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    setSelectedTicketId(getValue(props.defaultParticipant ?? {}, "ticketId"));
+  }, [getValue(props.defaultParticipant ?? {}, "ticketId")]);
+
   const t = useTranslation();
   const withPrefix = (name: string): string =>
     `participants.${props.index}.${name}`;
@@ -191,20 +202,6 @@ function ParticipantForm(props: ParticipantFormProps) {
           options={i18n.sortedCountryList(COUNTRIES, locale)}
         />
         <RadioGroup
-          label={t(i18n.ticketField)}
-          name={withPrefix("ticketId")}
-          options={TICKETS.map((t) => ({
-            label: formatTicket(t, locale),
-            value: t.ticketId,
-          }))}
-          defaultValue={getValue(props.defaultParticipant ?? {}, "ticketId")}
-          errorMessages={
-            props.errors
-              ? errorsForPath(withPrefix("ticketId"), props.errors, locale)
-              : undefined
-          }
-        />
-        <RadioGroup
           label={t(i18n.accommodationField)}
           name={withPrefix("accommodation")}
           options={ACCOMMODATIONS.map((a) => ({
@@ -221,6 +218,28 @@ function ParticipantForm(props: ParticipantFormProps) {
               : undefined
           }
         />
+        <Row>
+          <Col cols={12}>
+            <h5>{t(i18n.ticketField)}</h5>
+            <TicketCardGroup
+              tickets={TICKETS}
+              ticketName={withPrefix("ticketId")}
+              priceModifierName={withPrefix("priceModifier")}
+              locale={locale}
+              defaultTicketId={selectedTicketId}
+              defaultPriceModifier={getValue(
+                props.defaultParticipant ?? {},
+                "priceModifier"
+              )}
+              onClickTicket={setSelectedTicketId}
+              errorMessages={
+                props.errors
+                  ? errorsForPath(withPrefix("ticketId"), props.errors, locale)
+                  : undefined
+              }
+            />
+          </Col>
+        </Row>
       </Col>
     </Row>
   );
@@ -251,7 +270,7 @@ export default function NewRegistration() {
         </Col>
       </Row>
       <Row centered>
-        <Col size="lg" cols={6}>
+        <Col size="lg" cols={7}>
           <form method="post">
             <TextInput
               label={t(i18n.email)}
@@ -267,7 +286,7 @@ export default function NewRegistration() {
             <TextInput label={"Full name"} name="bot" hidden />
 
             {[...Array(participantCount).keys()].map((i) => (
-              <div>
+              <div key={i}>
                 <ParticipantForm
                   key={i}
                   index={i}

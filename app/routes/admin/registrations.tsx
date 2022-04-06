@@ -6,7 +6,7 @@ import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
-import { isoDateString, PaidStatusSchema } from "~/utils";
+import { isoDateString, PaidStatusSchema, ticketPrice } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import Fuse from "fuse.js";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -51,7 +51,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
           participantCount: participants.length,
           participants: participants,
           ticketSum: participants
-            .map((p) => p.ticket.price)
+            .map((p) => ticketPrice(p.ticket))
             .reduce((sum, p) => sum + p, 0),
         };
       }),

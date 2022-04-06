@@ -8,7 +8,12 @@ import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import { AccommodationSchema, ParticipantSchema } from "~/domain/events";
-import { formatAddress, formatTicket, PaidStatusSchema } from "~/utils";
+import {
+  formatAddress,
+  formatTicket,
+  PaidStatusSchema,
+  ticketPrice,
+} from "~/utils";
 
 const LoaderDataSchema = z.object({
   accommodationTable: z.array(
@@ -130,7 +135,15 @@ export default function Participants() {
                       )["de"]
                     }
                   </td>
-                  <td>{paidStatus}</td>
+                  <td>
+                    {paidStatus === "paid"
+                      ? "Bezahlt"
+                      : `Nicht bezahlt: ${i18n.formatCurrency(
+                          ticketPrice(participant.ticket),
+                          "EUR",
+                          "de"
+                        )}`}
+                  </td>
                   <td>{comment}</td>
                 </tr>
               ))}

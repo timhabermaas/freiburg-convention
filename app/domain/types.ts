@@ -9,14 +9,16 @@ export type Cents = number;
 
 export type Accommodation = "gym" | "tent" | "selfOrganized";
 
-export type Category = "Baby" | "Child" | "OlderThan12" | "Supporter";
+export type AgeCategory = "Baby" | "Child" | "OlderThan12";
+
+export type SupporterCategory = "Normal" | "Supporter" | "Cheaper";
 
 export interface Participant {
   participantId: string;
   fullName: string;
   birthday: Day;
   address: Address;
-  ticket: Ticket;
+  ticket: OrderedTicket;
   accommodation: Accommodation;
 }
 
@@ -59,7 +61,11 @@ export class Day {
   }
 
   public toUtcDate(): Date {
-    return new Date(Date.UTC(this.year, this.month - 1, this.day));
+    return new Date(this.toUtcUnixTime());
+  }
+
+  public toUtcUnixTime(): number {
+    return Date.UTC(this.year, this.month - 1, this.day);
   }
 
   public isEqual(other: Day): boolean {
@@ -69,14 +75,32 @@ export class Day {
       this.year === other.year
     );
   }
+
+  public diffInDays(other: Day): number {
+    const selfUtc = this.toUtcUnixTime();
+    const otherUtc = other.toUtcUnixTime();
+
+    const msPerDay = 1000 * 60 * 60 * 24;
+
+    return Math.floor((selfUtc - otherUtc) / msPerDay);
+  }
 }
 
 export interface Ticket {
   ticketId: string;
-  category: Category;
+  ageCategory: AgeCategory;
   from: Day;
   to: Day;
   price: Cents;
+}
+
+export interface OrderedTicket {
+  ticketId: string;
+  ageCategory: AgeCategory;
+  from: Day;
+  to: Day;
+  price: Cents;
+  priceModifier: Cents;
 }
 
 export interface Mail {

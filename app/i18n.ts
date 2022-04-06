@@ -1,4 +1,9 @@
-import { Category, Cents, Accommodation } from "./domain/types";
+import {
+  AgeCategory,
+  Cents,
+  Accommodation,
+  SupporterCategory,
+} from "./domain/types";
 import { assertNever } from "./utils";
 
 // See https://en.wikipedia.org/wiki/IETF_language_tag for correct codes.
@@ -44,6 +49,10 @@ export const accommodationField = {
   "en-US": "Accommodation",
   de: "Unterkunft",
 };
+export const days = {
+  "en-US": "Days",
+  de: "Tage",
+};
 export function accommodationFieldType(accommodation: Accommodation) {
   switch (accommodation) {
     case "gym":
@@ -54,7 +63,7 @@ export function accommodationFieldType(accommodation: Accommodation) {
     case "tent":
       return {
         "en-US": "Tent",
-        de: "Zelt neben der Halle",
+        de: "Zelt",
       };
     case "selfOrganized":
       return {
@@ -108,6 +117,14 @@ export const successMessage = {
     "You should've received an email with your registration details. In case you didn't please contact us at",
   de: "Du solltest in Kürze eine E-Mail von uns erhalten. Falls nicht, melde dich bitte unter",
 };
+export const select = {
+  "en-US": "Select",
+  de: "Auswählen",
+};
+export const ticketFeatures = {
+  "en-US": ["Accommodation", "Breakfast", "Gala Show", "Open Stage"],
+  de: ["Übernachtung", "Frühstück", "Gala-Show", "Open-Stage"],
+};
 
 export function participantHeader(index: number) {
   return {
@@ -130,18 +147,31 @@ function enUsOrdinal(n: number): string {
   return `${n}${map[plural.select(n)]}`;
 }
 
-export function translateCategory(category: Category): LocaleMap {
-  switch (category) {
+export function translateCategory(ageCategory: AgeCategory): LocaleMap {
+  switch (ageCategory) {
     case "Baby":
       return { de: "0–3 Jahre", "en-US": "0–3 years" };
     case "Child":
       return { de: "4–12 Jahre", "en-US": "4–12 years" };
     case "OlderThan12":
       return { de: ">12 Jahre", "en-US": ">12 years" };
-    case "Supporter":
-      return { de: ">12 Jahre (Supporter)", "en-US": ">12 years (supporter)" };
     default:
-      assertNever(category);
+      assertNever(ageCategory);
+  }
+}
+
+export function translateSupporter(
+  supporterCategory: SupporterCategory
+): LocaleMap {
+  switch (supporterCategory) {
+    case "Normal":
+      return { de: "", "en-US": "" };
+    case "Supporter":
+      return { de: "(Supporter)", "en-US": "(Supporter)" };
+    case "Cheaper":
+      return { de: "(Günstiger)", "en-US": "(Cheaper)" };
+    default:
+      assertNever(supporterCategory);
   }
 }
 
