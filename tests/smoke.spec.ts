@@ -38,16 +38,24 @@ test.describe("smoke test", () => {
     await page
       .locator('input[name="participants\\.0\\.address\\.city"]')
       .fill("Münchhausen");
-    await page
-      .locator('select[name="participants\\.0\\.address\\.country"]')
-      .selectOption("AT");
 
-    await page.locator("text=Do.–So., >12 Jahre: 30,00 €").click();
+    await page
+      .locator('input[name="participants\\.0\\.address\\.country"]')
+      .click();
+    await page
+      .locator('input[name="participants\\.0\\.address\\.country"]')
+      .fill("Deut");
+    await page.locator("text=Deutschland (DE)").click();
+
     await page.locator("text=Zelt").click();
+
+    await page.locator("text=Soli (-10,00 €)").click();
+
+    await page.locator(".MuiButton-root").nth(1).click();
 
     await page.locator('textarea[name="comment"]').fill("Ne.");
 
-    await page.locator('input:has-text("Anmelden")').click();
+    await page.locator("text=Anmelden").nth(1).click();
     await page.waitForNavigation({
       url: `http://localhost:${PORT}/p/de/registration/success`,
     });

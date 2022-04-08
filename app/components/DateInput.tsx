@@ -1,3 +1,4 @@
+import { FormControl, FormLabel, Grid, Select } from "@mui/material";
 import { useLocale } from "~/hooks/useLocale";
 import { arrayFromRange, getValue, NestedParams } from "~/utils";
 
@@ -21,54 +22,60 @@ export function DateInput(props: DateInputProps) {
 
   const defaultDate = props.defaultDate ?? {
     day: "1",
-    month: "0",
+    month: "1",
     year: "1990",
   };
 
   return (
-    <div className="form-group">
-      <label>{props.label}</label>
-      <div className="row">
-        <div className="col-sm-3">
-          <select
-            name={withPrefix("day")}
-            className="form-control"
-            defaultValue={getValue(defaultDate, "day")}
-          >
-            {days.map((d) => (
-              <option value={d} key={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-sm-5 mt-2 mt-sm-0">
-          <select
-            name={withPrefix("month")}
-            className="form-control"
-            defaultValue={getValue(defaultDate, "month")}
-          >
-            {months.map(({ monthName, monthValue }) => (
-              <option value={monthValue} key={monthValue}>
-                {monthName}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-sm-4 mt-2 mt-sm-0">
-          <select
-            name={withPrefix("year")}
-            className="form-control"
-            defaultValue={getValue(defaultDate, "year")}
-          >
-            {years.map((y) => (
-              <option value={y} key={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-    </div>
+    <FormControl fullWidth>
+      <FormLabel>{props.label}</FormLabel>
+      <Grid container spacing={1}>
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <Select
+              native
+              defaultValue={getValue(defaultDate, "day")}
+              name={withPrefix("day")}
+            >
+              {days.map((d) => (
+                <option value={d} key={d}>
+                  {d}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={5}>
+          <FormControl fullWidth>
+            <Select
+              defaultValue={getValue(defaultDate, "month")}
+              name={withPrefix("month")}
+              native
+            >
+              {months.map(({ monthName, monthValue }) => (
+                <option key={monthValue} value={monthValue}>
+                  {monthName}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <FormControl fullWidth>
+            <Select
+              native
+              defaultValue={getValue(defaultDate, "year")}
+              name={withPrefix("year")}
+            >
+              {years.map((y) => (
+                <option value={y} key={y}>
+                  {y}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+    </FormControl>
   );
 }

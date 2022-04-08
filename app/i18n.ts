@@ -103,6 +103,10 @@ export const moreParticipants = {
   "en-US": "Register additional participants",
   de: "Weitere Teilnehmer*innen anmelden",
 };
+export const sum = {
+  "en-US": "Sum",
+  de: "Summe",
+};
 export const registrationTitle = {
   "en-US": "Registration for Freiburg Juggling Convention 2022",
   de: "Anmeldung zur Freiburger Jonglierconvention 2022",
@@ -122,8 +126,12 @@ export const select = {
   de: "Auswählen",
 };
 export const ticketFeatures = {
-  "en-US": ["Accommodation", "Breakfast", "Gala Show", "Open Stage"],
-  de: ["Übernachtung", "Frühstück", "Gala-Show", "Open-Stage"],
+  "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"],
+  de: ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
+};
+export const someValidationErrors = {
+  "en-US": "There are some validation errors, check them out below.",
+  de: "Manche Formularfelder sind nicht korrekt ausgefüllt.",
 };
 
 export function participantHeader(index: number) {

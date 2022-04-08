@@ -18,6 +18,7 @@ import { MailSender } from "~/services/email/interface";
 import { formatCurrency } from "~/i18n";
 import {
   assertNever,
+  finalPriceModifier,
   formatTicket,
   paymentReasonForRegistrationCount,
   ticketPrice,
@@ -94,18 +95,22 @@ export class App {
     const persistedParticipants = participants.map((p) => {
       const ticket = this.findTicketOrThrow(p.ticketId);
 
+      const pM =
+        p.priceModifier === "Supporter"
+          ? 1000
+          : p.priceModifier === "Cheaper"
+          ? -1000
+          : 0;
+
+      const priceModifier = finalPriceModifier(ticket, pM);
+
       return {
         participantId: uuid(),
         fullName: p.fullName,
         address: p.address,
         ticket: {
           ...ticket,
-          priceModifier:
-            p.priceModifier === "Supporter"
-              ? 1000
-              : p.priceModifier === "Cheaper"
-              ? -1000
-              : 0,
+          priceModifier,
         },
         birthday: p.birthday,
         accommodation: p.accommodation,

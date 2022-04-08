@@ -246,3 +246,14 @@ export const PaidStatusSchema = z.union([
 export function ticketPrice(ticket: OrderedTicket): number {
   return ticket.price + ticket.priceModifier;
 }
+
+export function finalPriceModifier(
+  ticket: Ticket,
+  priceModifier: number
+): number {
+  return priceModifier < 0
+    ? ticket.price < -priceModifier
+      ? 0
+      : priceModifier
+    : priceModifier;
+}

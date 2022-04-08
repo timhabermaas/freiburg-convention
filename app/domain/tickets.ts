@@ -7,14 +7,14 @@ export const TICKETS: Ticket[] = [
     from: new Day(2022, 5, 26),
     to: new Day(2022, 5, 29),
     ageCategory: "OlderThan12",
-    price: 5000,
+    price: 4400,
   },
   {
     ticketId: "t-2",
     from: new Day(2022, 5, 26),
     to: new Day(2022, 5, 29),
     ageCategory: "Child",
-    price: 3000,
+    price: 2500,
   },
   {
     ticketId: "t-3",
@@ -29,14 +29,14 @@ export const TICKETS: Ticket[] = [
     from: new Day(2022, 5, 27),
     to: new Day(2022, 5, 29),
     ageCategory: "OlderThan12",
-    price: 4000,
+    price: 3500,
   },
   {
     ticketId: "t-5",
     from: new Day(2022, 5, 27),
     to: new Day(2022, 5, 29),
     ageCategory: "Child",
-    price: 2500,
+    price: 2000,
   },
   {
     ticketId: "t-6",
