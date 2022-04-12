@@ -13,6 +13,8 @@ export type AgeCategory = "Baby" | "Child" | "OlderThan12";
 
 export type SupporterCategory = "Normal" | "Supporter" | "Cheaper";
 
+export type TShirtSize = "S" | "M" | "L" | "XL";
+
 export interface Participant {
   participantId: string;
   fullName: string;
@@ -20,6 +22,7 @@ export interface Participant {
   address: Address;
   ticket: OrderedTicket;
   accommodation: Accommodation;
+  tShirtSize?: TShirtSize;
 }
 
 export interface Registration {

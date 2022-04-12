@@ -12,6 +12,7 @@ import {
   Participant,
   Registration,
   Ticket,
+  TShirtSize,
 } from "~/domain/types";
 import { TICKETS } from "./tickets";
 import { MailSender } from "~/services/email/interface";
@@ -89,6 +90,7 @@ export class App {
       birthday: Day;
       accommodation: Accommodation;
       priceModifier?: "Supporter" | "Cheaper";
+      tShirtSize?: TShirtSize;
     }[],
     comment: string
   ) {
@@ -108,6 +110,7 @@ export class App {
         participantId: uuid(),
         fullName: p.fullName,
         address: p.address,
+        tShirtSize: p.tShirtSize,
         ticket: {
           ...ticket,
           priceModifier,

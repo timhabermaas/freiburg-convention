@@ -7,6 +7,7 @@ import {
   Day,
   Participant,
   OrderedTicket,
+  TShirtSize,
 } from "./types";
 
 export interface EventEnvelope<E> {
@@ -56,6 +57,9 @@ const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
     priceModifier: z.number(),
   });
 
+const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
+  z.union([z.literal("S"), z.literal("M"), z.literal("L"), z.literal("XL")]);
+
 export const ParticipantSchema: z.ZodSchema<
   Participant,
   z.ZodTypeDef,
@@ -67,6 +71,7 @@ export const ParticipantSchema: z.ZodSchema<
   address: AddressSchema,
   ticket: TicketSchema,
   accommodation: AccommodationSchema,
+  tShirtSize: TShirtSizeSchema.optional(),
 });
 
 export type Event = RegisterEvent;

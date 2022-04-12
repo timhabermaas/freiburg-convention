@@ -95,6 +95,18 @@ export function accommodationFieldTypeShort(accommodation: Accommodation) {
       assertNever(accommodation);
   }
 }
+export const tShirtField = {
+  "en-US": "Are you going to buy a T-shirt? (non-binding, costs about 15€)",
+  de: "Kannst du dir vorstellen ein T-Shirt zu kaufen? (nicht verbindlich, Kosten etwa 15€)",
+};
+export const yes = {
+  "en-US": "Yes",
+  de: "Ja",
+};
+export const tShirtSizeField = {
+  "en-US": "Preferred T-shirt size",
+  de: "Bevorzugte T-Shirt-Größe",
+};
 export const commentField = {
   "en-US": "Anything you want to tell us?",
   de: "Willst du uns noch etwas mitteilen?",

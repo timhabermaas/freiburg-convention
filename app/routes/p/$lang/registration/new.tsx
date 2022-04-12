@@ -12,7 +12,7 @@ import {
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
 import { useEffect, useState } from "react";
-import { Accommodation, Address, Day } from "~/domain/types";
+import { Accommodation, Address, Day, TShirtSize } from "~/domain/types";
 import { TICKETS } from "~/domain/tickets";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
@@ -59,6 +59,9 @@ const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, unknown> = z
 const AccommodationSchema: z.ZodSchema<Accommodation, z.ZodTypeDef, unknown> =
   z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
 
+const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
+  z.union([z.literal("S"), z.literal("M"), z.literal("L"), z.literal("XL")]);
+
 const ParticipantSchema = z.object({
   fullName: z.string().nonempty(),
   birthday: DaySchema,
@@ -68,6 +71,7 @@ const ParticipantSchema = z.object({
     z.union([z.literal("Supporter"), z.literal("Cheaper")])
   ),
   accommodation: AccommodationSchema,
+  tShirtSize: TShirtSizeSchema.optional(),
 });
 
 const Form = z.object({
@@ -109,6 +113,9 @@ interface ParticipantFormProps {
 
 function ParticipantForm(props: ParticipantFormProps) {
   const { locale } = useLocale();
+  const [tShirtSelected, setTShirtSelected] = useState<boolean>(
+    getValue(props.defaultParticipant ?? {}, "tShirtSize") !== undefined
+  );
   const [selectedTicketId, setSelectedTicketId] = useState<string | undefined>(
     undefined
   );
@@ -410,6 +417,42 @@ function ParticipantForm(props: ParticipantFormProps) {
             </FormHelperText>
           )}
       </FormControl>
+      <Grid item xs={12} sx={{ mb: 3, mt: 3 }}>
+        <FormControl component="fieldset" variant="standard">
+          <FormLabel component="legend">{t(i18n.tShirtField)}</FormLabel>
+          <FormGroup>
+            <FormControlLabel
+              label={t(i18n.yes)}
+              control={<Switch checked={tShirtSelected} />}
+              onChange={(_e, checked) => setTShirtSelected(checked)}
+            />
+          </FormGroup>
+        </FormControl>
+      </Grid>
+      {tShirtSelected && (
+        <Grid item xs={12} sx={{ pl: 2, mb: 3 }}>
+          <FormControl>
+            <FormLabel>{t(i18n.tShirtSizeField)}</FormLabel>
+            <RadioGroup
+              row
+              defaultValue={getValue(
+                props.defaultParticipant ?? {},
+                "tShirtSize"
+              )}
+              name={withPrefix("tShirtSize")}
+            >
+              {["S", "M", "L", "XL"].map((size) => (
+                <FormControlLabel
+                  value={size}
+                  control={<Radio />}
+                  label={size}
+                  key={size}
+                />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+      )}
     </Grid>
   );
 }
