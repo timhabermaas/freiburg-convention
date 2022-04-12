@@ -70,41 +70,9 @@ const ParticipantSchema = z.object({
   accommodation: AccommodationSchema,
 });
 
-// TODO: Signature is lying, it's not fully validated yet.
-function participantIsEmpty(p: z.infer<typeof ParticipantSchema>): boolean {
-  if (
-    typeof p.fullName === "string" &&
-    typeof p.address?.street === "string" &&
-    typeof p.address?.postalCode === "string" &&
-    typeof p.address?.city === "string"
-  ) {
-    return (
-      p.fullName.trim().length === 0 &&
-      p.address.street.trim().length === 0 &&
-      p.address.postalCode.trim().length === 0 &&
-      p.address.city.trim().length === 0
-    );
-  } else {
-    return true;
-  }
-}
-
 const Form = z.object({
   email: z.string().email(),
-  participants: z.preprocess((participants) => {
-    if (Array.isArray(participants)) {
-      return participants.filter((participant, i) => {
-        // Always keep first participant
-        if (i === 0) {
-          return true;
-        }
-
-        return !participantIsEmpty(participant);
-      });
-    } else {
-      return participants;
-    }
-  }, z.array(ParticipantSchema)),
+  participants: z.array(ParticipantSchema).nonempty(),
   comment: z.string(),
   bot: z.string().refine((b) => b.length === 0),
 });
