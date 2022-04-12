@@ -130,7 +130,7 @@ export const successTitle = {
 };
 export const successMessage = {
   "en-US":
-    "You should've received an email with your registration details. In case you didn't please contact us at",
+    "You should've received an email with your registration details. In case you didn't, please contact us at",
   de: "Du solltest in Kürze eine E-Mail von uns erhalten. Falls nicht, melde dich bitte unter",
 };
 export const select = {
