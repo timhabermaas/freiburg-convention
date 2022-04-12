@@ -268,7 +268,7 @@ function composeMail(
     "EUR",
     "de"
   );
-  const subject = "Bestellbestätigung Freiburger Jonglierfestival";
+  const subject = "[Test] Bestellbestätigung Freiburger Jonglierfestival";
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
@@ -327,6 +327,6 @@ Your orga team
     body,
     from: "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>",
     to: [toMailAddress],
-    cc: [],
+    cc: ["Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>"],
   };
 }
