@@ -8,7 +8,7 @@ export default function RegistrationSuccessful() {
 
   return (
     <div>
-      <Typography gutterBottom variant="h3">
+      <Typography gutterBottom variant="h3" component="h1">
         {t(i18n.successTitle)}
       </Typography>
       <Typography variant="body1" component="p">
