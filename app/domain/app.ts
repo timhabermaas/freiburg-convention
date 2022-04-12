@@ -24,6 +24,7 @@ import {
   paymentReasonForRegistrationCount,
   ticketPrice,
 } from "~/utils";
+import { ACCOMMODATIONS } from "./accommodation";
 
 interface State {
   latestVersion: number;
@@ -54,7 +55,7 @@ export class App {
     limits: {
       total: 250,
       gym: 25,
-      camping: 150,
+      tent: 150,
     },
   };
 
@@ -158,6 +159,17 @@ export class App {
 
   public getLimits(): Limits {
     return this.state.limits;
+  }
+
+  public getAvailableAccommodations(): Accommodation[] {
+    return ACCOMMODATIONS.filter((a) => {
+      const limit = this.state.limits[a];
+      if (limit === undefined) {
+        return true;
+      }
+      const current = this.getParticipantsForAccommodation(a, true, true);
+      return current < limit;
+    });
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {

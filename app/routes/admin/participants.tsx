@@ -24,7 +24,7 @@ function getLimitFor(
     case "gym":
       return limits.gym;
     case "tent":
-      return limits.camping;
+      return limits.tent;
     default:
       return undefined;
   }

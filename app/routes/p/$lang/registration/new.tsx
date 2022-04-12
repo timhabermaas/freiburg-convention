@@ -1,4 +1,11 @@
-import { ActionFunction, json, redirect, useActionData } from "remix";
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+  useActionData,
+  useLoaderData,
+} from "remix";
 import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import {
@@ -14,7 +21,6 @@ import { DateInput } from "~/components/DateInput";
 import { useEffect, useState } from "react";
 import { Accommodation, Address, Day, TShirtSize } from "~/domain/types";
 import { TICKETS } from "~/domain/tickets";
-import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
 import * as i18n from "~/i18n";
 import {
@@ -104,10 +110,17 @@ export const action: ActionFunction = async ({ params, context, request }) => {
   }
 };
 
+export const loader: LoaderFunction = ({ context }) => {
+  const app = context.app as App;
+
+  return { availableAccommodations: app.getAvailableAccommodations() };
+};
+
 interface ParticipantFormProps {
   index: number;
   errors?: z.ZodIssue[];
   defaultParticipant?: NestedParams;
+  availableAccommodations: readonly Accommodation[];
   onRemoveClick?: () => void;
 }
 
@@ -314,7 +327,7 @@ function ParticipantForm(props: ParticipantFormProps) {
               )}
               name={withPrefix("accommodation")}
             >
-              {ACCOMMODATIONS.map((accommodation) => (
+              {props.availableAccommodations.map((accommodation) => (
                 <FormControlLabel
                   value={accommodation}
                   control={<Radio />}
@@ -463,6 +476,7 @@ export default function NewRegistration() {
   const t = useTranslation();
   // TODO: Typing
   const actionData = useActionData();
+  const data = useLoaderData();
 
   const [participantCount, setParticipantCount] = useState<number>(
     actionData?.values?.participants ? actionData.values.participants.length : 1
@@ -524,6 +538,7 @@ export default function NewRegistration() {
         <Stack spacing={4} sx={{ mb: 2 }} divider={<Divider />}>
           {[...Array(participantCount).keys()].map((i) => (
             <ParticipantForm
+              availableAccommodations={data.availableAccommodations}
               key={i}
               index={i}
               defaultParticipant={actionData?.values?.participants?.[i]}

@@ -118,6 +118,7 @@ export type PaidStatus = "paid" | "notPaid";
 
 export interface Limits {
   total?: number;
-  camping?: number;
+  tent?: number;
   gym?: number;
+  selfOrganized?: number;
 }
