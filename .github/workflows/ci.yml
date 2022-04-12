@@ -56,6 +56,7 @@ jobs:
         run: npm run end2end
         env:
           SESSION_SECRET: abc
+          ADMIN_PASSWORD: admin
       - uses: actions/upload-artifact@v2
         if: always()
         with:
