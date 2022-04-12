@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate, useParams } from "remix";
+import { Link, Outlet, useLocation, useParams } from "remix";
 import { LocaleContext } from "~/hooks/useLocale";
 import { Languages, SupportedLocales } from "~/i18n";
 import {
@@ -25,7 +25,6 @@ export function links() {
 export default function Public() {
   const { lang } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [mode, setMode] = useState<"light" | "dark">("light");
 
@@ -48,15 +47,18 @@ export default function Public() {
               <ToggleButtonGroup
                 value={currentLocale}
                 exclusive
-                onChange={(_e, locale) => {
-                  locale && navigate(`/p/${locale}${locationWithoutLanguage}`);
-                }}
                 aria-label="language switcher"
                 size="small"
                 color="primary"
               >
                 {Languages.map(({ title, locale }) => (
-                  <ToggleButton key={locale} value={locale} aria-label={title}>
+                  <ToggleButton
+                    component={Link}
+                    to={`/p/${locale}${locationWithoutLanguage}`}
+                    key={locale}
+                    value={locale}
+                    aria-label={title}
+                  >
                     {title}
                   </ToggleButton>
                 ))}
