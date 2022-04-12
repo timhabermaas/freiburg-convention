@@ -57,6 +57,7 @@ jobs:
         env:
           SESSION_SECRET: abc
           ADMIN_PASSWORD: admin
+          EVENT_STORE: file_store
       - uses: actions/upload-artifact@v2
         if: always()
         with:
