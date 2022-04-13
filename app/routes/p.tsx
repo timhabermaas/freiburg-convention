@@ -7,9 +7,10 @@ import {
   Grid,
   ToggleButton,
   ToggleButtonGroup,
+  useMediaQuery,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
@@ -27,6 +28,11 @@ export default function Public() {
   const location = useLocation();
 
   const [mode, setMode] = useState<"light" | "dark">("light");
+
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  useEffect(() => {
+    setMode(prefersDarkMode ? "dark" : "light");
+  }, [prefersDarkMode]);
 
   const theme = useMemo(() => {
     return createTheme({ palette: { mode } });
