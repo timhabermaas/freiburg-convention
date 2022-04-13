@@ -361,11 +361,10 @@ function ParticipantForm(props: ParticipantFormProps) {
       <Grid item xs={12} sx={{ mb: 3 }}>
         <FormControl component="fieldset" variant="standard">
           <FormLabel component="legend" sx={{ mb: 1 }}>
-            Mach dein Ticket zu einem Supporter- oder Soli-Ticket:
+            {t(i18n.transformToSupportSoli)}
           </FormLabel>
           <Alert severity="info" sx={{ mb: 1 }}>
-            Wir verlangen beim Soli-Ticket keine Nachweise und stellen auch
-            keine Fragen.
+            {t(i18n.soliNote)}
           </Alert>
           <FormGroup>
             <FormControlLabel

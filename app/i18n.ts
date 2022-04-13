@@ -141,6 +141,15 @@ export const ticketFeatures = {
   "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"],
   de: ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
 };
+export const transformToSupportSoli = {
+  "en-US": "Make your ticket a supporter or solidarity ticket:",
+  de: "Mach dein Ticket zu einem Supporter- oder Soli-Ticket:",
+};
+export const soliNote = {
+  "en-US":
+    "Feel free to take the solidarity ticket if you're short on cash right now. We won't ask any questions nor ask for proof.",
+  de: "Fühl dich frei das Soli-Ticket in Anspruch zu nehmen, wenn du gerade knapp bei Kasse bist. Wir verlangen beim Soli-Ticket keine Nachweise und stellen auch keine Fragen.",
+};
 export const someValidationErrors = {
   "en-US": "There are some validation errors, check them out below.",
   de: "Manche Formularfelder sind nicht korrekt ausgefüllt.",
