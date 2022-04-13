@@ -133,6 +133,10 @@ export const successMessage = {
     "You should've received an email with your registration details. In case you didn't, please contact us at",
   de: "Du solltest in Kürze eine E-Mail von uns erhalten. Falls nicht, melde dich bitte unter",
 };
+export const backToOverview = {
+  "en-US": "Back to convention page",
+  de: "Zur Convention-Seite",
+};
 export const select = {
   "en-US": "Select",
   de: "Auswählen",
