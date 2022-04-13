@@ -25,6 +25,7 @@ import {
   ticketPrice,
 } from "~/utils";
 import { ACCOMMODATIONS } from "./accommodation";
+import AsyncLock from "async-lock";
 
 interface State {
   latestVersion: number;
@@ -58,10 +59,12 @@ export class App {
       tent: 150,
     },
   };
+  private lock: AsyncLock;
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
     this.eventStore = eventStore;
     this.mailSender = mailSender;
+    this.lock = new AsyncLock({ timeout: 5000 });
 
     setTimeout(() => {
       // Backup after startup, necessary for heroku and other cloud providers which don't keep the process running.
@@ -81,7 +84,6 @@ export class App {
     }
   }
 
-  // TODO: Make sure the mutating functions are pushed to queue (`fastq`) and handled serialized.
   public async registerPerson(
     email: string,
     participants: {
@@ -95,57 +97,59 @@ export class App {
     }[],
     comment: string
   ) {
-    const persistedParticipants = participants.map((p) => {
-      const ticket = this.findTicketOrThrow(p.ticketId);
+    return this.lock.acquire("mutate", async () => {
+      const persistedParticipants = participants.map((p) => {
+        const ticket = this.findTicketOrThrow(p.ticketId);
 
-      const pM =
-        p.priceModifier === "Supporter"
-          ? 1000
-          : p.priceModifier === "Cheaper"
-          ? -1000
-          : 0;
+        const pM =
+          p.priceModifier === "Supporter"
+            ? 1000
+            : p.priceModifier === "Cheaper"
+            ? -1000
+            : 0;
 
-      const priceModifier = finalPriceModifier(ticket, pM);
+        const priceModifier = finalPriceModifier(ticket, pM);
 
-      return {
-        participantId: uuid(),
-        fullName: p.fullName,
-        address: p.address,
-        tShirtSize: p.tShirtSize,
-        ticket: {
-          ...ticket,
-          priceModifier,
-        },
-        birthday: p.birthday,
-        accommodation: p.accommodation,
-      };
-    });
+        return {
+          participantId: uuid(),
+          fullName: p.fullName,
+          address: p.address,
+          tShirtSize: p.tShirtSize,
+          ticket: {
+            ...ticket,
+            priceModifier,
+          },
+          birthday: p.birthday,
+          accommodation: p.accommodation,
+        };
+      });
 
-    const paymentReason = paymentReasonForRegistrationCount(
-      this.state.registrationCount
-    );
+      const paymentReason = paymentReasonForRegistrationCount(
+        this.state.registrationCount
+      );
 
-    await this.saveEvent({
-      type: "RegisterEvent",
-      registrationId: uuid(),
-      participants: persistedParticipants,
-      paymentReason,
-      email,
-      comment,
-    });
-
-    this.mailSender.send(
-      composeMail(
-        email,
-        persistedParticipants[0].fullName,
+      await this.saveEvent({
+        type: "RegisterEvent",
+        registrationId: uuid(),
+        participants: persistedParticipants,
         paymentReason,
-        persistedParticipants.map((p) => ({
-          name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
-          fullPrice: ticketPrice(p.ticket),
-        })),
-        comment
-      )
-    );
+        email,
+        comment,
+      });
+
+      this.mailSender.send(
+        composeMail(
+          email,
+          persistedParticipants[0].fullName,
+          paymentReason,
+          persistedParticipants.map((p) => ({
+            name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
+            fullPrice: ticketPrice(p.ticket),
+          })),
+          comment
+        )
+      );
+    });
   }
 
   public getAllParticipants(): (Participant & { registrationId: string })[] {
