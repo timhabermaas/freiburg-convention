@@ -17,7 +17,7 @@ export async function whenAuthorized<T>(
   const session = await getSession(request.headers.get("Cookie"));
 
   if (session.get("isLoggedIn") === true) {
-    return json(onAuthorized());
+    return json(await onAuthorized());
   } else {
     return redirect("/admin/login");
   }
