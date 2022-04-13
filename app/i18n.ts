@@ -123,6 +123,10 @@ export const registrationTitle = {
   "en-US": "Registration for Freiburg Juggling Convention 2022",
   de: "Anmeldung zur Freiburger Jonglierconvention 2022",
 };
+export const conventionFull = {
+  "en-US": "Unfortunately the convention is already fully booked.",
+  de: "Leider sind alle Plätze schon belegt.",
+};
 export const submitRegister = { "en-US": "Register", de: "Anmelden" };
 export const successTitle = {
   "en-US": "Thank you for your registration!",

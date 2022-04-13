@@ -40,6 +40,7 @@ import {
   Divider,
   IconButton,
   FormHelperText,
+  Link,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { TicketCard } from "~/components/TicketCard";
@@ -113,7 +114,10 @@ export const action: ActionFunction = async ({ params, context, request }) => {
 export const loader: LoaderFunction = ({ context }) => {
   const app = context.app as App;
 
-  return { availableAccommodations: app.getAvailableAccommodations() };
+  return {
+    availableAccommodations: app.getAvailableAccommodations(),
+    conventionFull: app.isConventionFull(),
+  };
 };
 
 interface ParticipantFormProps {
@@ -501,96 +505,113 @@ export default function NewRegistration() {
           </Typography>
         </Grid>
       </Grid>
-      <form method="post">
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          {actionData?.errors && (
-            <Grid item xs={12}>
-              <Alert severity="error">{t(i18n.someValidationErrors)}</Alert>
+      {data.conventionFull && (
+        <>
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            {t(i18n.conventionFull)}
+          </Alert>
+          <Button
+            component={Link}
+            href="https://jonglieren-in-freiburg.de/?page_id=43"
+            target="_parent"
+            variant="contained"
+          >
+            {t(i18n.backToOverview)}
+          </Button>
+        </>
+      )}
+      {!data.conventionFull && (
+        <form method="post">
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {actionData?.errors && (
+              <Grid item xs={12}>
+                <Alert severity="error">{t(i18n.someValidationErrors)}</Alert>
+              </Grid>
+            )}
+            <Grid item xs={12} md={8}>
+              <TextField
+                label={t(i18n.email)}
+                name="email"
+                autoComplete="email"
+                variant="outlined"
+                error={
+                  actionData?.errors &&
+                  errorsForPath("email", actionData?.errors, locale).length > 0
+                }
+                helperText={
+                  actionData?.errors
+                    ? errorsForPath("email", actionData?.errors, locale)
+                    : undefined
+                }
+                defaultValue={actionData?.values?.email}
+                fullWidth
+              />
             </Grid>
-          )}
-          <Grid item xs={12} md={8}>
+          </Grid>
+
+          <label style={{ display: "none" }} htmlFor="bot-field">
+            Full name
+          </label>
+          <input type="hidden" id="bot-field" name="bot" />
+
+          <Stack spacing={4} sx={{ mb: 2 }} divider={<Divider />}>
+            {[...Array(participantCount).keys()].map((i) => (
+              <ParticipantForm
+                availableAccommodations={data.availableAccommodations}
+                key={i}
+                index={i}
+                defaultParticipant={actionData?.values?.participants?.[i]}
+                errors={actionData?.errors}
+                onRemoveClick={
+                  i !== 0 && i === participantCount - 1
+                    ? () => {
+                        setParticipantCount((c) => c - 1);
+                      }
+                    : undefined
+                }
+              ></ParticipantForm>
+            ))}
+          </Stack>
+          <Grid item xs={12} sx={{ mb: 6 }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={(e) => {
+                e.preventDefault();
+                setParticipantCount((c) => c + 1);
+              }}
+            >
+              {t(i18n.moreParticipants)}
+            </Button>
+          </Grid>
+          <Grid item xs={12} sx={{ mb: 3 }}>
             <TextField
-              label={t(i18n.email)}
-              name="email"
-              autoComplete="email"
-              variant="outlined"
+              label={t(i18n.commentField)}
+              name="comment"
+              autoComplete="comment"
               error={
                 actionData?.errors &&
-                errorsForPath("email", actionData?.errors, locale).length > 0
+                errorsForPath("comment", actionData?.errors, locale).length > 0
               }
               helperText={
                 actionData?.errors
-                  ? errorsForPath("email", actionData?.errors, locale)
+                  ? errorsForPath("comment", actionData?.errors, locale)
                   : undefined
               }
-              defaultValue={actionData?.values?.email}
+              defaultValue={actionData?.values?.comment}
+              multiline
+              minRows={3}
+              maxRows={10}
               fullWidth
             />
           </Grid>
-        </Grid>
-
-        <label style={{ display: "none" }} htmlFor="bot-field">
-          Full name
-        </label>
-        <input type="hidden" id="bot-field" name="bot" />
-
-        <Stack spacing={4} sx={{ mb: 2 }} divider={<Divider />}>
-          {[...Array(participantCount).keys()].map((i) => (
-            <ParticipantForm
-              availableAccommodations={data.availableAccommodations}
-              key={i}
-              index={i}
-              defaultParticipant={actionData?.values?.participants?.[i]}
-              errors={actionData?.errors}
-              onRemoveClick={
-                i !== 0 && i === participantCount - 1
-                  ? () => {
-                      setParticipantCount((c) => c - 1);
-                    }
-                  : undefined
-              }
-            ></ParticipantForm>
-          ))}
-        </Stack>
-        <Grid item xs={12} sx={{ mb: 6 }}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={(e) => {
-              e.preventDefault();
-              setParticipantCount((c) => c + 1);
-            }}
-          >
-            {t(i18n.moreParticipants)}
-          </Button>
-        </Grid>
-        <Grid item xs={12} sx={{ mb: 3 }}>
-          <TextField
-            label={t(i18n.commentField)}
-            name="comment"
-            autoComplete="comment"
-            error={
-              actionData?.errors &&
-              errorsForPath("comment", actionData?.errors, locale).length > 0
-            }
-            helperText={
-              actionData?.errors
-                ? errorsForPath("comment", actionData?.errors, locale)
-                : undefined
-            }
-            defaultValue={actionData?.values?.comment}
-            multiline
-            minRows={3}
-            maxRows={10}
-            fullWidth
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" type="submit">
-            {t(i18n.submitRegister)}
-          </Button>
-        </Grid>
-      </form>
+          <Grid item xs={12}>
+            <Button variant="contained" type="submit">
+              {t(i18n.submitRegister)}
+            </Button>
+          </Grid>
+        </form>
+      )}
     </>
   );
 }

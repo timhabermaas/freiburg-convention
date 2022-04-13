@@ -39,7 +39,7 @@ const LoaderDataSchema = z.object({
   ),
   limits: z.object({
     total: z.optional(z.number()),
-    camping: z.optional(z.number()),
+    tent: z.optional(z.number()),
     gym: z.optional(z.number()),
   }),
 });

@@ -176,6 +176,13 @@ export class App {
     });
   }
 
+  public isConventionFull(): boolean {
+    if (this.state.limits.total === undefined) {
+      return false;
+    }
+    return this.state.participants.length >= this.state.limits.total;
+  }
+
   public getPaidStatus(registrationId: string): PaidStatus {
     return this.state.paidMap.get(registrationId) ?? "notPaid";
   }
