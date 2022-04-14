@@ -55,7 +55,7 @@ export class App {
     paidMap: new Map(),
     limits: {
       total: 250,
-      gym: 25,
+      gym: 64,
       tent: 150,
     },
   };
