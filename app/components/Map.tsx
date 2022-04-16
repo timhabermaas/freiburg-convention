@@ -65,7 +65,6 @@ export function Map(props: MapProps) {
     const cb = async () => {
       const urls = props.addresses.map((a) => {
         const query = new URLSearchParams({
-          city: a.city,
           postalcode: a.postalCode,
           country: a.country,
           format: "json",
