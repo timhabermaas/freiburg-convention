@@ -238,7 +238,7 @@ export default function StatsPage() {
           </Box>
           <Box>
             <Typography gutterBottom variant="h2">
-              Anmeldungen/Tag
+              Angemeldete Teilnehmer/Tag
             </Typography>
             <Paper sx={{ height: 240 }}>
               <Chart histogram={data.histogram} />

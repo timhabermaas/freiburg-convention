@@ -37,7 +37,7 @@ interface State {
   // Maps from the accommodation to Thu–Sun/Fri–Sun
   accommodationMap: Map<Accommodation, [number, number]>;
   limits: Limits;
-  // List of all registration times, in ascending order
+  // Contains the registration date for each participant, ascending order
   registrationTimes: Date[];
 }
 
@@ -317,7 +317,9 @@ export class App {
 
         this.state.paidMap.set(event.payload.registrationId, "notPaid");
 
-        this.state.registrationTimes.push(event.timeStamp);
+        this.state.registrationTimes = this.state.registrationTimes.concat(
+          Array(event.payload.participants.length).fill(event.timeStamp)
+        );
 
         break;
       }
