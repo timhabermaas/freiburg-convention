@@ -17,6 +17,10 @@ function getCache(url: string): null | undefined | [number, number] {
     return undefined;
   }
 
+  if (item === "null") {
+    return null;
+  }
+
   const parts = item.split(";");
   if (parts.length !== 2) {
     return undefined;
@@ -25,8 +29,12 @@ function getCache(url: string): null | undefined | [number, number] {
   return [parseFloat(parts[0]), parseFloat(parts[1])];
 }
 
-function setCache(url: string, latlon: [number, number]): void {
-  localStorage.setItem(url, `${latlon[0]};${latlon[1]}`);
+function setCache(url: string, latlon: [number, number] | null): void {
+  if (latlon === null) {
+    localStorage.setItem(url, "null");
+  } else {
+    localStorage.setItem(url, `${latlon[0]};${latlon[1]}`);
+  }
 }
 
 interface MapProps {
@@ -78,13 +86,18 @@ export function Map(props: MapProps) {
 
             const r = nominatimResponse.safeParse(result);
             if (r.success) {
-              console.log(
-                "setting marker: " + r.data[0].lat + ", " + r.data[0].lon
-              );
-              const lat = parseFloat(r.data[0].lat);
-              const lon = parseFloat(r.data[0].lon);
-              setCache(url, [lat, lon]);
-              L.marker([lat, lon]).addTo(markerGroupRef.current);
+              if (r.data.length > 0) {
+                console.log(
+                  "setting marker: " + r.data[0].lat + ", " + r.data[0].lon
+                );
+                const lat = parseFloat(r.data[0].lat);
+                const lon = parseFloat(r.data[0].lon);
+                setCache(url, [lat, lon]);
+                L.marker([lat, lon]).addTo(markerGroupRef.current);
+              } else {
+                console.warn(`no data found for ${url}`);
+                setCache(url, null);
+              }
             } else {
               console.warn(`failed parsing: ${r.error}`);
             }
