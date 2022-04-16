@@ -4,6 +4,7 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
@@ -33,6 +34,9 @@ export function Chart(props: ChartProps) {
           dataKey="count"
           stroke="#8884d8"
           isAnimationActive={false}
+        />
+        <Tooltip
+          labelFormatter={(v) => new Intl.DateTimeFormat("de").format(v)}
         />
         <XAxis
           dataKey="day"
