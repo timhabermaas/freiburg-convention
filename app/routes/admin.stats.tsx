@@ -110,7 +110,7 @@ export default function StatsPage() {
       <CssBaseline />
 
       <Container component="main">
-        <Stack spacing={4}>
+        <Stack spacing={4} sx={{ mb: 4 }}>
           <Typography variant="h1">Stats</Typography>
           <Box>
             <Typography gutterBottom variant="h2">
@@ -182,7 +182,9 @@ export default function StatsPage() {
                 <TableBody>
                   <TableRow>
                     {T_SHIRT_SIZES.map((size) => (
-                      <TableCell align="right">{data.tshirts[size]}</TableCell>
+                      <TableCell align="right" key={size}>
+                        {data.tshirts[size]}
+                      </TableCell>
                     ))}
                     <TableCell align="right">{data.tshirts.total}</TableCell>
                   </TableRow>
