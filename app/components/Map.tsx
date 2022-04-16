@@ -80,9 +80,7 @@ export function Map(props: MapProps) {
           console.log("no cache entry found");
           try {
             await wait(1000);
-            const result = await fetch(url, {
-              headers: { "Access-Control-Allow-Origin": "*" },
-            }).then((r) => r.json());
+            const result = await fetch(url).then((r) => r.json());
 
             const r = nominatimResponse.safeParse(result);
             if (r.success) {
