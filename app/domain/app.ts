@@ -198,6 +198,20 @@ export class App {
     };
   }
 
+  public getFuzzyAddresses(): {
+    postalCode: string;
+    city: string;
+    country: string;
+  }[] {
+    return this.state.participants.map(([_rId, p]) => {
+      return {
+        postalCode: p.address.postalCode,
+        city: p.address.city,
+        country: p.address.country,
+      };
+    });
+  }
+
   public getSupporterSoliRatio(): { soli: number; support: number } {
     const participants = this.state.participants.map(([_rId, p]) => p);
 

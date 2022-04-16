@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { LoaderFunction, redirect, useLoaderData } from "remix";
 import * as z from "zod";
+import { Map } from "~/components/Map";
 import { CONFIG } from "~/config.server";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 import { App } from "~/domain/app";
@@ -28,6 +29,10 @@ export function links() {
     {
       rel: "stylesheet",
       href: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap",
+    },
+    {
+      rel: "stylesheet",
+      href: "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css",
     },
   ];
 }
@@ -66,6 +71,9 @@ const LoaderDataSchema = z.object({
     support: z.number(),
     soli: z.number(),
   }),
+  fuzzyAddresses: z.array(
+    z.object({ postalCode: z.string(), city: z.string(), country: z.string() })
+  ),
 });
 
 type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
@@ -95,6 +103,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     limits: app.getLimits(),
     tshirts: { ...app.getShirtSizeCount(), total: totalShirts },
     supporterSoliRatio: app.getSupporterSoliRatio(),
+    fuzzyAddresses: app.getFuzzyAddresses(),
   };
 
   return data;
@@ -220,6 +229,12 @@ export default function StatsPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+          </Box>
+          <Box>
+            <Typography gutterBottom variant="h2">
+              Karte
+            </Typography>
+            <Map addresses={data.fuzzyAddresses} />
           </Box>
         </Stack>
       </Container>
