@@ -187,6 +187,28 @@ export class App {
     return this.state.paidMap.get(registrationId) ?? "notPaid";
   }
 
+  public getShirtSizeCount(): { [K in TShirtSize]: number } {
+    const participants = this.state.participants.map(([_rId, p]) => p);
+
+    return {
+      S: participants.filter((p) => p.tShirtSize === "S").length,
+      M: participants.filter((p) => p.tShirtSize === "M").length,
+      L: participants.filter((p) => p.tShirtSize === "L").length,
+      XL: participants.filter((p) => p.tShirtSize === "XL").length,
+    };
+  }
+
+  public getSupporterSoliRatio(): { soli: number; support: number } {
+    const participants = this.state.participants.map(([_rId, p]) => p);
+
+    const support = participants.filter(
+      (p) => p.ticket.priceModifier > 0
+    ).length;
+    const soli = participants.filter((p) => p.ticket.priceModifier < 0).length;
+
+    return { support, soli };
+  }
+
   public getComment(registrationId: string): string {
     return (
       this.state.registrations.find((r) => r.registrationId === registrationId)

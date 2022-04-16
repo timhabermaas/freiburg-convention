@@ -15,6 +15,8 @@ export type SupporterCategory = "Normal" | "Supporter" | "Cheaper";
 
 export type TShirtSize = "S" | "M" | "L" | "XL";
 
+export const T_SHIRT_SIZES: TShirtSize[] = ["S", "M", "L", "XL"];
+
 export interface Participant {
   participantId: string;
   fullName: string;
