@@ -15,7 +15,6 @@ interface ChartProps {
 
 export function Chart(props: ChartProps) {
   const data = props.histogram.map(([day, count]) => ({ day, count }));
-  console.log(data);
   const theme = useTheme();
 
   return (
