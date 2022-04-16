@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { LoaderFunction, redirect, useLoaderData } from "remix";
 import * as z from "zod";
+import { Chart } from "~/components/Chart";
 import { Map } from "~/components/Map";
 import { CONFIG } from "~/config.server";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
@@ -23,6 +24,7 @@ import { App } from "~/domain/app";
 import { AccommodationSchema } from "~/domain/events";
 import { Accommodation, Limits, T_SHIRT_SIZES } from "~/domain/types";
 import * as i18n from "~/i18n";
+import { isoDateString } from "~/utils";
 
 export function links() {
   return [
@@ -74,6 +76,7 @@ const LoaderDataSchema = z.object({
   fuzzyAddresses: z.array(
     z.object({ postalCode: z.string(), city: z.string(), country: z.string() })
   ),
+  histogram: z.array(z.tuple([isoDateString, z.number()])),
 });
 
 type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
@@ -104,6 +107,9 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     tshirts: { ...app.getShirtSizeCount(), total: totalShirts },
     supporterSoliRatio: app.getSupporterSoliRatio(),
     fuzzyAddresses: app.getFuzzyAddresses(),
+    histogram: app
+      .getRegistrationHistogram()
+      .map(([day, count]) => [day.toUtcDate(), count]),
   };
 
   return data;
@@ -229,6 +235,14 @@ export default function StatsPage() {
                 </TableBody>
               </Table>
             </TableContainer>
+          </Box>
+          <Box>
+            <Typography gutterBottom variant="h2">
+              Anmeldungen/Tag
+            </Typography>
+            <Paper sx={{ height: 240 }}>
+              <Chart histogram={data.histogram} />
+            </Paper>
           </Box>
           <Box>
             <Typography gutterBottom variant="h2">

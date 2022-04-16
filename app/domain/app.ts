@@ -37,6 +37,8 @@ interface State {
   // Maps from the accommodation to Thu–Sun/Fri–Sun
   accommodationMap: Map<Accommodation, [number, number]>;
   limits: Limits;
+  // List of all registration times, in ascending order
+  registrationTimes: Date[];
 }
 
 const THURSDAY = new Day(2022, 5, 26);
@@ -58,6 +60,7 @@ export class App {
       gym: 64,
       tent: 150,
     },
+    registrationTimes: [],
   };
   private lock: AsyncLock;
 
@@ -230,6 +233,31 @@ export class App {
     );
   }
 
+  public getRegistrationHistogram(): [Day, number][] {
+    const result: [Day, number][] = [];
+
+    for (const date of this.state.registrationTimes) {
+      const newDay = new Day(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
+      const prev = result.pop();
+      if (prev === undefined) {
+        result.push([newDay, 1]);
+      } else {
+        if (prev[0].isEqual(newDay)) {
+          result.push([prev[0], prev[1] + 1]);
+        } else {
+          result.push(prev);
+          result.push([newDay, prev[1] + 1]);
+        }
+      }
+    }
+
+    return result;
+  }
+
   public getAllRegistrations(): Registration[] {
     return this.state.registrations;
   }
@@ -288,6 +316,8 @@ export class App {
         });
 
         this.state.paidMap.set(event.payload.registrationId, "notPaid");
+
+        this.state.registrationTimes.push(event.timeStamp);
 
         break;
       }
