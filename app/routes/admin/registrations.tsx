@@ -204,7 +204,6 @@ export default function Registrations() {
               <TableCell>E-Mail</TableCell>
               <TableCell align="right">#</TableCell>
               <TableCell>Mitteilung</TableCell>
-              <TableCell align="right">Angemeldet am</TableCell>
               <TableCell align="right">Referenz</TableCell>
               <TableCell align="right">Summe Tickets</TableCell>
               <TableCell align="right">Bezahlt?</TableCell>
@@ -251,12 +250,9 @@ function RegistrationRow(props: RegistrationRowProps) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell sx={{ wordBreak: "break-all" }}>{row.email}</TableCell>
+        <TableCell>{row.email}</TableCell>
         <TableCell align="right">{row.participantCount}</TableCell>
         <TableCell>{row.comment}</TableCell>
-        <TableCell align="right">
-          {dateTimeFormatter.format(row.registeredAt)}
-        </TableCell>
         <TableCell align="right">{row.paymentReason}</TableCell>
         <TableCell align="right">
           {i18n.formatCurrency(row.ticketSum, "EUR", locale)}
