@@ -20,6 +20,7 @@ import { useLocale } from "~/hooks/useLocale";
 import Fuse from "fuse.js";
 import { Event, EventEnvelope, EventEnvelopeSchema } from "~/domain/events";
 import {
+  Alert,
   Box,
   Button,
   ButtonGroup,
@@ -174,20 +175,42 @@ export default function Registrations() {
     <Stack spacing={2} sx={{ mb: 4 }}>
       <Typography variant="h2">Anmeldungen</Typography>
       <FormGroup>
-        <FormControl variant="outlined">
-          <InputLabel>Suche</InputLabel>
-          <OutlinedInput
-            onChange={(e) => {
-              setSearchText(e.currentTarget.value);
-            }}
-            endAdornment={
-              <InputAdornment position="end">
-                <SearchIcon />
-              </InputAdornment>
-            }
-            label="Suche"
-          />
-        </FormControl>
+        <Stack spacing={1}>
+          <FormControl variant="outlined">
+            <InputLabel>Suche</InputLabel>
+            <OutlinedInput
+              onChange={(e) => {
+                setSearchText(e.currentTarget.value);
+              }}
+              endAdornment={
+                <InputAdornment position="end">
+                  <SearchIcon />
+                </InputAdornment>
+              }
+              label="Suche"
+            />
+          </FormControl>
+          <Alert severity="info">
+            Fuzzy-Matcher auf: <strong>Referenz</strong>,{" "}
+            <strong>E-Mail</strong>, <strong>Name</strong> und{" "}
+            <strong>Kommentar</strong>. Mit{" "}
+            <Typography sx={{ fontFamily: "Monospace" }} component="span">
+              =JIF-123
+            </Typography>{" "}
+            findet man exakt "JIF-123", mit{" "}
+            <Typography sx={{ fontFamily: "Monospace" }} component="span">
+              '123
+            </Typography>{" "}
+            alles was "123" enthält. Siehe auch:{" "}
+            <a
+              target="_blank"
+              href="https://fusejs.io/examples.html#extended-search"
+            >
+              Dokumentation
+            </a>
+            .
+          </Alert>
+        </Stack>
       </FormGroup>
       <FormGroup>
         <FormControlLabel
