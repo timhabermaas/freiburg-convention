@@ -50,7 +50,7 @@ app.use(
 let eventStore;
 
 if (CONFIG.eventStore === "file_store") {
-  eventStore = new FileStore("temp/store.log");
+  eventStore = new FileStore(CONFIG.eventStorePath);
 } else if (CONFIG.eventStore === "s3_store") {
   eventStore = new S3Store("events");
 } else {
@@ -88,6 +88,16 @@ app.use(
     },
   })
 );
+
+app.get("/api/reset", (req, res) => {
+  if (CONFIG.eventStore === "file_store") {
+    APP.reset();
+  } else {
+    res.status(405).send("NOT ALLOWED");
+  }
+  res.send("OK");
+});
+
 app.all(
   "*",
   createRequestHandler({

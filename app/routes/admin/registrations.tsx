@@ -1,17 +1,68 @@
-import React, { useState } from "react";
-import { LoaderFunction, useLoaderData } from "remix";
-import { Col } from "~/components/Col";
-import { Row } from "~/components/Row";
+import { useRef, useState } from "react";
+import {
+  ActionFunction,
+  LoaderFunction,
+  useFetcher,
+  useLoaderData,
+} from "remix";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
-import { isoDateString, PaidStatusSchema, ticketPrice } from "~/utils";
+import {
+  assertNever,
+  isoDateString,
+  PaidStatusSchema,
+  parseFormData,
+  ticketPrice,
+} from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import Fuse from "fuse.js";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Event, EventEnvelope, EventEnvelopeSchema } from "~/domain/events";
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
+  Collapse,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Grow,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  MenuList,
+  OutlinedInput,
+  Paper,
+  Popper,
+  Stack,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import PaidIcon from "@mui/icons-material/Paid";
+import SearchIcon from "@mui/icons-material/Search";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Timeline,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineItem,
+  TimelineOppositeContent,
+  TimelineSeparator,
+} from "@mui/lab";
 
 const LoaderDataSchema = z.object({
   registrations: z.array(
@@ -24,12 +75,14 @@ const LoaderDataSchema = z.object({
       paidStatus: PaidStatusSchema,
       participantCount: z.number(),
       ticketSum: z.number(),
+      isCancelled: z.boolean(),
       participants: z.array(
         z.object({
           fullName: z.string(),
           participantId: z.string(),
         })
       ),
+      events: z.array(EventEnvelopeSchema),
     })
   ),
 });
@@ -50,6 +103,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
           paidStatus: app.getPaidStatus(r.registrationId),
           participantCount: participants.length,
           participants: participants,
+          events: app.getEventsForRegistration(r.registrationId),
           ticketSum: participants
             .map((p) => ticketPrice(p.ticket))
             .reduce((sum, p) => sum + p, 0),
@@ -59,12 +113,40 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   });
 };
 
+const ActionSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("cancelRegistration"),
+    registrationId: z.string(),
+  }),
+  z.object({
+    type: z.literal("payRegistration"),
+    amount: z.number(),
+  }),
+]);
+
+export const action: ActionFunction = async ({ context, request }) => {
+  const app = context.app as App;
+  const formData = parseFormData(await request.formData());
+  const data = ActionSchema.parse(formData);
+
+  switch (data.type) {
+    case "cancelRegistration":
+      app.cancelRegistration(data.registrationId);
+      break;
+    case "payRegistration":
+      throw new Error("not implemented");
+    default:
+      assertNever(data);
+  }
+
+  return { success: true };
+};
+
 export default function Registrations() {
-  // TODO: Use set
-  const [openedRows, setOpenedRows] = useState<string[]>([]);
   const [searchText, setSearchText] = useState<string>("");
+  const [hideCancelled, setHideCancelled] = useState<boolean>(true);
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
-  const { dateTimeFormatter, locale } = useLocale();
+  const fetcher = useFetcher();
 
   const fuse = new Fuse(data.registrations, {
     includeScore: true,
@@ -72,130 +154,269 @@ export default function Registrations() {
     keys: ["paymentReason", "participants.fullName", "email", "comment"],
   });
 
-  const registrations =
+  let registrations =
     searchText.trim().length > 0
       ? fuse.search(searchText).map((x) => x.item)
       : data.registrations;
 
+  if (hideCancelled) {
+    registrations = registrations.filter((r) => !r.isCancelled);
+  }
+
+  const handleCancel = (registrationId: string) => {
+    fetcher.submit(
+      { type: "cancelRegistration", registrationId },
+      { method: "post" }
+    );
+  };
+
+  return (
+    <Stack spacing={2} sx={{ mb: 4 }}>
+      <Typography variant="h2">Anmeldungen</Typography>
+      <FormGroup>
+        <FormControl variant="outlined">
+          <InputLabel>Suche</InputLabel>
+          <OutlinedInput
+            onChange={(e) => {
+              setSearchText(e.currentTarget.value);
+            }}
+            endAdornment={
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            }
+            label="Suche"
+          />
+        </FormControl>
+      </FormGroup>
+      <FormGroup>
+        <FormControlLabel
+          control={<Switch checked={hideCancelled} />}
+          label="Abgemeldete verstecken"
+          onChange={(_e, checked) => setHideCancelled(checked)}
+        />
+      </FormGroup>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>E-Mail</TableCell>
+              <TableCell align="right">Anzahl Teilnehmer</TableCell>
+              <TableCell>Mitteilung</TableCell>
+              <TableCell align="right">Angemeldet am</TableCell>
+              <TableCell align="right">Verwendungszweck</TableCell>
+              <TableCell align="right">Summe Tickets</TableCell>
+              <TableCell align="right">Bezahlt?</TableCell>
+              <TableCell align="right">Aktionen</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {registrations.map((row) => (
+              <RegistrationRow
+                registration={row}
+                key={row.registrationId}
+                onCancel={handleCancel}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Stack>
+  );
+}
+
+interface RegistrationRowProps {
+  registration: LoaderData["registrations"][number];
+  onCancel: (registrationId: string) => void;
+}
+
+function RegistrationRow(props: RegistrationRowProps) {
+  const { dateTimeFormatter, locale } = useLocale();
+  const [open, setOpen] = useState(false);
+  const row = props.registration;
+
   return (
     <>
-      <Row>
-        <Col cols={12}>
-          <h1>Anmeldungen</h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col cols={12}>
-          <div className="form-group">
-            <div className="input-group">
-              <div className="input-group-prepend">
-                <span className="input-group-text">🔎</span>
-              </div>
-              <input
-                className="form-control"
-                onChange={(e) => {
-                  setSearchText(e.target.value);
-                }}
+      <TableRow
+        key={row.registrationId}
+        style={{ opacity: props.registration.isCancelled ? 0.4 : 1 }}
+      >
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{row.email}</TableCell>
+        <TableCell align="right">{row.participantCount}</TableCell>
+        <TableCell>{row.comment}</TableCell>
+        <TableCell align="right">
+          {dateTimeFormatter.format(row.registeredAt)}
+        </TableCell>
+        <TableCell align="right">{row.paymentReason}</TableCell>
+        <TableCell align="right">
+          {i18n.formatCurrency(row.ticketSum, "EUR", locale)}
+        </TableCell>
+        <TableCell>{row.paidStatus === "paid" ? "✓" : "✘"}</TableCell>
+        <TableCell>
+          {!row.isCancelled && (
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <ButtonSwitch
+                titles={[
+                  `Passend (${i18n.formatCurrency(
+                    row.ticketSum,
+                    "EUR",
+                    locale
+                  )})`,
+                  "Nicht passend",
+                ]}
               />
-            </div>
-            {searchText.trim().length > 0 && (
-              <small className="form-text text-muted">
-                {registrations.length} Treffer
-              </small>
-            )}
-          </div>
-        </Col>
-      </Row>
-      <Row>
-        <Col cols={12}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>E-Mail</th>
-                <th>Anzahl Teilnehmer*innen</th>
-                <th>Mitteilung</th>
-                <th>Angemeldet am</th>
-                <th>Verwendungszweck</th>
-                <th>Summe Tickets</th>
-                <th>Bezahlt?</th>
-                <th>Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {registrations.map((registration) => (
-                <React.Fragment key={registration.registrationId}>
-                  <tr
-                    onClick={() => {
-                      setOpenedRows((rows) => {
-                        if (rows.includes(registration.registrationId)) {
-                          return rows.filter(
-                            (r) => r !== registration.registrationId
-                          );
-                        } else {
-                          return rows.concat([registration.registrationId]);
-                        }
-                      });
-                    }}
-                  >
-                    <td>{registration.email}</td>
-                    <td>{registration.participantCount}</td>
-                    <td>{registration.comment}</td>
-                    <td>
-                      {dateTimeFormatter.format(registration.registeredAt)}
-                    </td>
-                    <td>{registration.paymentReason}</td>
-                    <td>
-                      {i18n.formatCurrency(
-                        registration.ticketSum,
-                        "EUR",
-                        locale
-                      )}
-                    </td>
-                    <td>{registration.paidStatus === "paid" ? "✓" : "✘"}</td>
-                    <td>
-                      <div className="row">
-                        <div className="col-md-6">
-                          <form
-                            action="/registrations/103/delete"
-                            method="post"
-                          >
-                            <button
-                              className="btn btn-danger btn-sm"
-                              type="submit"
-                              name="delete"
-                            >
-                              <FontAwesomeIcon icon={faTrash} />
-                            </button>
-                          </form>
-                        </div>
-                        <div className="col-md-6">
-                          <form action="/registrations/103/pay" method="post">
-                            <PayButton />
-                          </form>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr
-                    className={
-                      openedRows.includes(registration.registrationId)
-                        ? ""
-                        : "d-none"
-                    }
-                  >
-                    <td colSpan={8}>
-                      <SubParticipantTable
-                        participants={registration.participants}
-                      />
-                    </td>
-                  </tr>
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </Col>
-      </Row>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() =>
+                  props.onCancel(props.registration.registrationId)
+                }
+              >
+                Abmelden
+              </Button>
+            </Box>
+          )}
+        </TableCell>
+      </TableRow>
+      <TableRow style={{ opacity: props.registration.isCancelled ? 0.4 : 1 }}>
+        <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Grid container sx={{ margin: 1 }}>
+              <Grid md={6} xs={12}>
+                <Typography variant="h6">Teilnehmer*innen</Typography>
+                <SubParticipantTable
+                  participants={props.registration.participants}
+                />
+              </Grid>
+              <Grid md={6} xs={12}>
+                <RegistrationTimeline
+                  events={props.registration.events}
+                ></RegistrationTimeline>
+              </Grid>
+            </Grid>
+          </Collapse>
+        </TableCell>
+      </TableRow>
     </>
+  );
+}
+
+interface ButtonSwitchProps {
+  titles: string[];
+}
+
+function ButtonSwitch(props: ButtonSwitchProps) {
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const handleToggle = () => {
+    setOpen((o) => !o);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleMenuItemClick = (
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    index: number
+  ) => {
+    setSelectedIndex(index);
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <ButtonGroup size="small" sx={{ mr: 2 }} ref={anchorRef}>
+        <Button variant="contained" startIcon={<PaidIcon />}>
+          {props.titles[selectedIndex]}
+        </Button>
+        <Button variant="contained" onClick={handleToggle}>
+          <ArrowDropDownIcon />
+        </Button>
+      </ButtonGroup>
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === "bottom" ? "center top" : "center bottom",
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList id="split-button-menu" autoFocusItem>
+                  {props.titles.map((option, index) => (
+                    <MenuItem
+                      key={option}
+                      disabled={index === 2}
+                      selected={index === selectedIndex}
+                      onClick={(event) => handleMenuItemClick(event, index)}
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+    </>
+  );
+}
+
+interface RegistrationTimelineProps {
+  events: EventEnvelope<Event>[];
+}
+
+function RegistrationTimeline(props: RegistrationTimelineProps) {
+  const { dateTimeFormatter } = useLocale();
+
+  const eventToName = (e: Event): string => {
+    switch (e.type) {
+      case "RegisterEvent":
+        return "Angemeldet";
+      case "CancelRegistrationEvent":
+        return "Abgemeldet";
+      default:
+        return assertNever(e);
+    }
+  };
+
+  return (
+    <Timeline position="left">
+      {props.events.map((event) => (
+        <TimelineItem key={event.id}>
+          <TimelineOppositeContent color="text.secondary">
+            {dateTimeFormatter.format(event.timeStamp)}
+          </TimelineOppositeContent>
+          <TimelineSeparator>
+            <TimelineDot />
+            <TimelineConnector />
+          </TimelineSeparator>
+          <TimelineContent>{eventToName(event.payload)}</TimelineContent>
+        </TimelineItem>
+      ))}
+    </Timeline>
   );
 }
 
@@ -205,53 +426,17 @@ interface SubParticipantTableProps {
 
 function SubParticipantTable(props: SubParticipantTableProps) {
   return (
-    <table className="table mb-0">
-      <thead>
-        <tr>
-          <th>Name</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table size="small">
+      <TableHead>
+        <TableCell>Name</TableCell>
+      </TableHead>
+      <TableBody>
         {props.participants.map((p) => (
-          <tr key={p.participantId}>
-            <td>{p.fullName}</td>
-          </tr>
+          <TableRow key={p.participantId}>
+            <TableCell>{p.fullName}</TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
-  );
-}
-
-function PayButton() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="btn-group">
-      <button
-        type="button"
-        className="btn btn-primary btn-sm"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <FontAwesomeIcon icon={faSackDollar} />
-      </button>
-      <button
-        type="button"
-        className="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen((o) => !o);
-        }}
-      ></button>
-      <div
-        className={`dropdown-menu${open ? " show" : ""}`}
-        aria-labelledby="dropdownMenuButton"
-      >
-        <a className="dropdown-item" href="#">
-          Teilweise bezahlt
-        </a>
-      </div>
-    </div>
+      </TableBody>
+    </Table>
   );
 }

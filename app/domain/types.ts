@@ -33,6 +33,7 @@ export interface Registration {
   comment: string;
   paymentReason: string;
   registeredAt: Date;
+  isCancelled: boolean;
 }
 
 export class Day {

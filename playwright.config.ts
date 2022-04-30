@@ -26,7 +26,7 @@ const config: PlaywrightTestConfig = {
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1, // process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -100,7 +100,11 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: "npm run start",
     port: 6590,
-    env: { PORT: "6590", EVENT_STORE: "file_store" },
+    env: {
+      PORT: "6590",
+      EVENT_STORE: "file_store",
+      EVENT_STORE_PATH: "temp/store-test.log",
+    },
   },
 };
 

@@ -99,7 +99,7 @@ export const action: ActionFunction = async ({ params, context, request }) => {
   console.log(JSON.stringify(result));
 
   if (result.success) {
-    await app.registerPerson(
+    await app.register(
       result.data.email,
       result.data.participants,
       result.data.comment

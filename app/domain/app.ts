@@ -32,6 +32,7 @@ interface State {
   registrationCount: number;
   participants: [string, Participant][];
   registrations: Registration[];
+  eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
   // Maps from registrationId to PaidStatus
   paidMap: Map<string, PaidStatus>;
   // Maps from the accommodation to Thu–Sun/Fri–Sun
@@ -45,14 +46,13 @@ const THURSDAY = new Day(2022, 5, 26);
 const FRIDAY = new Day(2022, 5, 27);
 const SUNDAY = new Day(2022, 5, 29);
 
-export class App {
-  private eventStore: EventStore;
-  private mailSender: MailSender;
-  private state: State = {
+function initState(): State {
+  return {
     latestVersion: 0,
     registrationCount: 0,
     participants: [],
     registrations: [],
+    eventsPerRegistration: new Map(),
     accommodationMap: new Map(),
     paidMap: new Map(),
     limits: {
@@ -62,6 +62,12 @@ export class App {
     },
     registrationTimes: [],
   };
+}
+
+export class App {
+  private eventStore: EventStore;
+  private mailSender: MailSender;
+  private state: State = initState();
   private lock: AsyncLock;
 
   constructor(eventStore: EventStore, mailSender: MailSender) {
@@ -81,13 +87,18 @@ export class App {
     }, 1000);
   }
 
+  public reset() {
+    this.state = initState();
+    this.eventStore.clear();
+  }
+
   public async replay(): Promise<void> {
     for (const event of await this.eventStore.readAll()) {
       this.apply(event);
     }
   }
 
-  public async registerPerson(
+  public async register(
     email: string,
     participants: {
       fullName: string;
@@ -155,6 +166,21 @@ export class App {
     });
   }
 
+  public async cancelRegistration(registrationId: string) {
+    return this.lock.acquire("mutate", async () => {
+      const registration = this.state.registrations.find(
+        (r) => r.registrationId === registrationId
+      );
+
+      if (registration !== undefined && registration.isCancelled === false) {
+        await this.saveEvent({
+          type: "CancelRegistrationEvent",
+          registrationId,
+        });
+      }
+    });
+  }
+
   public getAllParticipants(): (Participant & { registrationId: string })[] {
     return this.state.participants.map(([registrationId, p]) => {
       return {
@@ -162,6 +188,12 @@ export class App {
         registrationId,
       };
     });
+  }
+
+  public getEventsForRegistration(
+    registrationId: string
+  ): EventEnvelope<Event>[] {
+    return this.state.eventsPerRegistration.get(registrationId) ?? [];
   }
 
   public getLimits(): Limits {
@@ -298,6 +330,7 @@ export class App {
           email: event.payload.email,
           paymentReason: event.payload.paymentReason,
           registeredAt: event.timeStamp,
+          isCancelled: false,
         });
 
         event.payload.participants.forEach((p) => {
@@ -321,10 +354,23 @@ export class App {
           Array(event.payload.participants.length).fill(event.timeStamp)
         );
 
+        this.pushEventToRegistration(event.payload.registrationId, event);
+
         break;
       }
+      case "CancelRegistrationEvent":
+        const registration = this.state.registrations.find(
+          (r) => r.registrationId === event.payload.registrationId
+        );
+        if (registration !== undefined) {
+          registration.isCancelled = true;
+        }
+
+        this.pushEventToRegistration(event.payload.registrationId, event);
+
+        break;
       default:
-        assertNever(event.payload.type);
+        assertNever(event.payload);
     }
 
     this.state.latestVersion = event.version;
@@ -347,6 +393,18 @@ export class App {
     }
 
     return ticket;
+  }
+
+  private pushEventToRegistration(
+    registrationId: string,
+    event: EventEnvelope<Event>
+  ): void {
+    const existingEvents = this.state.eventsPerRegistration.get(registrationId);
+    if (existingEvents === undefined) {
+      this.state.eventsPerRegistration.set(registrationId, [event]);
+    } else {
+      existingEvents.push(event);
+    }
   }
 }
 

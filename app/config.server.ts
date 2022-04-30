@@ -3,6 +3,7 @@ import { assertDefined } from "./utils";
 export interface Config {
   mailSender: "SES" | "CONSOLE";
   eventStore: "file_store" | "s3_store";
+  eventStorePath: string;
   adminPassword: string;
   sessionSecret: string;
   statsAccessKey?: string;
@@ -18,6 +19,7 @@ function getConfigFromEnv(): Config {
           process.env.NODE_ENV === "production"
         ? "s3_store"
         : "file_store",
+    eventStorePath: process.env.EVENT_STORE_PATH ?? "temp/store.log",
     adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
     sessionSecret: assertDefined(process.env.SESSION_SECRET),
     statsAccessKey: process.env.STATS_ACCESS_KEY,

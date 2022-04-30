@@ -10,6 +10,12 @@ export class FileStore implements EventStore {
     this.fileName = fileName;
   }
 
+  clear(): void {
+    if (fs.existsSync(this.fileName)) {
+      fs.unlinkSync(this.fileName);
+    }
+  }
+
   readAll(): Promise<EventEnvelope<Event>[]> {
     this.ensureFileExists();
     const data = fs.readFileSync(this.fileName);

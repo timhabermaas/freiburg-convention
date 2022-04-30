@@ -22,6 +22,10 @@ export class S3Store implements EventStore {
     });
   }
 
+  clear(): void {
+    throw new Error("clearing store not supported");
+  }
+
   async readAll(): Promise<EventEnvelope<Event>[]> {
     try {
       logger.info(
