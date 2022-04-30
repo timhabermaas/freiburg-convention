@@ -197,15 +197,15 @@ export default function Registrations() {
         />
       </FormGroup>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table sx={{ minWidth: 1000 }} size="small" aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell />
               <TableCell>E-Mail</TableCell>
-              <TableCell align="right">Anzahl Teilnehmer</TableCell>
+              <TableCell align="right">#</TableCell>
               <TableCell>Mitteilung</TableCell>
               <TableCell align="right">Angemeldet am</TableCell>
-              <TableCell align="right">Verwendungszweck</TableCell>
+              <TableCell align="right">Referenz</TableCell>
               <TableCell align="right">Summe Tickets</TableCell>
               <TableCell align="right">Bezahlt?</TableCell>
               <TableCell align="right">Aktionen</TableCell>
@@ -251,7 +251,7 @@ function RegistrationRow(props: RegistrationRowProps) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{row.email}</TableCell>
+        <TableCell sx={{ wordBreak: "break-all" }}>{row.email}</TableCell>
         <TableCell align="right">{row.participantCount}</TableCell>
         <TableCell>{row.comment}</TableCell>
         <TableCell align="right">
@@ -339,7 +339,7 @@ function ButtonSwitch(props: ButtonSwitchProps) {
 
   return (
     <>
-      <ButtonGroup size="small" sx={{ mr: 2 }} ref={anchorRef}>
+      <ButtonGroup size="small" sx={{ mr: 1 }} ref={anchorRef}>
         <Button variant="contained" startIcon={<PaidIcon />}>
           {props.titles[selectedIndex]}
         </Button>
