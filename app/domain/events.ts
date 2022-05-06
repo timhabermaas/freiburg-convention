@@ -31,6 +31,18 @@ export interface CancelRegistrationEvent {
   type: "CancelRegistrationEvent";
 }
 
+export interface PaymentReceivedEvent {
+  registrationId: string;
+  paymentId: string;
+  amountInCents: number;
+  type: "PaymentReceivedEvent";
+}
+
+export interface CancelPaymentEvent {
+  paymentId: string;
+  type: "CancelPaymentEvent";
+}
+
 const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
   .string()
   .regex(/^\d+-\d+-\d+$/)
@@ -79,7 +91,11 @@ export const ParticipantSchema: z.ZodSchema<
   tShirtSize: TShirtSizeSchema.optional(),
 });
 
-export type Event = RegisterEvent | CancelRegistrationEvent;
+export type Event =
+  | RegisterEvent
+  | CancelRegistrationEvent
+  | PaymentReceivedEvent
+  | CancelPaymentEvent;
 
 export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
   z.discriminatedUnion("type", [
@@ -94,6 +110,16 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
     z.object({
       registrationId: z.string(),
       type: z.literal("CancelRegistrationEvent"),
+    }),
+    z.object({
+      registrationId: z.string(),
+      paymentId: z.string(),
+      amountInCents: z.number(),
+      type: z.literal("PaymentReceivedEvent"),
+    }),
+    z.object({
+      paymentId: z.string(),
+      type: z.literal("CancelPaymentEvent"),
     }),
   ]);
 

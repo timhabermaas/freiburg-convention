@@ -11,6 +11,7 @@ import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
 import {
   assertNever,
+  IntSchema,
   isoDateString,
   PaidStatusSchema,
   parseFormData,
@@ -36,6 +37,7 @@ import {
   InputLabel,
   MenuItem,
   MenuList,
+  Modal,
   OutlinedInput,
   Paper,
   Popper,
@@ -47,6 +49,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -121,7 +124,12 @@ const ActionSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("payRegistration"),
-    amount: z.number(),
+    registrationId: z.string(),
+    amountInCents: IntSchema,
+  }),
+  z.object({
+    type: z.literal("undoPayment"),
+    paymentId: z.string(),
   }),
 ]);
 
@@ -135,7 +143,11 @@ export const action: ActionFunction = async ({ context, request }) => {
       app.cancelRegistration(data.registrationId);
       break;
     case "payRegistration":
-      throw new Error("not implemented");
+      app.payRegistration(data.registrationId, data.amountInCents);
+      break;
+    case "undoPayment":
+      app.undoPayment(data.paymentId);
+      break;
     default:
       assertNever(data);
   }
@@ -167,6 +179,27 @@ export default function Registrations() {
   const handleCancel = (registrationId: string) => {
     fetcher.submit(
       { type: "cancelRegistration", registrationId },
+      { method: "post" }
+    );
+  };
+
+  const handlePay = (registrationId: string, amountInCents: number) => {
+    fetcher.submit(
+      {
+        type: "payRegistration",
+        registrationId,
+        amountInCents: amountInCents.toString(),
+      },
+      { method: "post" }
+    );
+  };
+
+  const handleUndoPay = (paymentId: string) => {
+    fetcher.submit(
+      {
+        type: "undoPayment",
+        paymentId,
+      },
       { method: "post" }
     );
   };
@@ -239,6 +272,8 @@ export default function Registrations() {
                 registration={row}
                 key={row.registrationId}
                 onCancel={handleCancel}
+                onPay={handlePay}
+                onUndoPay={handleUndoPay}
               />
             ))}
           </TableBody>
@@ -248,18 +283,113 @@ export default function Registrations() {
   );
 }
 
+interface PayAmountModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (cents: number) => void;
+  shouldPayInCents: number;
+  name: string;
+  paymentReason: string;
+}
+
+function PayAmountModal(props: PayAmountModalProps) {
+  const { locale } = useLocale();
+  const [textValue, setTextValue] = useState("");
+
+  const amount = isNaN(parseInt(textValue)) ? 0 : parseInt(textValue);
+
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 400,
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 4,
+  };
+
+  return (
+    <Modal
+      open={props.open}
+      onClose={() => props.onClose()}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Box sx={modalStyle}>
+        <Typography
+          id="modal-modal-title"
+          variant="h6"
+          component="h2"
+          gutterBottom
+        >
+          Abweichend bezahlt
+        </Typography>
+        <TextField
+          label="Betrag"
+          variant="outlined"
+          type="number"
+          value={textValue}
+          onChange={(e) => setTextValue(e.target.value)}
+          InputProps={{
+            endAdornment: <InputAdornment position="end">Cents</InputAdornment>,
+          }}
+        />
+        <Typography id="modal-modal-description" sx={{ mt: 2 }} gutterBottom>
+          <em>
+            {props.name} ({props.paymentReason})
+          </em>{" "}
+          hat <strong>{i18n.formatCurrency(amount, "EUR", locale)} </strong>{" "}
+          statt{" "}
+          <strong>
+            {i18n.formatCurrency(props.shouldPayInCents, "EUR", locale)}
+          </strong>{" "}
+          bezahlt.
+        </Typography>
+        <Grid container>
+          <Grid item md={12}>
+            {amount !== 0 && (
+              <Button
+                variant="contained"
+                onClick={() => props.onSubmit(amount)}
+              >
+                Speichern
+              </Button>
+            )}
+          </Grid>
+        </Grid>
+      </Box>
+    </Modal>
+  );
+}
+
 interface RegistrationRowProps {
   registration: LoaderData["registrations"][number];
   onCancel: (registrationId: string) => void;
+  onPay: (registrationId: string, amountInCents: number) => void;
+  onUndoPay: (paymentId: string) => void;
 }
 
 function RegistrationRow(props: RegistrationRowProps) {
   const { dateTimeFormatter, locale } = useLocale();
-  const [open, setOpen] = useState(false);
+  const [rowExtended, setRowExtended] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const row = props.registration;
 
   return (
     <>
+      <PayAmountModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        shouldPayInCents={props.registration.ticketSum}
+        onSubmit={(cents) => {
+          props.onPay(props.registration.registrationId, cents);
+          setModalOpen(false);
+        }}
+        name={props.registration.participants[0].fullName}
+        paymentReason={props.registration.paymentReason}
+      />
       <TableRow
         key={row.registrationId}
         style={{ opacity: props.registration.isCancelled ? 0.4 : 1 }}
@@ -268,9 +398,9 @@ function RegistrationRow(props: RegistrationRowProps) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => setRowExtended(!rowExtended)}
           >
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {rowExtended ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
         <TableCell>{row.email}</TableCell>
@@ -280,29 +410,47 @@ function RegistrationRow(props: RegistrationRowProps) {
         <TableCell align="right">
           {i18n.formatCurrency(row.ticketSum, "EUR", locale)}
         </TableCell>
-        <TableCell>{row.paidStatus === "paid" ? "✓" : "✘"}</TableCell>
+        <TableCell>
+          {row.paidStatus === "notPaid"
+            ? "✘"
+            : `✓ (${i18n.formatCurrency(row.paidStatus[1], "EUR", locale)})`}
+        </TableCell>
         <TableCell>
           {!row.isCancelled && (
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <ButtonSwitch
-                titles={[
-                  `Passend (${i18n.formatCurrency(
-                    row.ticketSum,
-                    "EUR",
-                    locale
-                  )})`,
-                  "Nicht passend",
-                ]}
-              />
+              {row.paidStatus === "notPaid" && (
+                <ButtonSwitch
+                  buttons={[
+                    {
+                      title: `Passend (${i18n.formatCurrency(
+                        row.ticketSum,
+                        "EUR",
+                        locale
+                      )})`,
+                      onClick: () => {
+                        props.onPay(
+                          props.registration.registrationId,
+                          row.ticketSum
+                        );
+                      },
+                    },
+                    {
+                      title: "Nicht passend",
+                      onClick: () => {
+                        setModalOpen(true);
+                      },
+                    },
+                  ]}
+                />
+              )}
               <Button
                 variant="contained"
                 color="error"
-                startIcon={<DeleteIcon />}
                 onClick={() =>
                   props.onCancel(props.registration.registrationId)
                 }
               >
-                Abmelden
+                <DeleteIcon />
               </Button>
             </Box>
           )}
@@ -310,7 +458,7 @@ function RegistrationRow(props: RegistrationRowProps) {
       </TableRow>
       <TableRow style={{ opacity: props.registration.isCancelled ? 0.4 : 1 }}>
         <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
+          <Collapse in={rowExtended} timeout="auto" unmountOnExit>
             <Grid container sx={{ margin: 1 }}>
               <Grid md={6} xs={12}>
                 <Typography variant="h6">Teilnehmer*innen</Typography>
@@ -320,6 +468,7 @@ function RegistrationRow(props: RegistrationRowProps) {
               </Grid>
               <Grid md={6} xs={12}>
                 <RegistrationTimeline
+                  onUndoPay={props.onUndoPay}
                   events={props.registration.events}
                 ></RegistrationTimeline>
               </Grid>
@@ -332,7 +481,7 @@ function RegistrationRow(props: RegistrationRowProps) {
 }
 
 interface ButtonSwitchProps {
-  titles: string[];
+  buttons: { title: string; onClick: () => void }[];
 }
 
 function ButtonSwitch(props: ButtonSwitchProps) {
@@ -359,8 +508,12 @@ function ButtonSwitch(props: ButtonSwitchProps) {
   return (
     <>
       <ButtonGroup size="small" sx={{ mr: 1 }} ref={anchorRef}>
-        <Button variant="contained" startIcon={<PaidIcon />}>
-          {props.titles[selectedIndex]}
+        <Button
+          variant="contained"
+          startIcon={<PaidIcon />}
+          onClick={props.buttons[selectedIndex].onClick}
+        >
+          {props.buttons[selectedIndex].title}
         </Button>
         <Button variant="contained" onClick={handleToggle}>
           <ArrowDropDownIcon />
@@ -383,14 +536,14 @@ function ButtonSwitch(props: ButtonSwitchProps) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  {props.titles.map((option, index) => (
+                  {props.buttons.map((option, index) => (
                     <MenuItem
-                      key={option}
+                      key={option.title}
                       disabled={index === 2}
                       selected={index === selectedIndex}
                       onClick={(event) => handleMenuItemClick(event, index)}
                     >
-                      {option}
+                      {option.title}
                     </MenuItem>
                   ))}
                 </MenuList>
@@ -403,23 +556,45 @@ function ButtonSwitch(props: ButtonSwitchProps) {
   );
 }
 
+interface EventEntryProps {
+  event: EventEnvelope<Event>;
+  onUndoPaymentClick: (paymentId: string) => void;
+}
+
+function EventEntry(props: EventEntryProps) {
+  const payload = props.event.payload;
+
+  switch (payload.type) {
+    case "RegisterEvent":
+      return <>Angemeldet</>;
+    case "CancelRegistrationEvent":
+      return <>Abgemeldet</>;
+    case "PaymentReceivedEvent":
+      return (
+        <>
+          {i18n.formatCurrency(payload.amountInCents, "EUR", "de")} bezahlt
+          <Button
+            variant="text"
+            onClick={() => props.onUndoPaymentClick(payload.paymentId)}
+          >
+            Undo
+          </Button>
+        </>
+      );
+    case "CancelPaymentEvent":
+      return <>Zahlung storniert</>;
+    default:
+      return assertNever(payload);
+  }
+}
+
 interface RegistrationTimelineProps {
   events: EventEnvelope<Event>[];
+  onUndoPay: (paymentId: string) => void;
 }
 
 function RegistrationTimeline(props: RegistrationTimelineProps) {
   const { dateTimeFormatter } = useLocale();
-
-  const eventToName = (e: Event): string => {
-    switch (e.type) {
-      case "RegisterEvent":
-        return "Angemeldet";
-      case "CancelRegistrationEvent":
-        return "Abgemeldet";
-      default:
-        return assertNever(e);
-    }
-  };
 
   return (
     <Timeline position="left">
@@ -432,7 +607,9 @@ function RegistrationTimeline(props: RegistrationTimelineProps) {
             <TimelineDot />
             <TimelineConnector />
           </TimelineSeparator>
-          <TimelineContent>{eventToName(event.payload)}</TimelineContent>
+          <TimelineContent>
+            <EventEntry event={event} onUndoPaymentClick={props.onUndoPay} />
+          </TimelineContent>
         </TimelineItem>
       ))}
     </Timeline>

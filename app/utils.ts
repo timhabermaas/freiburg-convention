@@ -239,7 +239,7 @@ export const isoDateString = z
   .transform((s) => new Date(Date.parse(s)));
 
 export const PaidStatusSchema = z.union([
-  z.literal("paid"),
+  z.tuple([z.literal("paid"), z.number()]),
   z.literal("notPaid"),
 ]);
 
@@ -261,3 +261,5 @@ export function finalPriceModifier(
 export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const IntSchema = z.string().regex(/^\d+$/).transform(Number);

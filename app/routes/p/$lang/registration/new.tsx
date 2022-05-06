@@ -13,6 +13,7 @@ import {
   finalPriceModifier,
   getObject,
   getValue,
+  IntSchema,
   NestedParams,
   parseFormData,
 } from "~/utils";
@@ -53,13 +54,11 @@ const AddressSchema: z.ZodSchema<Address> = z.object({
   country: z.string().nonempty(),
 });
 
-const Int = z.string().regex(/^\d+$/).transform(Number);
-
 const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, unknown> = z
   .object({
-    day: Int,
-    month: Int,
-    year: Int,
+    day: IntSchema,
+    month: IntSchema,
+    year: IntSchema,
   })
   .transform(({ year, month, day }) => new Day(year, month, day));
 

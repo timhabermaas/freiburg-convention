@@ -32,6 +32,11 @@ interface State {
   registrationCount: number;
   participants: [string, Participant][];
   registrations: Registration[];
+  payments: {
+    paymentId: string;
+    amountInCents: number;
+    registrationId: string;
+  }[];
   eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
   // Maps from registrationId to PaidStatus
   paidMap: Map<string, PaidStatus>;
@@ -52,6 +57,7 @@ function initState(): State {
     registrationCount: 0,
     participants: [],
     registrations: [],
+    payments: [],
     eventsPerRegistration: new Map(),
     accommodationMap: new Map(),
     paidMap: new Map(),
@@ -152,7 +158,7 @@ export class App {
       });
 
       this.mailSender.send(
-        composeMail(
+        composeRegistrationMail(
           email,
           persistedParticipants[0].fullName,
           paymentReason,
@@ -176,6 +182,52 @@ export class App {
         await this.saveEvent({
           type: "CancelRegistrationEvent",
           registrationId,
+        });
+      }
+    });
+  }
+
+  public async payRegistration(registrationId: string, amountInCents: number) {
+    return this.lock.acquire("mutate", async () => {
+      const registration = this.state.registrations.find(
+        (r) => r.registrationId === registrationId
+      );
+
+      if (registration !== undefined) {
+        await this.saveEvent({
+          type: "PaymentReceivedEvent",
+          amountInCents,
+          registrationId,
+          paymentId: uuid(),
+        });
+
+        const participants = this.getParticipantsForRegistration(
+          registration.registrationId
+        );
+
+        if (participants !== undefined) {
+          this.mailSender.send(
+            composePaymentReceivedMail(
+              registration.email,
+              participants[0].fullName,
+              amountInCents
+            )
+          );
+        }
+      }
+    });
+  }
+
+  public async undoPayment(paymentId: string) {
+    return this.lock.acquire("mutate", async () => {
+      const payment = this.state.payments.find(
+        (p) => p.paymentId === paymentId
+      );
+
+      if (payment !== undefined) {
+        await this.saveEvent({
+          type: "CancelPaymentEvent",
+          paymentId,
         });
       }
     });
@@ -318,22 +370,23 @@ export class App {
   }
 
   private apply(event: EventEnvelope<Event>): void {
-    switch (event.payload.type) {
+    const payload = event.payload;
+    switch (payload.type) {
       case "RegisterEvent": {
         this.state.registrationCount += 1;
-        event.payload.participants.forEach((p) => {
-          this.state.participants.push([event.payload.registrationId, p]);
+        payload.participants.forEach((p) => {
+          this.state.participants.push([payload.registrationId, p]);
         });
         this.state.registrations.push({
-          registrationId: event.payload.registrationId,
-          comment: event.payload.comment,
-          email: event.payload.email,
-          paymentReason: event.payload.paymentReason,
+          registrationId: payload.registrationId,
+          comment: payload.comment,
+          email: payload.email,
+          paymentReason: payload.paymentReason,
           registeredAt: event.timeStamp,
           isCancelled: false,
         });
 
-        event.payload.participants.forEach((p) => {
+        payload.participants.forEach((p) => {
           const tuple = this.state.accommodationMap.get(p.accommodation) ?? [
             0, 0,
           ];
@@ -348,29 +401,67 @@ export class App {
           this.state.accommodationMap.set(p.accommodation, tuple);
         });
 
-        this.state.paidMap.set(event.payload.registrationId, "notPaid");
+        this.state.paidMap.set(payload.registrationId, "notPaid");
 
         this.state.registrationTimes = this.state.registrationTimes.concat(
-          Array(event.payload.participants.length).fill(event.timeStamp)
+          Array(payload.participants.length).fill(event.timeStamp)
         );
 
-        this.pushEventToRegistration(event.payload.registrationId, event);
+        this.pushEventToRegistration(payload.registrationId, event);
 
         break;
       }
-      case "CancelRegistrationEvent":
+      case "CancelRegistrationEvent": {
         const registration = this.state.registrations.find(
-          (r) => r.registrationId === event.payload.registrationId
+          (r) => r.registrationId === payload.registrationId
         );
         if (registration !== undefined) {
           registration.isCancelled = true;
         }
 
-        this.pushEventToRegistration(event.payload.registrationId, event);
+        this.pushEventToRegistration(payload.registrationId, event);
 
         break;
+      }
+      case "PaymentReceivedEvent": {
+        const status =
+          this.state.paidMap.get(payload.registrationId) ?? "notPaid";
+
+        if (status === "notPaid") {
+          this.state.paidMap.set(payload.registrationId, [
+            "paid",
+            payload.amountInCents,
+          ]);
+        } else {
+          this.state.paidMap.set(payload.registrationId, [
+            "paid",
+            status[1] + payload.amountInCents,
+          ]);
+        }
+        this.state.payments.push({
+          paymentId: payload.paymentId,
+          amountInCents: payload.amountInCents,
+          registrationId: payload.registrationId,
+        });
+        this.pushEventToRegistration(payload.registrationId, event);
+        break;
+      }
+      case "CancelPaymentEvent": {
+        const payment = this.state.payments.find(
+          (p) => p.paymentId === payload.paymentId
+        );
+        if (payment === undefined) {
+          break;
+        }
+        // TODO: change paid state
+        this.state.payments = this.state.payments.filter(
+          (p) => p.paymentId !== payload.paymentId
+        );
+        this.pushEventToRegistration(payment.registrationId, event);
+        break;
+      }
       default:
-        assertNever(event.payload);
+        assertNever(payload);
     }
 
     this.state.latestVersion = event.version;
@@ -408,7 +499,7 @@ export class App {
   }
 }
 
-function composeMail(
+function composeRegistrationMail(
   toMailAddress: string,
   fullName: string,
   paymentReason: string,
@@ -445,8 +536,8 @@ Betrag: ${totalPrice}
 Verwendungszweck: ${paymentReason}
 
 Wir freuen uns Dich auf dem Festival zu sehen.
-Viele Grüße Dein
-Orgateam
+Viele Grüße,
+Dein Orgateam
 
 
 -------English-------
@@ -477,8 +568,52 @@ Your orga team
   return {
     subject,
     body,
-    from: "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>",
+    from: MAIL_FROM,
     to: [toMailAddress],
-    cc: ["Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>"],
+    cc: [MAIL_CC],
   };
 }
+
+function composePaymentReceivedMail(
+  toMailAddress: string,
+  fullName: string,
+  amount: number
+): Mail {
+  const receivedAmount = formatCurrency(amount, "EUR", "de");
+  const subject = "Freiburger Jonglierfestival: Bezahlung erhalten";
+
+  const body = `(English version below)
+
+Liebe/r ${fullName},
+
+wir haben deine Zahlung über ${receivedAmount} erhalten. Vielen Dank!
+
+Wir freuen uns Dich auf dem Festival zu sehen.
+Viele Grüße,
+Dein Orgateam
+
+
+-------English-------
+
+
+Dear ${fullName},
+
+we've received your payment of ${receivedAmount}.
+
+We're looking forward to meeting you at the festival!
+Cheers!
+Your orga team
+`;
+
+  return {
+    subject,
+    body,
+    from: MAIL_FROM,
+    to: [toMailAddress],
+    cc: [MAIL_CC],
+  };
+}
+
+const MAIL_FROM =
+  "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>";
+const MAIL_CC = MAIL_FROM;

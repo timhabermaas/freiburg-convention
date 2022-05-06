@@ -31,7 +31,7 @@ export default function Admin() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Freiburg 2022
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          <Box sx={{ flexGrow: 1, display: { md: "flex" } }}>
             <Button
               sx={{ my: 2, color: "white", display: "block" }}
               component={Link}
