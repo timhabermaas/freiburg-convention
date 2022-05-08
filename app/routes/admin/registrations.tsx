@@ -158,6 +158,7 @@ export const action: ActionFunction = async ({ context, request }) => {
 export default function Registrations() {
   const [searchText, setSearchText] = useState<string>("");
   const [hideCancelled, setHideCancelled] = useState<boolean>(true);
+  const [hidePaid, setHidePaid] = useState<boolean>(false);
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
   const fetcher = useFetcher();
 
@@ -174,6 +175,10 @@ export default function Registrations() {
 
   if (hideCancelled) {
     registrations = registrations.filter((r) => !r.isCancelled);
+  }
+
+  if (hidePaid) {
+    registrations = registrations.filter((r) => r.paidStatus.type !== "paid");
   }
 
   const handleCancel = (registrationId: string) => {
@@ -228,9 +233,14 @@ export default function Registrations() {
             <strong>E-Mail</strong>, <strong>Name</strong> und{" "}
             <strong>Kommentar</strong>. Mit{" "}
             <Typography sx={{ fontFamily: "Monospace" }} component="span">
+              petr
+            </Typography>{" "}
+            findet man alles was ungefähr "petr" enthält ("Peter" zum Beispiel),
+            mit{" "}
+            <Typography sx={{ fontFamily: "Monospace" }} component="span">
               =JIF-123
             </Typography>{" "}
-            findet man exakt "JIF-123", mit{" "}
+            findet man exakt "JIF-123" und mit{" "}
             <Typography sx={{ fontFamily: "Monospace" }} component="span">
               '123
             </Typography>{" "}
@@ -250,6 +260,13 @@ export default function Registrations() {
           control={<Switch checked={hideCancelled} />}
           label="Abgemeldete verstecken"
           onChange={(_e, checked) => setHideCancelled(checked)}
+        />
+      </FormGroup>
+      <FormGroup>
+        <FormControlLabel
+          control={<Switch checked={hidePaid} />}
+          label="Bezahlte Anmeldungen verstecken"
+          onChange={(_e, checked) => setHidePaid(checked)}
         />
       </FormGroup>
       <TableContainer component={Paper}>
