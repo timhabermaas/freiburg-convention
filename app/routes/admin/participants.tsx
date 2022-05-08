@@ -160,7 +160,7 @@ export default function Participants() {
                     }
                   </td>
                   <td>
-                    {paidStatus === "paid"
+                    {paidStatus.type === "paid"
                       ? "Bezahlt"
                       : `Nicht bezahlt: ${i18n.formatCurrency(
                           ticketPrice(participant.ticket),

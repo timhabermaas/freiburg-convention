@@ -238,9 +238,9 @@ export const isoDateString = z
   .string()
   .transform((s) => new Date(Date.parse(s)));
 
-export const PaidStatusSchema = z.union([
-  z.tuple([z.literal("paid"), z.number()]),
-  z.literal("notPaid"),
+export const PaidStatusSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("paid"), amountInCents: z.number() }),
+  z.object({ type: z.literal("notPaid") }),
 ]);
 
 export function ticketPrice(ticket: OrderedTicket): number {

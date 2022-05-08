@@ -271,7 +271,7 @@ export class App {
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {
-    return this.state.paidMap.get(registrationId) ?? "notPaid";
+    return this.state.paidMap.get(registrationId) ?? { type: "notPaid" };
   }
 
   public getShirtSizeCount(): { [K in TShirtSize]: number } {
@@ -401,7 +401,7 @@ export class App {
           this.state.accommodationMap.set(p.accommodation, tuple);
         });
 
-        this.state.paidMap.set(payload.registrationId, "notPaid");
+        this.state.paidMap.set(payload.registrationId, { type: "notPaid" });
 
         this.state.registrationTimes = this.state.registrationTimes.concat(
           Array(payload.participants.length).fill(event.timeStamp)
@@ -424,19 +424,20 @@ export class App {
         break;
       }
       case "PaymentReceivedEvent": {
-        const status =
-          this.state.paidMap.get(payload.registrationId) ?? "notPaid";
+        const status = this.state.paidMap.get(payload.registrationId) ?? {
+          type: "notPaid",
+        };
 
-        if (status === "notPaid") {
-          this.state.paidMap.set(payload.registrationId, [
-            "paid",
-            payload.amountInCents,
-          ]);
+        if (status.type === "notPaid") {
+          this.state.paidMap.set(payload.registrationId, {
+            type: "paid",
+            amountInCents: payload.amountInCents,
+          });
         } else {
-          this.state.paidMap.set(payload.registrationId, [
-            "paid",
-            status[1] + payload.amountInCents,
-          ]);
+          this.state.paidMap.set(payload.registrationId, {
+            type: "paid",
+            amountInCents: status.amountInCents + payload.amountInCents,
+          });
         }
         this.state.payments.push({
           paymentId: payload.paymentId,
@@ -476,7 +477,7 @@ export class App {
     this.apply(eventEnvelope);
   }
 
-  private findTicketOrThrow(ticketId: string): Ticket {
+  public findTicketOrThrow(ticketId: string): Ticket {
     const ticket = TICKETS.find((t) => t.ticketId === ticketId);
 
     if (!ticket) {

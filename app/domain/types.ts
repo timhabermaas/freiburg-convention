@@ -117,7 +117,9 @@ export interface Mail {
   body: string;
 }
 
-export type PaidStatus = ["paid", number] | "notPaid";
+export type PaidStatus =
+  | { type: "paid"; amountInCents: number }
+  | { type: "notPaid" };
 
 export interface Limits {
   total?: number;

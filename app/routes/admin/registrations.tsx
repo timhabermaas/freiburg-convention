@@ -411,14 +411,18 @@ function RegistrationRow(props: RegistrationRowProps) {
           {i18n.formatCurrency(row.ticketSum, "EUR", locale)}
         </TableCell>
         <TableCell>
-          {row.paidStatus === "notPaid"
+          {row.paidStatus.type === "notPaid"
             ? "✘"
-            : `✓ (${i18n.formatCurrency(row.paidStatus[1], "EUR", locale)})`}
+            : `✓ (${i18n.formatCurrency(
+                row.paidStatus.amountInCents,
+                "EUR",
+                locale
+              )})`}
         </TableCell>
         <TableCell>
           {!row.isCancelled && (
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              {row.paidStatus === "notPaid" && (
+              {row.paidStatus.type === "notPaid" && (
                 <ButtonSwitch
                   buttons={[
                     {
@@ -446,6 +450,7 @@ function RegistrationRow(props: RegistrationRowProps) {
               <Button
                 variant="contained"
                 color="error"
+                data-test-id="cancelRegistration"
                 onClick={() =>
                   props.onCancel(props.registration.registrationId)
                 }

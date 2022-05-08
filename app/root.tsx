@@ -9,7 +9,7 @@ import {
 import type { MetaFunction } from "remix";
 
 export const meta: MetaFunction = () => {
-  return { title: "Freiburger Convention 2022" };
+  return { title: "Freiburger Jonglierconvention 2022" };
 };
 
 export default function App() {

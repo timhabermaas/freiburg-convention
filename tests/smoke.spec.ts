@@ -89,10 +89,7 @@ test.describe("smoke tests", () => {
     const tableRow = page.locator("tr").nth(1);
     await expect(tableRow).toHaveText(/foo@bar\.com/);
 
-    await page
-      .locator("tr:has-text('foo@bar.com') button:has-text('Abmelden')")
-      .first()
-      .click();
+    await tableRow.locator("data-test-id=cancelRegistration").first().click();
 
     await tableRow.waitFor({ state: "detached" });
   });
