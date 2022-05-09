@@ -389,7 +389,7 @@ interface RegistrationRowProps {
 }
 
 function RegistrationRow(props: RegistrationRowProps) {
-  const { dateTimeFormatter, locale } = useLocale();
+  const { locale } = useLocale();
   const [rowExtended, setRowExtended] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const row = props.registration;

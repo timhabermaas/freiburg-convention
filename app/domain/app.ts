@@ -38,8 +38,6 @@ interface State {
     registrationId: string;
   }[];
   eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
-  // Maps from registrationId to PaidStatus
-  paidMap: Map<string, PaidStatus>;
   // Maps from the accommodation to Thu–Sun/Fri–Sun
   accommodationMap: Map<Accommodation, [number, number]>;
   limits: Limits;
@@ -60,7 +58,6 @@ function initState(): State {
     payments: [],
     eventsPerRegistration: new Map(),
     accommodationMap: new Map(),
-    paidMap: new Map(),
     limits: {
       total: 250,
       gym: 64,
@@ -271,7 +268,15 @@ export class App {
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {
-    return this.state.paidMap.get(registrationId) ?? { type: "notPaid" };
+    const payments = this.state.payments.filter(
+      (p) => p.registrationId === registrationId
+    );
+
+    const sum = payments.reduce((acc, x) => acc + x.amountInCents, 0);
+
+    return payments.length === 0
+      ? { type: "notPaid" }
+      : { type: "paid", amountInCents: sum };
   }
 
   public getShirtSizeCount(): { [K in TShirtSize]: number } {
@@ -401,8 +406,6 @@ export class App {
           this.state.accommodationMap.set(p.accommodation, tuple);
         });
 
-        this.state.paidMap.set(payload.registrationId, { type: "notPaid" });
-
         this.state.registrationTimes = this.state.registrationTimes.concat(
           Array(payload.participants.length).fill(event.timeStamp)
         );
@@ -424,21 +427,6 @@ export class App {
         break;
       }
       case "PaymentReceivedEvent": {
-        const status = this.state.paidMap.get(payload.registrationId) ?? {
-          type: "notPaid",
-        };
-
-        if (status.type === "notPaid") {
-          this.state.paidMap.set(payload.registrationId, {
-            type: "paid",
-            amountInCents: payload.amountInCents,
-          });
-        } else {
-          this.state.paidMap.set(payload.registrationId, {
-            type: "paid",
-            amountInCents: status.amountInCents + payload.amountInCents,
-          });
-        }
         this.state.payments.push({
           paymentId: payload.paymentId,
           amountInCents: payload.amountInCents,

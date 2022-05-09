@@ -43,7 +43,7 @@ export interface CancelPaymentEvent {
   type: "CancelPaymentEvent";
 }
 
-const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
+export const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
   .string()
   .regex(/^\d+-\d+-\d+$/)
   .transform((s) => Day.parse(s));
