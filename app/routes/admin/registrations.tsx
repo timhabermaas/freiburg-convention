@@ -291,6 +291,7 @@ export default function Registrations() {
                 onCancel={handleCancel}
                 onPay={handlePay}
                 onUndoPay={handleUndoPay}
+                disabledButtons={fetcher.state === "submitting"}
               />
             ))}
           </TableBody>
@@ -386,6 +387,7 @@ interface RegistrationRowProps {
   onCancel: (registrationId: string) => void;
   onPay: (registrationId: string, amountInCents: number) => void;
   onUndoPay: (paymentId: string) => void;
+  disabledButtons?: boolean;
 }
 
 function RegistrationRow(props: RegistrationRowProps) {
@@ -441,6 +443,7 @@ function RegistrationRow(props: RegistrationRowProps) {
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               {row.paidStatus.type === "notPaid" && (
                 <ButtonSwitch
+                  disabled={!!props.disabledButtons}
                   buttons={[
                     {
                       title: `Passend (${i18n.formatCurrency(
@@ -504,6 +507,7 @@ function RegistrationRow(props: RegistrationRowProps) {
 
 interface ButtonSwitchProps {
   buttons: { title: string; onClick: () => void }[];
+  disabled?: boolean;
 }
 
 function ButtonSwitch(props: ButtonSwitchProps) {
@@ -529,7 +533,12 @@ function ButtonSwitch(props: ButtonSwitchProps) {
 
   return (
     <>
-      <ButtonGroup size="small" sx={{ mr: 1 }} ref={anchorRef}>
+      <ButtonGroup
+        size="small"
+        sx={{ mr: 1 }}
+        ref={anchorRef}
+        disabled={!!props.disabled}
+      >
         <Button
           variant="contained"
           startIcon={<PaidIcon />}
