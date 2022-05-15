@@ -515,7 +515,7 @@ ${ticketLines}
 
 Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
 
-Bitte überweise das Geld dafür bis zum 12.05.2022 auf unser Konto:
+Bitte überweise das Geld dafür bis zum 18.05.2022 auf unser Konto:
 
 Empfänger: Jonglieren in Freiburg e.V.
 Bank: Sparkasse Freiburg Nördlicher Breisgau
@@ -540,7 +540,7 @@ ${ticketLines}
 
 You sent us the following comment: ${comment}
 
-Please transfer the money to our account until the 12th of May of 2022:
+Please transfer the money to our account until the 18th of May of 2022:
 
 Recipient: Jonglieren in Freiburg e.V.
 Bank: Sparkasse Freiburg Nördlicher Breisgau
