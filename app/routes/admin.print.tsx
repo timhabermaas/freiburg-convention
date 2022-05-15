@@ -1,10 +1,11 @@
-import { LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction, redirect, useLoaderData } from "remix";
 import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
 import { AccommodationSchema, DaySchema } from "~/domain/events";
 import { formatTicket, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
+import { CONFIG } from "~/config.server";
 
 export function links() {
   return [
@@ -32,7 +33,15 @@ const LoaderDataSchema = z.object({
 
 type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
 
-export const loader: LoaderFunction = async ({ context }) => {
+export const loader: LoaderFunction = async ({ context, request }) => {
+  const url = new URL(request.url);
+  if (
+    CONFIG.printAccessKey &&
+    url.searchParams.get("accessKey") !== CONFIG.printAccessKey
+  ) {
+    return redirect("/admin");
+  }
+
   const app = context.app as App;
   const data: LoaderData = {
     participants: app.getAllParticipants().map((p) => {

@@ -23,6 +23,16 @@ export async function whenAuthorized<T>(
   }
 }
 
+export async function getUser(request: Request): Promise<"admin" | undefined> {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if (session.get("isLoggedIn") === true) {
+    return "admin";
+  } else {
+    return undefined;
+  }
+}
+
 export async function logout(request: Request): Promise<Response> {
   const session = await getSession(request.headers.get("Cookie"));
 

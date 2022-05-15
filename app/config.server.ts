@@ -7,6 +7,7 @@ export interface Config {
   adminPassword: string;
   sessionSecret: string;
   statsAccessKey?: string;
+  printAccessKey?: string;
 }
 
 function getConfigFromEnv(): Config {
@@ -23,6 +24,7 @@ function getConfigFromEnv(): Config {
     adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
     sessionSecret: assertDefined(process.env.SESSION_SECRET),
     statsAccessKey: process.env.STATS_ACCESS_KEY,
+    printAccessKey: process.env.PRINT_ACCESS_KEY,
   };
 }
 
