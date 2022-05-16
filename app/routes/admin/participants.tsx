@@ -7,7 +7,7 @@ import { useLocale } from "~/hooks/useLocale";
 import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
-import { AccommodationSchema, ParticipantSchema } from "~/domain/events";
+import { AccommodationSchema, NestedParticipantSchema } from "~/domain/events";
 import {
   formatAddress,
   formatTicket,
@@ -35,7 +35,7 @@ const LoaderDataSchema = z.object({
     z.tuple([AccommodationSchema, z.number(), z.number(), z.number()])
   ),
   participants: z.array(
-    z.tuple([ParticipantSchema, PaidStatusSchema, z.string()])
+    z.tuple([NestedParticipantSchema, PaidStatusSchema, z.string()])
   ),
   limits: z.object({
     total: z.optional(z.number()),
@@ -53,12 +53,12 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     const data: LoaderData = {
       accommodationTable: ACCOMMODATIONS.map((a) => [
         a,
-        app.getParticipantsForAccommodation(a, true, false),
-        app.getParticipantsForAccommodation(a, false, true),
-        app.getParticipantsForAccommodation(a, true, true),
+        app.getParticipantCountForAccommodation(a, true, false),
+        app.getParticipantCountForAccommodation(a, false, true),
+        app.getParticipantCountForAccommodation(a, true, true),
       ]),
       participants: app
-        .getAllParticipants()
+        .getAllActualParticipants()
         .map((p) => [
           p,
           app.getPaidStatus(p.registrationId),

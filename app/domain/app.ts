@@ -29,8 +29,9 @@ import AsyncLock from "async-lock";
 
 interface State {
   latestVersion: number;
+  /** Counts all registrations, used for payment reason. Should never be reduced over time to avoid conflicts. */
   registrationCount: number;
-  participants: [string, Participant][];
+  participants: Participant[];
   registrations: Registration[];
   payments: {
     paymentId: string;
@@ -38,8 +39,6 @@ interface State {
     registrationId: string;
   }[];
   eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
-  // Maps from the accommodation to Thu–Sun/Fri–Sun
-  accommodationMap: Map<Accommodation, [number, number]>;
   limits: Limits;
   // Contains the registration date for each participant, ascending order
   registrationTimes: Date[];
@@ -57,7 +56,6 @@ function initState(): State {
     registrations: [],
     payments: [],
     eventsPerRegistration: new Map(),
-    accommodationMap: new Map(),
     limits: {
       total: 250,
       gym: 64,
@@ -230,13 +228,8 @@ export class App {
     });
   }
 
-  public getAllParticipants(): (Participant & { registrationId: string })[] {
-    return this.state.participants.map(([registrationId, p]) => {
-      return {
-        ...p,
-        registrationId,
-      };
-    });
+  public getAllActualParticipants(): Participant[] {
+    return this.state.participants.filter((p) => p.isCancelled === false);
   }
 
   public getEventsForRegistration(
@@ -255,7 +248,7 @@ export class App {
       if (limit === undefined) {
         return true;
       }
-      const current = this.getParticipantsForAccommodation(a, true, true);
+      const current = this.getParticipantCountForAccommodation(a, true, true);
       return current < limit;
     });
   }
@@ -264,7 +257,7 @@ export class App {
     if (this.state.limits.total === undefined) {
       return false;
     }
-    return this.state.participants.length >= this.state.limits.total;
+    return this.getAllActualParticipants().length >= this.state.limits.total;
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {
@@ -280,7 +273,7 @@ export class App {
   }
 
   public getShirtSizeCount(): { [K in TShirtSize]: number } {
-    const participants = this.state.participants.map(([_rId, p]) => p);
+    const participants = this.getAllActualParticipants();
 
     return {
       S: participants.filter((p) => p.tShirtSize === "S").length,
@@ -295,7 +288,7 @@ export class App {
     city: string;
     country: string;
   }[] {
-    return this.state.participants.map(([_rId, p]) => {
+    return this.state.participants.map((p) => {
       return {
         postalCode: p.address.postalCode,
         city: p.address.city,
@@ -305,7 +298,7 @@ export class App {
   }
 
   public getSupporterSoliRatio(): { soli: number; support: number } {
-    const participants = this.state.participants.map(([_rId, p]) => p);
+    const participants = this.getAllActualParticipants();
 
     const support = participants.filter(
       (p) => p.ticket.priceModifier > 0
@@ -352,25 +345,42 @@ export class App {
   }
 
   public getParticipantsForRegistration(registrationId: string): Participant[] {
-    return this.state.participants
-      .filter(([rId, _p]) => rId === registrationId)
-      .map(([_rId, p]) => p);
+    return this.state.participants.filter(
+      (p) => p.registrationId === registrationId
+    );
   }
 
-  public getParticipantsForAccommodation(
+  public getParticipantCountForAccommodation(
     accommodation: Accommodation,
     thuSun: boolean,
     friSun: boolean
   ): number {
-    const daysTuple = this.state.accommodationMap.get(accommodation) ?? [0, 0];
-
     let result = 0;
+
     if (thuSun) {
-      result += daysTuple[0];
+      this.getAllActualParticipants().forEach((p) => {
+        if (
+          p.accommodation === accommodation &&
+          p.ticket.from.isEqual(THURSDAY) &&
+          p.ticket.to.isEqual(SUNDAY)
+        ) {
+          result += 1;
+        }
+      });
     }
+
     if (friSun) {
-      result += daysTuple[1];
+      this.getAllActualParticipants().forEach((p) => {
+        if (
+          p.accommodation === accommodation &&
+          p.ticket.from.isEqual(FRIDAY) &&
+          p.ticket.to.isEqual(SUNDAY)
+        ) {
+          result += 1;
+        }
+      });
     }
+
     return result;
   }
 
@@ -380,7 +390,11 @@ export class App {
       case "RegisterEvent": {
         this.state.registrationCount += 1;
         payload.participants.forEach((p) => {
-          this.state.participants.push([payload.registrationId, p]);
+          this.state.participants.push({
+            registrationId: payload.registrationId,
+            isCancelled: false,
+            ...p,
+          });
         });
         this.state.registrations.push({
           registrationId: payload.registrationId,
@@ -389,21 +403,6 @@ export class App {
           paymentReason: payload.paymentReason,
           registeredAt: event.timeStamp,
           isCancelled: false,
-        });
-
-        payload.participants.forEach((p) => {
-          const tuple = this.state.accommodationMap.get(p.accommodation) ?? [
-            0, 0,
-          ];
-          if (p.ticket.from.isEqual(THURSDAY) && p.ticket.to.isEqual(SUNDAY)) {
-            tuple[0] += 1;
-          } else if (
-            p.ticket.from.isEqual(FRIDAY) &&
-            p.ticket.to.isEqual(SUNDAY)
-          ) {
-            tuple[1] += 1;
-          }
-          this.state.accommodationMap.set(p.accommodation, tuple);
         });
 
         this.state.registrationTimes = this.state.registrationTimes.concat(
@@ -421,6 +420,18 @@ export class App {
         if (registration !== undefined) {
           registration.isCancelled = true;
         }
+
+        const participants = this.state.participants.map((p) => {
+          if (p.registrationId === payload.registrationId) {
+            return {
+              ...p,
+              isCancelled: true,
+            };
+          } else {
+            return p;
+          }
+        });
+        this.state.participants = participants;
 
         this.pushEventToRegistration(payload.registrationId, event);
 

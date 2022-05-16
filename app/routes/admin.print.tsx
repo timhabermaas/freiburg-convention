@@ -44,7 +44,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 
   const app = context.app as App;
   const data: LoaderData = {
-    participants: app.getAllParticipants().map((p) => {
+    participants: app.getAllActualParticipants().map((p) => {
       const ticket = app.findTicketOrThrow(p.ticket.ticketId);
 
       return {

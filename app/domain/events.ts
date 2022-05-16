@@ -5,7 +5,6 @@ import {
   Address,
   AgeCategory,
   Day,
-  Participant,
   OrderedTicket,
   TShirtSize,
 } from "./types";
@@ -17,9 +16,19 @@ export interface EventEnvelope<E> {
   timeStamp: Date;
 }
 
+export interface NestedParticipant {
+  participantId: string;
+  fullName: string;
+  birthday: Day;
+  address: Address;
+  ticket: OrderedTicket;
+  accommodation: Accommodation;
+  tShirtSize?: TShirtSize;
+}
+
 export interface RegisterEvent {
   registrationId: string;
-  participants: Participant[];
+  participants: NestedParticipant[];
   email: string;
   comment: string;
   paymentReason: string;
@@ -77,8 +86,8 @@ const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
 const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
   z.union([z.literal("S"), z.literal("M"), z.literal("L"), z.literal("XL")]);
 
-export const ParticipantSchema: z.ZodSchema<
-  Participant,
+export const NestedParticipantSchema: z.ZodSchema<
+  NestedParticipant,
   z.ZodTypeDef,
   unknown
 > = z.object({
@@ -101,7 +110,7 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
   z.discriminatedUnion("type", [
     z.object({
       registrationId: z.string(),
-      participants: z.array(ParticipantSchema),
+      participants: z.array(NestedParticipantSchema),
       email: z.string(),
       comment: z.string(),
       paymentReason: z.string(),

@@ -99,9 +99,9 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   const data: LoaderData = {
     accommodationTable: ACCOMMODATIONS.map((a) => [
       a,
-      app.getParticipantsForAccommodation(a, true, false),
-      app.getParticipantsForAccommodation(a, false, true),
-      app.getParticipantsForAccommodation(a, true, true),
+      app.getParticipantCountForAccommodation(a, true, false),
+      app.getParticipantCountForAccommodation(a, false, true),
+      app.getParticipantCountForAccommodation(a, true, true),
     ]),
     limits: app.getLimits(),
     tshirts: { ...app.getShirtSizeCount(), total: totalShirts },

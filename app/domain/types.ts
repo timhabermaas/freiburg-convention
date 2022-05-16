@@ -18,6 +18,7 @@ export type TShirtSize = "S" | "M" | "L" | "XL";
 export const T_SHIRT_SIZES: TShirtSize[] = ["S", "M", "L", "XL"];
 
 export interface Participant {
+  registrationId: string;
   participantId: string;
   fullName: string;
   birthday: Day;
@@ -25,6 +26,7 @@ export interface Participant {
   ticket: OrderedTicket;
   accommodation: Accommodation;
   tShirtSize?: TShirtSize;
+  isCancelled: boolean;
 }
 
 export interface Registration {
