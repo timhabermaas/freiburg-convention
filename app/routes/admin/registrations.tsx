@@ -485,13 +485,13 @@ function RegistrationRow(props: RegistrationRowProps) {
         <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={rowExtended} timeout="auto" unmountOnExit>
             <Grid container sx={{ margin: 1 }}>
-              <Grid md={6} xs={12}>
+              <Grid item md={6} xs={12}>
                 <Typography variant="h6">Teilnehmer*innen</Typography>
                 <SubParticipantTable
                   participants={props.registration.participants}
                 />
               </Grid>
-              <Grid md={6} xs={12}>
+              <Grid item md={6} xs={12}>
                 <RegistrationTimeline
                   onUndoPay={props.onUndoPay}
                   events={props.registration.events}

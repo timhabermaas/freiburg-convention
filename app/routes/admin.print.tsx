@@ -43,20 +43,26 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   }
 
   const app = context.app as App;
-  const data: LoaderData = {
-    participants: app.getAllActualParticipants().map((p) => {
-      const ticket = app.findTicketOrThrow(p.ticket.ticketId);
 
-      return {
-        participantId: p.participantId,
-        fullName: p.fullName,
-        accommodation: p.accommodation,
-        birthday: p.birthday,
-        paidStatus: app.getPaidStatus(p.registrationId),
-        ticketName: formatTicket(ticket, "de"),
-        ticketPriceInCents: ticket.price,
-      };
-    }),
+  const participants = app.getAllActualParticipants().map((p) => {
+    const ticket = app.findTicketOrThrow(p.ticket.ticketId);
+
+    return {
+      participantId: p.participantId,
+      fullName: p.fullName,
+      accommodation: p.accommodation,
+      birthday: p.birthday,
+      paidStatus: app.getPaidStatus(p.registrationId),
+      ticketName: formatTicket(ticket, "de"),
+      ticketPriceInCents: ticket.price,
+    };
+  });
+  participants.sort((a, b) => {
+    return a.fullName.localeCompare(b.fullName);
+  });
+
+  const data: LoaderData = {
+    participants,
   };
 
   return data;
