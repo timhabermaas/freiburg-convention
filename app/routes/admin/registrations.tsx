@@ -16,6 +16,7 @@ import {
   PaidStatusSchema,
   parseFormData,
   ticketPrice,
+  ticketSumForParticipants,
 } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import Fuse from "fuse.js";
@@ -108,9 +109,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
           participantCount: participants.length,
           participants: participants,
           events: app.getEventsForRegistration(r.registrationId),
-          ticketSum: participants
-            .map((p) => ticketPrice(p.ticket))
-            .reduce((sum, p) => sum + p, 0),
+          ticketSum: ticketSumForParticipants(participants),
         };
       }),
     };

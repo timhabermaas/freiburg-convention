@@ -23,6 +23,7 @@ import {
   formatTicket,
   paymentReasonForRegistrationCount,
   ticketPrice,
+  ticketSumForParticipants,
 } from "~/utils";
 import { ACCOMMODATIONS } from "./accommodation";
 import AsyncLock from "async-lock";
@@ -283,6 +284,29 @@ export class App {
     };
   }
 
+  public getTotalPaidAmount(): number {
+    return this.state.payments.reduce((sum, p) => p.amountInCents + sum, 0);
+  }
+
+  public getMissingAmount(): number {
+    const registrations = this.getAllActualRegistrations();
+    const payments = this.state.payments;
+
+    const unPaidRegistrations = registrations.filter(
+      (r) =>
+        payments.find((p) => p.registrationId === r.registrationId) ===
+        undefined
+    );
+
+    return unPaidRegistrations
+      .map((r) =>
+        ticketSumForParticipants(
+          this.getParticipantsForRegistration(r.registrationId)
+        )
+      )
+      .reduce((sum, amount) => sum + amount, 0);
+  }
+
   public getFuzzyAddresses(): {
     postalCode: string;
     city: string;
@@ -342,6 +366,10 @@ export class App {
 
   public getAllRegistrations(): Registration[] {
     return this.state.registrations;
+  }
+
+  public getAllActualRegistrations(): Registration[] {
+    return this.getAllRegistrations().filter((r) => r.isCancelled === false);
   }
 
   public getParticipantsForRegistration(registrationId: string): Participant[] {
@@ -453,7 +481,6 @@ export class App {
         if (payment === undefined) {
           break;
         }
-        // TODO: change paid state
         this.state.payments = this.state.payments.filter(
           (p) => p.paymentId !== payload.paymentId
         );

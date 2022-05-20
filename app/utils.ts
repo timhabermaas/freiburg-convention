@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Address, OrderedTicket, Ticket } from "./domain/types";
+import { Address, OrderedTicket, Participant, Ticket } from "./domain/types";
 import { LocaleMap, SupportedLocales, translateCategory } from "./i18n";
 import * as i18n from "./i18n";
 
@@ -260,6 +260,12 @@ export function finalPriceModifier(
 
 export function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function ticketSumForParticipants(participants: Participant[]): number {
+  return participants
+    .map((p) => ticketPrice(p.ticket))
+    .reduce((sum, p) => sum + p, 0);
 }
 
 export const IntSchema = z.string().regex(/^\d+$/).transform(Number);

@@ -73,6 +73,10 @@ const LoaderDataSchema = z.object({
     support: z.number(),
     soli: z.number(),
   }),
+  income: z.object({
+    earnedInCents: z.number(),
+    missingInCents: z.number(),
+  }),
   fuzzyAddresses: z.array(
     z.object({ postalCode: z.string(), city: z.string(), country: z.string() })
   ),
@@ -106,6 +110,10 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     limits: app.getLimits(),
     tshirts: { ...app.getShirtSizeCount(), total: totalShirts },
     supporterSoliRatio: app.getSupporterSoliRatio(),
+    income: {
+      earnedInCents: app.getTotalPaidAmount(),
+      missingInCents: app.getMissingAmount(),
+    },
     fuzzyAddresses: app.getFuzzyAddresses(),
     histogram: app
       .getRegistrationHistogram()
@@ -238,9 +246,46 @@ export default function StatsPage() {
           </Box>
           <Box>
             <Typography gutterBottom variant="h2">
+              💰
+            </Typography>
+            <TableContainer component={Paper} elevation={2}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell variant="head" align="right">
+                      Einnahmen
+                    </TableCell>
+                    <TableCell variant="head" align="right">
+                      Noch zu bezahlen
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="right">
+                      {i18n.formatCurrency(
+                        data.income.earnedInCents,
+                        "EUR",
+                        "de"
+                      )}
+                    </TableCell>
+                    <TableCell align="right">
+                      {i18n.formatCurrency(
+                        data.income.missingInCents,
+                        "EUR",
+                        "de"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+          <Box>
+            <Typography gutterBottom variant="h2">
               Angemeldete Teilnehmer/Tag
             </Typography>
-            <Paper sx={{ height: 240 }}>
+            <Paper sx={{ height: 240 }} elevation={2}>
               <Chart histogram={data.histogram} />
             </Paper>
           </Box>
