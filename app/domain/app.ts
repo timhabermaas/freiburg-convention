@@ -660,7 +660,7 @@ ${ticketLines}
 
 You sent us the following comment: ${comment}
 
-Please transfer the money to our account until the 22nd of May of 2022:
+Please transfer the money to our account until May 22nd, 2022:
 
 Recipient: Jonglieren in Freiburg e.V.
 Bank: Sparkasse Freiburg Nördlicher Breisgau
@@ -778,7 +778,7 @@ You ordered the following tickets for the Freiburg Juggling Convention:
 
 ${ticketLines}
 
-Please transfer the money to our account by 23rd of May of 2022.
+Please transfer the money to our account by May 23rd, 2022.
 If the money is not in our account by then, we will have to charge you the full price (without pre-registration discount)
 on site.
 
