@@ -11,6 +11,7 @@ import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
 import {
   assertNever,
+  formatTicket,
   IntSchema,
   isoDateString,
   PaidStatusSchema,
@@ -20,7 +21,14 @@ import {
 } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import Fuse from "fuse.js";
-import { Event, EventEnvelope, EventEnvelopeSchema } from "~/domain/events";
+import {
+  AccommodationSchema,
+  AgeCategorySchema,
+  DaySchema,
+  Event,
+  EventEnvelope,
+  EventEnvelopeSchema,
+} from "~/domain/events";
 import {
   Alert,
   Box,
@@ -42,6 +50,7 @@ import {
   OutlinedInput,
   Paper,
   Popper,
+  Select,
   Stack,
   Switch,
   Table,
@@ -68,6 +77,8 @@ import {
   TimelineOppositeContent,
   TimelineSeparator,
 } from "@mui/lab";
+import { Accommodation, OrderedTicket } from "~/domain/types";
+import { ACCOMMODATIONS } from "~/domain/accommodation";
 
 const LoaderDataSchema = z.object({
   registrations: z.array(
@@ -85,6 +96,15 @@ const LoaderDataSchema = z.object({
         z.object({
           fullName: z.string(),
           participantId: z.string(),
+          accommodation: AccommodationSchema,
+          ticket: z.object({
+            ticketId: z.string(),
+            ageCategory: AgeCategorySchema,
+            from: DaySchema,
+            to: DaySchema,
+            price: z.number(),
+            priceModifier: z.number(),
+          }),
         })
       ),
       events: z.array(EventEnvelopeSchema),
@@ -130,6 +150,11 @@ const ActionSchema = z.discriminatedUnion("type", [
     type: z.literal("undoPayment"),
     paymentId: z.string(),
   }),
+  z.object({
+    type: z.literal("changeAccommodation"),
+    participantId: z.string(),
+    newAccommodation: AccommodationSchema,
+  }),
 ]);
 
 export const action: ActionFunction = async ({ context, request }) => {
@@ -146,6 +171,9 @@ export const action: ActionFunction = async ({ context, request }) => {
       break;
     case "undoPayment":
       app.undoPayment(data.paymentId);
+      break;
+    case "changeAccommodation":
+      app.changeAccommodation(data.participantId, data.newAccommodation);
       break;
     default:
       assertNever(data);
@@ -203,6 +231,20 @@ export default function Registrations() {
       {
         type: "undoPayment",
         paymentId,
+      },
+      { method: "post" }
+    );
+  };
+
+  const handleAccommodationChange = (
+    participantId: string,
+    newAccommodation: Accommodation
+  ) => {
+    fetcher.submit(
+      {
+        type: "changeAccommodation",
+        participantId,
+        newAccommodation,
       },
       { method: "post" }
     );
@@ -290,6 +332,7 @@ export default function Registrations() {
                 onCancel={handleCancel}
                 onPay={handlePay}
                 onUndoPay={handleUndoPay}
+                onAccommodationChange={handleAccommodationChange}
                 disabledButtons={fetcher.state === "submitting"}
               />
             ))}
@@ -386,6 +429,10 @@ interface RegistrationRowProps {
   onCancel: (registrationId: string) => void;
   onPay: (registrationId: string, amountInCents: number) => void;
   onUndoPay: (paymentId: string) => void;
+  onAccommodationChange: (
+    participantId: string,
+    newAccommodation: Accommodation
+  ) => void;
   disabledButtons?: boolean;
 }
 
@@ -488,6 +535,7 @@ function RegistrationRow(props: RegistrationRowProps) {
                 <Typography variant="h6">Teilnehmer*innen</Typography>
                 <SubParticipantTable
                   participants={props.registration.participants}
+                  onAccommodationChange={props.onAccommodationChange}
                 />
               </Grid>
               <Grid item md={6} xs={12}>
@@ -613,6 +661,13 @@ function EventEntry(props: EventEntryProps) {
       );
     case "CancelPaymentEvent":
       return <>Zahlung storniert</>;
+    case "ChangeAccommodationEvent":
+      return (
+        <>
+          Unterkunft von {i18n.accommodationFieldShort(payload.from)["de"]} zu{" "}
+          {i18n.accommodationFieldShort(payload.to)["de"]} geändert.
+        </>
+      );
     default:
       return assertNever(payload);
   }
@@ -647,7 +702,16 @@ function RegistrationTimeline(props: RegistrationTimelineProps) {
 }
 
 interface SubParticipantTableProps {
-  participants: { fullName: string; participantId: string }[];
+  participants: {
+    fullName: string;
+    participantId: string;
+    ticket: OrderedTicket;
+    accommodation: Accommodation;
+  }[];
+  onAccommodationChange: (
+    participantId: string,
+    newAccommodation: Accommodation
+  ) => void;
 }
 
 function SubParticipantTable(props: SubParticipantTableProps) {
@@ -655,14 +719,74 @@ function SubParticipantTable(props: SubParticipantTableProps) {
     <Table size="small">
       <TableHead>
         <TableCell>Name</TableCell>
+        <TableCell>Ticket</TableCell>
+        <TableCell>Unterkunft</TableCell>
       </TableHead>
       <TableBody>
         {props.participants.map((p) => (
-          <TableRow key={p.participantId}>
-            <TableCell>{p.fullName}</TableCell>
-          </TableRow>
+          <SubParticipantRow
+            participant={p}
+            onAccommodationChange={props.onAccommodationChange}
+          />
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+interface SubParticipantRowProps {
+  participant: {
+    fullName: string;
+    participantId: string;
+    ticket: OrderedTicket;
+    accommodation: Accommodation;
+  };
+  onAccommodationChange: (
+    participantId: string,
+    newAccommodation: Accommodation
+  ) => void;
+}
+
+function SubParticipantRow(props: SubParticipantRowProps) {
+  const participant = props.participant;
+  const [accommodation, setAccommodation] = useState(
+    props.participant.accommodation
+  );
+
+  return (
+    <TableRow key={participant.participantId}>
+      <TableCell>{participant.fullName}</TableCell>
+      <TableCell>
+        {formatTicket(participant.ticket, "de")} (
+        {i18n.formatCurrency(ticketPrice(participant.ticket), "EUR", "de")})
+      </TableCell>
+      <TableCell>
+        <FormControl fullWidth>
+          <InputLabel>Unterkunft</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            label="Unterkunft"
+            value={accommodation}
+            onChange={(event) => {
+              const newAccommodation = AccommodationSchema.parse(
+                event.target.value
+              );
+              props.onAccommodationChange(
+                props.participant.participantId,
+                newAccommodation
+              );
+              setAccommodation(newAccommodation);
+            }}
+          >
+            {ACCOMMODATIONS.map((a) => (
+              <MenuItem key={a} value={a}>
+                {i18n.accommodationFieldShort(a)["de"]}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </TableCell>
+    </TableRow>
   );
 }

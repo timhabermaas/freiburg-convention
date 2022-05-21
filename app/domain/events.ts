@@ -52,6 +52,14 @@ export interface CancelPaymentEvent {
   type: "CancelPaymentEvent";
 }
 
+export interface ChangeAccommodationEvent {
+  registrationId: string;
+  participantId: string;
+  from: Accommodation;
+  to: Accommodation;
+  type: "ChangeAccommodationEvent";
+}
+
 export const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
   .string()
   .regex(/^\d+-\d+-\d+$/)
@@ -70,8 +78,11 @@ export const AccommodationSchema: z.ZodSchema<
   unknown
 > = z.union([z.literal("gym"), z.literal("tent"), z.literal("selfOrganized")]);
 
-const AgeCategorySchema: z.ZodSchema<AgeCategory, z.ZodTypeDef, unknown> =
-  z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
+export const AgeCategorySchema: z.ZodSchema<
+  AgeCategory,
+  z.ZodTypeDef,
+  unknown
+> = z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
 
 const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
   z.object({
@@ -104,7 +115,8 @@ export type Event =
   | RegisterEvent
   | CancelRegistrationEvent
   | PaymentReceivedEvent
-  | CancelPaymentEvent;
+  | CancelPaymentEvent
+  | ChangeAccommodationEvent;
 
 export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
   z.discriminatedUnion("type", [
@@ -129,6 +141,13 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
     z.object({
       paymentId: z.string(),
       type: z.literal("CancelPaymentEvent"),
+    }),
+    z.object({
+      registrationId: z.string(),
+      participantId: z.string(),
+      from: AccommodationSchema,
+      to: AccommodationSchema,
+      type: z.literal("ChangeAccommodationEvent"),
     }),
   ]);
 

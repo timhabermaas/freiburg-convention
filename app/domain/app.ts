@@ -229,6 +229,37 @@ export class App {
     });
   }
 
+  public async changeAccommodation(
+    participantId: string,
+    newAccommodation: Accommodation
+  ) {
+    return this.lock.acquire("mutate", async () => {
+      const participant = this.state.participants.find(
+        (p) => p.participantId === participantId
+      );
+
+      if (participant === undefined) {
+        return undefined;
+      }
+
+      const registration = this.state.registrations.find(
+        (r) => r.registrationId === participant.registrationId
+      );
+
+      if (registration === undefined) {
+        return undefined;
+      }
+
+      await this.saveEvent({
+        type: "ChangeAccommodationEvent",
+        participantId: participant.participantId,
+        registrationId: registration.registrationId,
+        from: participant.accommodation,
+        to: newAccommodation,
+      });
+    });
+  }
+
   public getAllActualParticipants(): Participant[] {
     return this.state.participants.filter((p) => p.isCancelled === false);
   }
@@ -485,6 +516,18 @@ export class App {
           (p) => p.paymentId !== payload.paymentId
         );
         this.pushEventToRegistration(payment.registrationId, event);
+        break;
+      }
+      case "ChangeAccommodationEvent": {
+        const index = this.state.participants.findIndex(
+          (p) => p.participantId === payload.participantId
+        );
+
+        if (index !== undefined) {
+          this.state.participants[index].accommodation = payload.to;
+          this.pushEventToRegistration(payload.registrationId, event);
+        }
+
         break;
       }
       default:
