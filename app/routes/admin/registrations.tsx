@@ -358,7 +358,7 @@ export default function Registrations() {
             }}
             variant="contained"
           >
-            Verschicken
+            Erinnerungs-E-Mail verschicken
           </Button>
         </>
       )}
