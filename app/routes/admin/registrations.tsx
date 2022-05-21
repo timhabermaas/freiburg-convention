@@ -51,6 +51,7 @@ import {
   Paper,
   Popper,
   Select,
+  Slider,
   Stack,
   Switch,
   Table,
@@ -77,7 +78,7 @@ import {
   TimelineOppositeContent,
   TimelineSeparator,
 } from "@mui/lab";
-import { Accommodation, OrderedTicket } from "~/domain/types";
+import { Accommodation, Day, OrderedTicket } from "~/domain/types";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
 
 const LoaderDataSchema = z.object({
@@ -155,6 +156,10 @@ const ActionSchema = z.discriminatedUnion("type", [
     participantId: z.string(),
     newAccommodation: AccommodationSchema,
   }),
+  z.object({
+    type: z.literal("sendReminderMail"),
+    registrationIds: z.string(),
+  }),
 ]);
 
 export const action: ActionFunction = async ({ context, request }) => {
@@ -175,6 +180,9 @@ export const action: ActionFunction = async ({ context, request }) => {
     case "changeAccommodation":
       app.changeAccommodation(data.participantId, data.newAccommodation);
       break;
+    case "sendReminderMail":
+      app.sendPaymentReminderMail(data.registrationIds.split(","));
+      break;
     default:
       assertNever(data);
   }
@@ -186,6 +194,9 @@ export default function Registrations() {
   const [searchText, setSearchText] = useState<string>("");
   const [hideCancelled, setHideCancelled] = useState<boolean>(true);
   const [hidePaid, setHidePaid] = useState<boolean>(false);
+  const [showOnlyReminderRegistrations, setShowOnlyReminderRegistrations] =
+    useState<boolean>(false);
+  const [daysAgoForReminder, setDaysAgoForReminder] = useState<number>(10);
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
   const fetcher = useFetcher();
 
@@ -193,6 +204,14 @@ export default function Registrations() {
     includeScore: true,
     useExtendedSearch: true,
     keys: ["paymentReason", "participants.fullName", "email", "comment"],
+  });
+
+  const registrationsForPaymentReminder = data.registrations.filter((r) => {
+    return (
+      !r.isCancelled &&
+      r.paidStatus.type === "notPaid" &&
+      Day.now().diffInDays(Day.fromDate(r.registeredAt)) > daysAgoForReminder
+    );
   });
 
   let registrations =
@@ -250,6 +269,16 @@ export default function Registrations() {
     );
   };
 
+  const handleSendReminderMail = (registrationIds: string[]) => {
+    fetcher.submit(
+      {
+        type: "sendReminderMail",
+        registrationIds: registrationIds.join(","),
+      },
+      { method: "post" }
+    );
+  };
+
   return (
     <Stack spacing={2} sx={{ mb: 4 }}>
       <Typography variant="h2">Anmeldungen</Typography>
@@ -296,6 +325,43 @@ export default function Registrations() {
           </Alert>
         </Stack>
       </FormGroup>
+      <FormGroup>
+        <FormControlLabel
+          control={<Switch checked={showOnlyReminderRegistrations} />}
+          label="Erinnerungs-Email-Kandidaten"
+          onChange={(_e, checked) => setShowOnlyReminderRegistrations(checked)}
+        />
+      </FormGroup>
+      {showOnlyReminderRegistrations && (
+        <>
+          <Grid container>
+            <Grid item md={6}>
+              <Typography gutterBottom>Tage seit Anmeldung</Typography>
+              <Slider
+                aria-label="Volume"
+                value={daysAgoForReminder}
+                valueLabelDisplay="auto"
+                onChange={(_e, value) => setDaysAgoForReminder(value as number)}
+              />
+            </Grid>
+          </Grid>
+          <ul>
+            {registrationsForPaymentReminder.map((r) => (
+              <li key={r.registrationId}>{r.email}</li>
+            ))}
+          </ul>
+          <Button
+            onClick={() => {
+              handleSendReminderMail(
+                registrationsForPaymentReminder.map((r) => r.registrationId)
+              );
+            }}
+            variant="contained"
+          >
+            Verschicken
+          </Button>
+        </>
+      )}
       <FormGroup>
         <FormControlLabel
           control={<Switch checked={hideCancelled} />}
@@ -668,6 +734,8 @@ function EventEntry(props: EventEntryProps) {
           {i18n.accommodationFieldShort(payload.to)["de"]} geändert.
         </>
       );
+    case "PaymentReminderMailSentEvent":
+      return <>Zahlungserinnerung verschickt</>;
     default:
       return assertNever(payload);
   }

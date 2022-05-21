@@ -60,6 +60,11 @@ export interface ChangeAccommodationEvent {
   type: "ChangeAccommodationEvent";
 }
 
+export interface PaymentReminderMailSentEvent {
+  registrationId: string;
+  type: "PaymentReminderMailSentEvent";
+}
+
 export const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
   .string()
   .regex(/^\d+-\d+-\d+$/)
@@ -116,7 +121,8 @@ export type Event =
   | CancelRegistrationEvent
   | PaymentReceivedEvent
   | CancelPaymentEvent
-  | ChangeAccommodationEvent;
+  | ChangeAccommodationEvent
+  | PaymentReminderMailSentEvent;
 
 export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
   z.discriminatedUnion("type", [
@@ -148,6 +154,10 @@ export const EventSchema: z.ZodSchema<Event, z.ZodTypeDef, unknown> =
       from: AccommodationSchema,
       to: AccommodationSchema,
       type: z.literal("ChangeAccommodationEvent"),
+    }),
+    z.object({
+      registrationId: z.string(),
+      type: z.literal("PaymentReminderMailSentEvent"),
     }),
   ]);
 
