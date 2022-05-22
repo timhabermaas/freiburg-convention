@@ -789,6 +789,7 @@ function SubParticipantTable(props: SubParticipantTableProps) {
       <TableBody>
         {props.participants.map((p) => (
           <SubParticipantRow
+            key={p.participantId}
             participant={p}
             onAccommodationChange={props.onAccommodationChange}
           />
