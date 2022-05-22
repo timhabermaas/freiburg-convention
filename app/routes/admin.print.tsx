@@ -1,4 +1,5 @@
-import { LoaderFunction, redirect, useLoaderData } from "remix";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app";

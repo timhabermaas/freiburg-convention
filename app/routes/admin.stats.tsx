@@ -14,7 +14,8 @@ import {
   ThemeProvider,
   Typography,
 } from "@mui/material";
-import { LoaderFunction, redirect, useLoaderData } from "remix";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import { Chart } from "~/components/Chart";
 import { Map } from "~/components/Map";

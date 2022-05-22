@@ -1,4 +1,5 @@
-import { createCookieSessionStorage, redirect, json } from "remix";
+import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { CONFIG } from "./config.server";
 
 export const { getSession, commitSession, destroySession } =

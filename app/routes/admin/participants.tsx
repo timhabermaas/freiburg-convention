@@ -1,4 +1,5 @@
-import { LoaderFunction, useLoaderData } from "remix";
+import { LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { Col } from "~/components/Col";
 import { Row } from "~/components/Row";
 import { ACCOMMODATIONS } from "~/domain/accommodation";

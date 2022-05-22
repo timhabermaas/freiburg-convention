@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useParams } from "remix";
+import { Link, Outlet, useLocation, useParams } from "@remix-run/react";
 import { LocaleContext } from "~/hooks/useLocale";
 import { Languages, SupportedLocales } from "~/i18n";
 import {

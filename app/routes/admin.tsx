@@ -9,7 +9,8 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { Link, LoaderFunction, Outlet, useLoaderData } from "remix";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
+import { LoaderFunction } from "@remix-run/node";
 import { CONFIG } from "~/config.server";
 import { getUser } from "~/session";
 

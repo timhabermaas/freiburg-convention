@@ -1,4 +1,5 @@
-import { ActionFunction, json, redirect, useActionData } from "remix";
+import { useActionData } from "@remix-run/react";
+import { json, ActionFunction, redirect } from "@remix-run/node";
 import { Col } from "~/components/Col";
 import { Row } from "~/components/Row";
 import { SubmitButton } from "~/components/SubmitButton";

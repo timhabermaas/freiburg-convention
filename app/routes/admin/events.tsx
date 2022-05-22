@@ -1,4 +1,5 @@
-import { LoaderFunction, useLoaderData } from "remix";
+import { useLoaderData } from "@remix-run/react";
+import { LoaderFunction } from "@remix-run/node";
 import { EventEnvelope, Event } from "~/domain/events";
 import { EventStore } from "~/services/stores/interface";
 import { whenAuthorized } from "~/session";

@@ -1,10 +1,6 @@
+import { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useRef, useState } from "react";
-import {
-  ActionFunction,
-  LoaderFunction,
-  useFetcher,
-  useLoaderData,
-} from "remix";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import * as i18n from "~/i18n";

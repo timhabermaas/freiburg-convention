@@ -3,9 +3,7 @@ import {
   json,
   LoaderFunction,
   redirect,
-  useActionData,
-  useLoaderData,
-} from "remix";
+} from "@remix-run/node";
 import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import {
@@ -46,6 +44,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { TicketCard } from "~/components/TicketCard";
 import { CountrySelect } from "~/components/CountrySelect";
+import { useActionData, useLoaderData } from "@remix-run/react";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string().nonempty(),
