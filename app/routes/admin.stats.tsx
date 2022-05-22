@@ -171,14 +171,18 @@ export default function StatsPage() {
                   <TableRow>
                     <TableCell></TableCell>
                     <TableCell align="right">
-                      {data.accommodationTable
-                        .map((row) => row[1])
-                        .reduce((sum, x) => sum + x, 0)}
+                      <strong>
+                        {data.accommodationTable
+                          .map((row) => row[1])
+                          .reduce((sum, x) => sum + x, 0)}
+                      </strong>
                     </TableCell>
                     <TableCell align="right">
-                      {data.accommodationTable
-                        .map((row) => row[2])
-                        .reduce((sum, x) => sum + x, 0)}
+                      <strong>
+                        {data.accommodationTable
+                          .map((row) => row[2])
+                          .reduce((sum, x) => sum + x, 0)}
+                      </strong>
                     </TableCell>
                     <TableCell align="right">
                       <strong>
