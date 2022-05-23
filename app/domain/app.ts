@@ -313,6 +313,14 @@ export class App {
     }
   }
 
+  public async sendGenericTestEmail(
+    toAddress: string,
+    emailSubject: string,
+    emailBody: string
+  ) {
+    await this.mailSender.send(buildMail(toAddress, emailSubject, emailBody));
+  }
+
   public getAllActualParticipants(): Participant[] {
     return this.state.participants.filter((p) => p.isCancelled === false);
   }
