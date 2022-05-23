@@ -74,7 +74,7 @@ export default function PrintPage() {
   const { dateFormatter, locale } = useLocale();
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       <div className="mb-3"></div>
       <div className="row">
         <div className="col-md-12">
@@ -116,7 +116,7 @@ export default function PrintPage() {
               <tr>
                 <td></td>
                 <td>Name</td>
-                <td>Geburtstag</td>
+                <td>Geburtsdatum</td>
                 <td>Ticket</td>
                 <td>Wo?</td>
                 <td>Bezahlt?</td>
@@ -142,7 +142,7 @@ export default function PrintPage() {
                         )})`
                       : "✔"}
                   </td>
-                  <td></td>
+                  <td style={{ minWidth: "200px" }}></td>
                 </tr>
               ))}
               {Array(150)
