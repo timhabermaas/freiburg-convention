@@ -165,19 +165,19 @@ export const action: ActionFunction = async ({ context, request }) => {
 
   switch (data.type) {
     case "cancelRegistration":
-      app.cancelRegistration(data.registrationId);
+      await app.cancelRegistration(data.registrationId);
       break;
     case "payRegistration":
-      app.payRegistration(data.registrationId, data.amountInCents);
+      await app.payRegistration(data.registrationId, data.amountInCents);
       break;
     case "undoPayment":
-      app.undoPayment(data.paymentId);
+      await app.undoPayment(data.paymentId);
       break;
     case "changeAccommodation":
-      app.changeAccommodation(data.participantId, data.newAccommodation);
+      await app.changeAccommodation(data.participantId, data.newAccommodation);
       break;
     case "sendReminderMail":
-      app.sendPaymentReminderMail(data.registrationIds.split(","));
+      await app.sendPaymentReminderMail(data.registrationIds.split(","));
       break;
     default:
       assertNever(data);
