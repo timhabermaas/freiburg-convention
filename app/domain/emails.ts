@@ -5,6 +5,14 @@ const MAIL_FROM =
   "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>";
 const MAIL_CC = MAIL_FROM;
 
+export function buildMail(
+  toMailAddress: string,
+  subject: string,
+  body: string
+): Mail {
+  return { to: [toMailAddress], from: MAIL_FROM, cc: [MAIL_CC], subject, body };
+}
+
 export function composeRegistrationMail(
   toMailAddress: string,
   fullName: string,

@@ -89,6 +89,13 @@ export default function Admin() {
               >
                 Stats
               </Button>
+              <Button
+                sx={{ my: 2, color: "white", display: "block" }}
+                component={Link}
+                to={"/admin/email"}
+              >
+                Emails
+              </Button>
             </Box>
           )}
 

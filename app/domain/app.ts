@@ -25,6 +25,7 @@ import {
 import { ACCOMMODATIONS } from "./accommodation";
 import AsyncLock from "async-lock";
 import {
+  buildMail,
   composePaymentReceivedMail,
   composePaymentReminderMail,
   composeRegistrationMail,
@@ -294,6 +295,22 @@ export class App {
         });
       }
     });
+  }
+
+  public async sendGenericEmail(
+    registrationIds: string[],
+    emailSubject: string,
+    emailBody: string
+  ) {
+    const registrations = this.getAllRegistrations().filter((r) =>
+      registrationIds.includes(r.registrationId)
+    );
+
+    for (const registration of registrations) {
+      await this.mailSender.send(
+        buildMail(registration.email, emailSubject, emailBody)
+      );
+    }
   }
 
   public getAllActualParticipants(): Participant[] {
