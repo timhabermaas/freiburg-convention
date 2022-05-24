@@ -133,9 +133,7 @@ export default function PrintPage() {
                   <td>
                     {i18n.accommodationFieldShort(p.accommodation)[locale]}
                   </td>
-                  <td style={{ minWidth: "100px" }}>
-                    {p.paidStatus.type === "notPaid" ? "✘" : "✔"}
-                  </td>
+                  <td>{p.paidStatus.type === "notPaid" ? "✘" : "✔"}</td>
                   <td style={{ minWidth: "200px" }}></td>
                 </tr>
               ))}
