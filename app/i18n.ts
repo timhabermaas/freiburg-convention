@@ -67,8 +67,8 @@ export function accommodationFieldType(accommodation: Accommodation) {
       };
     case "selfOrganized":
       return {
-        "en-US": "Self-organized",
-        de: "Ich sorge für meine eigene Übernachtung",
+        "en-US": "Self-organized (e.g. van, hotel, couchsurfing, ...)",
+        de: "Ich sorge für meine eigene Übernachtung (z.B. Van, Hotel, bei Freunden, ...)",
       };
     default:
       assertNever(accommodation);
