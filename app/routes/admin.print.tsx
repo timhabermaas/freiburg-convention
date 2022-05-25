@@ -7,6 +7,7 @@ import { AccommodationSchema, DaySchema } from "~/domain/events";
 import { formatTicket, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
+import styles from "~/styles/print_override.css";
 
 export function links() {
   return [
@@ -14,6 +15,11 @@ export function links() {
       rel: "stylesheet",
       type: "text/css",
       href: "https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css",
+    },
+    {
+      rel: "stylesheet",
+      type: "text/css",
+      href: styles,
     },
   ];
 }
