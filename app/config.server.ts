@@ -22,7 +22,7 @@ function getConfigFromEnv(): Config {
         : "file_store",
     eventStorePath: process.env.EVENT_STORE_PATH ?? "temp/store.log",
     adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
-    sessionSecret: assertDefined(process.env.SESSION_SECRET),
+    sessionSecret: assertDefined(process.env.SESSION_SECRET, "SESSION_SECRET"),
     statsAccessKey: process.env.STATS_ACCESS_KEY,
     printAccessKey: process.env.PRINT_ACCESS_KEY,
   };

@@ -172,9 +172,9 @@ export function assertNever(x: never): never {
   throw new Error(`Shouldn't get here, value is ${x} instead of never`);
 }
 
-export function assertDefined<T>(x: T | null | undefined): T {
+export function assertDefined<T>(x: T | null | undefined, value?: string): T {
   if (x === null || x === undefined) {
-    throw new Error("value not defined");
+    throw new Error(`value ${value ? value : ""} not defined`);
   } else {
     return x;
   }
