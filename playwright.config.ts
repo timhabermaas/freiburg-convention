@@ -102,6 +102,8 @@ const config: PlaywrightTestConfig = {
     port: 6590,
     env: {
       PORT: "6590",
+      SESSION_SECRET: "some_secret",
+      ADMIN_PASSWORD: "admin",
       EVENT_STORE: "file_store",
       EVENT_STORE_PATH: "temp/store-test.log",
     },

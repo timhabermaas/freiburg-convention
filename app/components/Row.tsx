@@ -2,6 +2,7 @@ import React from "react";
 
 interface RowProps {
   centered?: boolean;
+  children?: React.ReactNode;
 }
 
 export const Row: React.FC<RowProps> = (props) => {

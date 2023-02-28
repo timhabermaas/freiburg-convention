@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   unit:
@@ -22,7 +22,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
-
 
       - name: Install dependencies
         run: npm ci
@@ -45,7 +44,7 @@ jobs:
       - name: Use Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x'
+          node-version: "16.x"
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright
@@ -56,8 +55,6 @@ jobs:
         run: npm run end2end
         env:
           SESSION_SECRET: abc
-          ADMIN_PASSWORD: admin
-          EVENT_STORE: file_store
       - uses: actions/upload-artifact@v2
         if: always()
         with:

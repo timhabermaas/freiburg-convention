@@ -62,9 +62,9 @@ test.describe("smoke tests", () => {
   }) => {
     await fillOutRegistrationForm(page);
 
-    await page.waitForNavigation({
-      url: `http://localhost:${PORT}/p/de/registration/success`,
-    });
+    await page.waitForURL(
+      `http://localhost:${PORT}/p/de/registration/new/success`
+    );
 
     expect(page.locator("h1")).toHaveText("Danke für deine Anmeldung!");
   });

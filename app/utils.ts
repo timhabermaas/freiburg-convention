@@ -73,11 +73,17 @@ function translateIssue(issue: z.ZodIssue): LocaleMap {
   const required = { de: "Muss ausgefüllt sein", "en-US": "Required" };
 
   switch (issue.code) {
-    case "invalid_string":
-      return {
-        de: `Invalide ${capitalize(issue.validation)}`,
-        "en-US": `Invalid ${issue.validation}`,
-      };
+    case "invalid_string": {
+      if (typeof issue.validation === "string") {
+        return {
+          de: `Invalide ${capitalize(issue.validation)}`,
+          "en-US": `Invalid ${issue.validation}`,
+        };
+        // contains {startsWith: string} | {endsWith: string}
+      } else {
+        return def;
+      }
+    }
     case "invalid_type":
       if (issue.received === "undefined") {
         return { de: "Muss ausgefüllt sein", "en-US": "Required" };
