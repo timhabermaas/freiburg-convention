@@ -1,0 +1,12 @@
+FROM node:18.13.0-slim as base
+
+WORKDIR /frontend
+
+COPY package.json package-lock.json /frontend/
+
+RUN --mount=type=cache,target=/root/.npm npm ci
+
+COPY . /frontend
+
+EXPOSE 3000
+CMD npm run dev
