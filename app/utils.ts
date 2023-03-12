@@ -186,7 +186,10 @@ export function assertDefined<T>(x: T | null | undefined, value?: string): T {
   }
 }
 
-export function formatTicket(ticket: Ticket, locale: SupportedLocales): string {
+export function formatTicket(
+  ticket: OrderedTicket,
+  locale: SupportedLocales
+): string {
   return `${formatTimeSpan(ticket, locale)}, ${
     translateCategory(ticket.ageCategory)[locale]
   }`;
@@ -200,7 +203,7 @@ export function formatDuration(
 }
 
 export function formatTimeSpan(
-  ticket: Ticket,
+  ticket: OrderedTicket,
   locale: SupportedLocales
 ): string {
   const from = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
@@ -250,18 +253,7 @@ export const PaidStatusSchema = z.discriminatedUnion("type", [
 ]);
 
 export function ticketPrice(ticket: OrderedTicket): number {
-  return ticket.price + ticket.priceModifier;
-}
-
-export function finalPriceModifier(
-  ticket: Ticket,
-  priceModifier: number
-): number {
-  return priceModifier < 0
-    ? ticket.price < -priceModifier
-      ? 0
-      : priceModifier
-    : priceModifier;
+  return ticket.price;
 }
 
 export function wait(ms: number): Promise<void> {

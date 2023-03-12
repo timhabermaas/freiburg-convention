@@ -24,6 +24,7 @@ import {
   Event,
   EventEnvelope,
   EventEnvelopeSchema,
+  SupporterCategorySchema,
 } from "~/domain/events";
 import {
   Alert,
@@ -95,12 +96,11 @@ const LoaderDataSchema = z.object({
           participantId: z.string(),
           accommodation: AccommodationSchema,
           ticket: z.object({
-            ticketId: z.string(),
             ageCategory: AgeCategorySchema,
             from: DaySchema,
             to: DaySchema,
             price: z.number(),
-            priceModifier: z.number(),
+            supporterCategory: SupporterCategorySchema,
           }),
         })
       ),

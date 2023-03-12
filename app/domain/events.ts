@@ -6,6 +6,7 @@ import {
   AgeCategory,
   Day,
   OrderedTicket,
+  SupporterCategory,
   TShirtSize,
 } from "./types";
 
@@ -89,14 +90,23 @@ export const AgeCategorySchema: z.ZodSchema<
   unknown
 > = z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
 
+export const SupporterCategorySchema: z.ZodSchema<
+  SupporterCategory,
+  z.ZodTypeDef,
+  unknown
+> = z.union([
+  z.literal("Supporter"),
+  z.literal("Normal"),
+  z.literal("Cheaper"),
+]);
+
 const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
   z.object({
     from: DaySchema,
     to: DaySchema,
     price: z.number(),
     ageCategory: AgeCategorySchema,
-    ticketId: z.string(),
-    priceModifier: z.number(),
+    supporterCategory: SupporterCategorySchema,
   });
 
 const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =

@@ -47,8 +47,11 @@ async function fillOutRegistrationForm(page: Page) {
 
   await page.locator("text=Zelt").click();
 
-  await page.locator("text=Soli (-10,00 €)").click();
+  await page.locator("text=> 12 Jahre").click();
 
+  await page.locator("text= 3 Tage (Freitag – Sonntag)").click();
+
+  await page.getByRole("button", { name: "Auswählen" }).nth(2).click();
   await page.locator(".MuiButton-root").nth(1).click();
 
   await page.locator('textarea[name="comment"]').fill("Ne.");
