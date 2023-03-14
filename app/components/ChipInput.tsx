@@ -1,6 +1,4 @@
 import { Chip } from "@mui/material";
-import FaceIcon from "@mui/icons-material/Face";
-import ChildFriendlyIcon from "@mui/icons-material/ChildFriendly";
 
 interface ChipInputProps<T> {
   currentValue: T;
@@ -12,7 +10,6 @@ interface ChipInputProps<T> {
 export function ChipInput<T>(props: ChipInputProps<T>) {
   return (
     <Chip
-      // icon={<ChildFriendlyIcon />}
       label={props.label}
       variant={props.value === props.currentValue ? "filled" : "outlined"}
       color="primary"

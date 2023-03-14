@@ -3,6 +3,7 @@ import {
   Cents,
   Accommodation,
   SupporterCategory,
+  Duration,
 } from "./domain/types";
 import { assertNever } from "./utils";
 
@@ -225,16 +226,38 @@ function enUsOrdinal(n: number): string {
   return `${n}${map[plural.select(n)]}`;
 }
 
-export function translateCategory(ageCategory: AgeCategory): LocaleMap {
+export function translateAgeCategory(ageCategory: AgeCategory): LocaleMap {
   switch (ageCategory) {
     case "Baby":
-      return { de: "0–3 Jahre", "en-US": "0–3 years" };
+      return { de: "0–5 Jahre", "en-US": "0–5 years" };
     case "Child":
-      return { de: "4–12 Jahre", "en-US": "4–12 years" };
+      return { de: "6–12 Jahre", "en-US": "6–12 years" };
     case "OlderThan12":
       return { de: ">12 Jahre", "en-US": ">12 years" };
     default:
       assertNever(ageCategory);
+  }
+}
+
+export function translateDurationCategory(duration: Duration): LocaleMap {
+  switch (duration) {
+    case "Fr-Mo":
+      return {
+        de: "4 Tage (Freitag – Montag)",
+        "en-US": "4 days (Friday to Monday)",
+      };
+    case "Fr-Su":
+      return {
+        de: "3 Tage (Freitag – Sonntag)",
+        "en-US": "3 days (Friday to Sunday)",
+      };
+    case "Sa-Mo":
+      return {
+        de: "3 Tage (Samstag – Montag)",
+        "en-US": "3 days (Saturday to Monday)",
+      };
+    default:
+      assertNever(duration);
   }
 }
 

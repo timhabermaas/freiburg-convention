@@ -219,26 +219,22 @@ function ParticipantForm(props: ParticipantFormProps) {
       price: age && duration && price(age, duration, "Cheaper"),
       description: i18n.ticketFeatures[locale],
       buttonText: t(i18n.select),
-      buttonVariant: "outlined",
       supporterCategory: "Cheaper",
       selected: supporterCategory === "Cheaper",
     },
     {
-      title: "Regular",
-      subheader: "Most popular",
+      title: t(i18n.regularTicketTitle),
       price: age && duration && price(age, duration, "Normal"),
       description: i18n.ticketFeatures[locale],
-      buttonText: i18n.select[locale],
-      buttonVariant: "contained",
+      buttonText: t(i18n.select),
       supporterCategory: "Normal",
       selected: supporterCategory === "Normal",
     },
     {
-      title: "Supporter",
+      title: t(i18n.supporterTicketTitle),
       price: age && duration && price(age, duration, "Supporter"),
       description: i18n.ticketFeatures[locale],
-      buttonText: i18n.select[locale],
-      buttonVariant: "outlined",
+      buttonText: t(i18n.select),
       supporterCategory: "Supporter",
       selected: supporterCategory === "Supporter",
     },
@@ -459,17 +455,15 @@ function ParticipantForm(props: ParticipantFormProps) {
           >
             <Grid item>
               <ChipInput
-                label="0–3 Jahre"
-                value={"Baby"}
+                label={t(i18n.translateAgeCategory("OlderThan12"))}
+                value={"OlderThan12"}
+                onClick={() => setAge("OlderThan12")}
                 currentValue={age}
-                onClick={() => {
-                  setAge("Baby");
-                }}
               />
             </Grid>
             <Grid item>
               <ChipInput
-                label="4–12 Jahre"
+                label={t(i18n.translateAgeCategory("Child"))}
                 value={"Child"}
                 currentValue={age}
                 onClick={() => {
@@ -479,10 +473,12 @@ function ParticipantForm(props: ParticipantFormProps) {
             </Grid>
             <Grid item>
               <ChipInput
-                label="> 12 Jahre"
-                value={"OlderThan12"}
-                onClick={() => setAge("OlderThan12")}
+                label={t(i18n.translateAgeCategory("Baby"))}
+                value={"Baby"}
                 currentValue={age}
+                onClick={() => {
+                  setAge("Baby");
+                }}
               />
             </Grid>
             {age && (
@@ -519,7 +515,7 @@ function ParticipantForm(props: ParticipantFormProps) {
           >
             <Grid item>
               <ChipInput
-                label="4 Tage (Freitag – Montag)"
+                label={t(i18n.translateDurationCategory("Fr-Mo"))}
                 value={"Fr-Mo"}
                 currentValue={duration}
                 onClick={() => {
@@ -529,7 +525,7 @@ function ParticipantForm(props: ParticipantFormProps) {
             </Grid>
             <Grid item>
               <ChipInput
-                label="3 Tage (Freitag – Sonntag)"
+                label={t(i18n.translateDurationCategory("Fr-Su"))}
                 value={"Fr-Su"}
                 currentValue={duration}
                 onClick={() => {
@@ -539,7 +535,7 @@ function ParticipantForm(props: ParticipantFormProps) {
             </Grid>
             <Grid item>
               <ChipInput
-                label="3 Tage (Samstag – Montag)"
+                label={t(i18n.translateDurationCategory("Sa-Mo"))}
                 value={"Sa-Mo"}
                 currentValue={duration}
                 onClick={() => {
@@ -563,14 +559,17 @@ function ParticipantForm(props: ParticipantFormProps) {
             )}
         </FormControl>
       </Grid>
-      <Grid item xs={12} sx={{ mb: 2 }}>
+      <Grid item xs={12} sx={{ mb: 1 }}>
         <Box sx={{ mb: 2 }}>
           <FormLabel>{t(i18n.ticketField)}</FormLabel>
         </Box>
-        <Grid container spacing={5} alignItems="flex-start" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {t(i18n.soliNote)}
+        </Alert>
+        <Grid container spacing={5} alignItems="flex-start" sx={{ mb: 1 }}>
           {tiers.map((tier) => (
             <Grid item key={tier.title} xs={12} sm={6} md={4}>
-              <Card elevation={2} variant="elevation">
+              <Card elevation={3} variant="elevation">
                 <CardHeader
                   title={tier.title}
                   titleTypographyProps={{
@@ -632,9 +631,6 @@ function ParticipantForm(props: ParticipantFormProps) {
             </Grid>
           ))}
         </Grid>
-        <Alert severity="info" sx={{ mb: 1 }}>
-          {t(i18n.soliNote)}
-        </Alert>
         <input
           type="hidden"
           value={supporterCategory}

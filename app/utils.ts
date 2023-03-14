@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Address, OrderedTicket, Participant, Ticket } from "./domain/types";
-import { LocaleMap, SupportedLocales, translateCategory } from "./i18n";
+import { LocaleMap, SupportedLocales, translateAgeCategory } from "./i18n";
 import * as i18n from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
@@ -191,7 +191,7 @@ export function formatTicket(
   locale: SupportedLocales
 ): string {
   return `${formatTimeSpan(ticket, locale)}, ${
-    translateCategory(ticket.ageCategory)[locale]
+    translateAgeCategory(ticket.ageCategory)[locale]
   }`;
 }
 
