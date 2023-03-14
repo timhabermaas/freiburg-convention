@@ -233,7 +233,7 @@ export function translateAgeCategory(ageCategory: AgeCategory): LocaleMap {
     case "Child":
       return { de: "6–12 Jahre", "en-US": "6–12 years" };
     case "OlderThan12":
-      return { de: ">12 Jahre", "en-US": ">12 years" };
+      return { de: "> 12 Jahre", "en-US": "> 12 years" };
     default:
       assertNever(ageCategory);
   }
