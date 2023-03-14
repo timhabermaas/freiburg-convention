@@ -34,7 +34,7 @@ export function composeRegistrationMail(
 
 Liebe/r ${fullName},
 
-du hast für das 23. Freiburger Jonglierfestival folgende Tickets bestellt:
+du hast für das 24. Freiburger Jonglierfestival folgende Tickets bestellt:
 
 ${ticketLines}
 
@@ -148,7 +148,7 @@ export function composePaymentReminderMail(
 
 Liebe/r ${fullName},
 
-das 23. Freiburger Jonglierfestival steht vor der Tür, bitte denk daran uns noch den Teilnahmebeitrag zu überweisen.
+das 24. Freiburger Jonglierfestival steht vor der Tür, bitte denk daran uns noch den Teilnahmebeitrag zu überweisen.
 Falls du doch nicht kommen kannst oder eigentlich schon überwiesen hast, gib uns bitte Bescheid.
 
 Zur Erinnerung, du hattest folgende Tickets bestellt:

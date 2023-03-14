@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { Address, OrderedTicket, Participant, Ticket } from "./domain/types";
+import {
+  Address,
+  Day,
+  OrderedTicket,
+  Participant,
+  Ticket,
+} from "./domain/types";
 import { LocaleMap, SupportedLocales, translateAgeCategory } from "./i18n";
 import * as i18n from "./i18n";
 
@@ -202,16 +208,18 @@ export function formatDuration(
   return `${ticket.to.diffInDays(ticket.from) + 1} ${i18n.days[locale]}`;
 }
 
+export function formatWeekday(day: Day, locale: SupportedLocales): string {
+  return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+    day.toUtcDate()
+  );
+}
+
 export function formatTimeSpan(
   ticket: OrderedTicket,
   locale: SupportedLocales
 ): string {
-  const from = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-    ticket.from.toUtcDate()
-  );
-  const to = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-    ticket.to.toUtcDate()
-  );
+  const from = formatWeekday(ticket.from, locale);
+  const to = formatWeekday(ticket.to, locale);
 
   return `${from}.–${to}.`;
 }

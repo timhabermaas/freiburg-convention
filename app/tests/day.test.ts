@@ -20,3 +20,16 @@ test("adding days", () => {
     expect(day.addDays(1).toJSON()).toBe(output);
   }
 });
+
+test("isWithin", () => {
+  const from = new Day(2023, 11, 10);
+  const to = new Day(2023, 11, 14);
+
+  expect(new Day(2023, 11, 9).isWithin(from, to)).toBe(false);
+  expect(new Day(2023, 11, 10).isWithin(from, to)).toBe(true);
+  expect(new Day(2023, 11, 11).isWithin(from, to)).toBe(true);
+  expect(new Day(2023, 11, 12).isWithin(from, to)).toBe(true);
+  expect(new Day(2023, 11, 13).isWithin(from, to)).toBe(true);
+  expect(new Day(2023, 11, 14).isWithin(from, to)).toBe(true);
+  expect(new Day(2023, 11, 15).isWithin(from, to)).toBe(false);
+});

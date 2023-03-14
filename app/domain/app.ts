@@ -49,9 +49,12 @@ interface State {
   registrationTimes: Date[];
 }
 
-const THURSDAY = new Day(2022, 5, 26);
-const FRIDAY = new Day(2022, 5, 27);
-const SUNDAY = new Day(2022, 5, 29);
+export const CONVENTION_DAYS = [
+  new Day(2023, 5, 26),
+  new Day(2023, 5, 27),
+  new Day(2023, 5, 28),
+  new Day(2023, 5, 29),
+];
 
 function initState(): State {
   return {
@@ -334,7 +337,7 @@ export class App {
       if (limit === undefined) {
         return true;
       }
-      const current = this.getParticipantCountForAccommodation(a, true, true);
+      const current = this.getParticipantCountForAccommodation(a);
       return current < limit;
     });
   }
@@ -466,36 +469,35 @@ export class App {
     );
   }
 
+  public getAccommodationDayMap(): Record<string, number> {
+    const result: Record<string, number> = {};
+
+    this.getAllActualParticipants().forEach((p) => {
+      CONVENTION_DAYS.forEach((day) => {
+        const accDayCount = result[p.accommodation + "-" + day.toJSON()] ?? 0;
+        if (day.isWithin(p.ticket.from, p.ticket.to)) {
+          result[p.accommodation + "-" + day.toJSON()] = accDayCount + 1;
+          const dayCount = result[day.toJSON()] ?? 0;
+          result[day.toJSON()] = dayCount + 1;
+        }
+      });
+      let accCount = result[p.accommodation] ?? 0;
+      result[p.accommodation] = accCount + 1;
+    });
+
+    return result;
+  }
+
   public getParticipantCountForAccommodation(
-    accommodation: Accommodation,
-    thuSun: boolean,
-    friSun: boolean
+    accommodation: Accommodation
   ): number {
     let result = 0;
 
-    if (thuSun) {
-      this.getAllActualParticipants().forEach((p) => {
-        if (
-          p.accommodation === accommodation &&
-          p.ticket.from.isEqual(THURSDAY) &&
-          p.ticket.to.isEqual(SUNDAY)
-        ) {
-          result += 1;
-        }
-      });
-    }
-
-    if (friSun) {
-      this.getAllActualParticipants().forEach((p) => {
-        if (
-          p.accommodation === accommodation &&
-          p.ticket.from.isEqual(FRIDAY) &&
-          p.ticket.to.isEqual(SUNDAY)
-        ) {
-          result += 1;
-        }
-      });
-    }
+    this.getAllActualParticipants().forEach((p) => {
+      if (p.accommodation === accommodation) {
+        result += 1;
+      }
+    });
 
     return result;
   }

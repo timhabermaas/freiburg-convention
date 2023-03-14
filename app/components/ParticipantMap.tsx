@@ -41,7 +41,7 @@ interface MapProps {
   addresses: { postalCode: string; city: string; country: string }[];
 }
 
-export function Map(props: MapProps) {
+export function ParticipantMap(props: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const markerGroupRef = useRef<LayerGroup | null>(null);
 

@@ -3,15 +3,16 @@ import { useLoaderData } from "@remix-run/react";
 import { Col } from "~/components/Col";
 import { Row } from "~/components/Row";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
-import { App } from "~/domain/app";
+import { App, CONVENTION_DAYS } from "~/domain/app";
 import { useLocale } from "~/hooks/useLocale";
 import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
-import { AccommodationSchema, NestedParticipantSchema } from "~/domain/events";
+import { NestedParticipantSchema } from "~/domain/events";
 import {
   formatAddress,
   formatTicket,
+  formatWeekday,
   PaidStatusSchema,
   ticketPrice,
 } from "~/utils";
@@ -32,9 +33,7 @@ function getLimitFor(
 }
 
 const LoaderDataSchema = z.object({
-  accommodationTable: z.array(
-    z.tuple([AccommodationSchema, z.number(), z.number(), z.number()])
-  ),
+  accommodationDayCount: z.record(z.number()),
   participants: z.array(
     z.tuple([NestedParticipantSchema, PaidStatusSchema, z.string()])
   ),
@@ -52,12 +51,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     const app = context.app as App;
 
     const data: LoaderData = {
-      accommodationTable: ACCOMMODATIONS.map((a) => [
-        a,
-        app.getParticipantCountForAccommodation(a, true, false),
-        app.getParticipantCountForAccommodation(a, false, true),
-        app.getParticipantCountForAccommodation(a, true, true),
-      ]),
+      accommodationDayCount: app.getAccommodationDayMap(),
       participants: app
         .getAllActualParticipants()
         .map((p) => [
@@ -90,38 +84,37 @@ export default function Participants() {
             <thead>
               <tr>
                 <th></th>
-                <th className="text-right">Do–So</th>
-                <th className="text-right">Fr–So</th>
-                <th className="text-right">Summe</th>
+                {CONVENTION_DAYS.map((day) => (
+                  <th className="text-right">{formatWeekday(day, "de")}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {data.accommodationTable.map(
-                ([accommodation, thuSun, friSun, total]) => (
-                  <tr key={accommodation}>
-                    <th>{i18n.accommodationFieldType(accommodation).de}</th>
-                    <td className="text-right">{thuSun}</td>
-                    <td className="text-right">{friSun}</td>
+              {ACCOMMODATIONS.map((accommodation) => (
+                <tr key={accommodation}>
+                  <th>{i18n.accommodationFieldType(accommodation).de}</th>
+                  {CONVENTION_DAYS.map((day) => (
                     <td className="text-right">
-                      <strong>{total}</strong>
-                      <small>
-                        {" "}
-                        (max {getLimitFor(accommodation, data.limits) ?? "∞"})
-                      </small>
+                      {data.accommodationDayCount[
+                        accommodation + "-" + day.toJSON()
+                      ] ?? 0}
                     </td>
-                  </tr>
-                )
-              )}
+                  ))}
+                  <td className="text-right">
+                    <strong>{data.accommodationDayCount[accommodation]}</strong>
+                    <small>
+                      /{getLimitFor(accommodation, data.limits) ?? "∞"}
+                    </small>
+                  </td>
+                </tr>
+              ))}
               <tr>
                 <td></td>
-                <td></td>
-                <td></td>
+                {CONVENTION_DAYS.map((day) => (
+                  <td></td>
+                ))}
                 <td className="text-right">
-                  <strong>
-                    {data.accommodationTable
-                      .map((row) => row[3])
-                      .reduce((sum, x) => sum + x, 0)}
-                  </strong>
+                  <strong>{data.participants.length}</strong>
                   <small> (max {data.limits.total})</small>
                 </td>
               </tr>

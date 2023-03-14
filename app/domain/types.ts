@@ -96,6 +96,10 @@ export class Day {
     );
   }
 
+  public isWithin(from: Day, to: Day) {
+    return this.diffInDays(from) >= 0 && to.diffInDays(this) >= 0;
+  }
+
   public diffInDays(other: Day): number {
     const selfUtc = this.toUtcUnixTime();
     const otherUtc = other.toUtcUnixTime();

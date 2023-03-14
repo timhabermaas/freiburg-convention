@@ -84,7 +84,7 @@ export default function PrintPage() {
         <div className="col-md-12">
           <div className="fixed-header">
             <h3 className="text-center">
-              Anmeldeliste 23. Freiburger Jonglierfestival – 26. Mai bis 29. Mai
+              Anmeldeliste 24. Freiburger Jonglierfestival – 26. Mai bis 29. Mai
               2023
             </h3>
           </div>

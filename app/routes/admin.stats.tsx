@@ -18,14 +18,13 @@ import { LoaderFunction, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import { Chart } from "~/components/Chart";
-import { Map } from "~/components/Map";
+import { ParticipantMap } from "~/components/ParticipantMap";
 import { CONFIG } from "~/config.server";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
-import { App } from "~/domain/app";
-import { AccommodationSchema } from "~/domain/events";
+import { App, CONVENTION_DAYS } from "~/domain/app";
 import { Accommodation, Limits, T_SHIRT_SIZES } from "~/domain/types";
 import * as i18n from "~/i18n";
-import { isoDateString } from "~/utils";
+import { formatWeekday, isoDateString } from "~/utils";
 
 export function links() {
   return [
@@ -55,9 +54,8 @@ function getLimitFor(
 }
 
 const LoaderDataSchema = z.object({
-  accommodationTable: z.array(
-    z.tuple([AccommodationSchema, z.number(), z.number(), z.number()])
-  ),
+  accommodationDayCount: z.record(z.number()),
+  participantCount: z.number(),
   limits: z.object({
     total: z.optional(z.number()),
     tent: z.optional(z.number()),
@@ -102,12 +100,8 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   const totalShirts = shirts.S + shirts.M + shirts.L + shirts.XL;
 
   const data: LoaderData = {
-    accommodationTable: ACCOMMODATIONS.map((a) => [
-      a,
-      app.getParticipantCountForAccommodation(a, true, false),
-      app.getParticipantCountForAccommodation(a, false, true),
-      app.getParticipantCountForAccommodation(a, true, true),
-    ]),
+    participantCount: app.getAllActualParticipants().length,
+    accommodationDayCount: app.getAccommodationDayMap(),
     limits: app.getLimits(),
     tshirts: { ...app.getShirtSizeCount(), total: totalShirts },
     supporterSoliRatio: app.getSupporterSoliRatio(),
@@ -145,51 +139,48 @@ export default function StatsPage() {
                 <TableHead>
                   <TableRow>
                     <TableCell></TableCell>
-                    <TableCell align="right">Do–So</TableCell>
-                    <TableCell align="right">Fr–So</TableCell>
+                    {CONVENTION_DAYS.map((day) => (
+                      <TableCell align="right">
+                        {formatWeekday(day, "de")}
+                      </TableCell>
+                    ))}
                     <TableCell align="right">Summe</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data.accommodationTable.map(
-                    ([accommodation, thuSun, friSun, total]) => (
-                      <TableRow key={accommodation}>
-                        <TableCell variant="head">
-                          {i18n.accommodationFieldType(accommodation).de}
-                        </TableCell>
-                        <TableCell align="right">{thuSun}</TableCell>
-                        <TableCell align="right">{friSun}</TableCell>
+                  {ACCOMMODATIONS.map((accommodation) => (
+                    <TableRow key={accommodation}>
+                      <TableCell variant="head">
+                        {i18n.accommodationFieldType(accommodation).de}
+                      </TableCell>
+                      {CONVENTION_DAYS.map((day) => (
                         <TableCell align="right">
-                          <strong>{total}</strong>
-                          <small>
-                            /{getLimitFor(accommodation, data.limits) ?? "∞"}
-                          </small>
+                          {data.accommodationDayCount[
+                            accommodation + "-" + day.toJSON()
+                          ] ?? 0}
                         </TableCell>
-                      </TableRow>
-                    )
-                  )}
+                      ))}
+                      <TableCell align="right">
+                        <strong>
+                          {data.accommodationDayCount[accommodation]}
+                        </strong>
+                        <small>
+                          /{getLimitFor(accommodation, data.limits) ?? "∞"}
+                        </small>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                   <TableRow>
                     <TableCell></TableCell>
+                    {CONVENTION_DAYS.map((day) => (
+                      <TableCell align="right">
+                        <strong>
+                          {data.accommodationDayCount[day.toJSON()] ?? 0}
+                        </strong>
+                      </TableCell>
+                    ))}
                     <TableCell align="right">
-                      <strong>
-                        {data.accommodationTable
-                          .map((row) => row[1])
-                          .reduce((sum, x) => sum + x, 0)}
-                      </strong>
-                    </TableCell>
-                    <TableCell align="right">
-                      <strong>
-                        {data.accommodationTable
-                          .map((row) => row[2])
-                          .reduce((sum, x) => sum + x, 0)}
-                      </strong>
-                    </TableCell>
-                    <TableCell align="right">
-                      <strong>
-                        {data.accommodationTable
-                          .map((row) => row[3])
-                          .reduce((sum, x) => sum + x, 0)}
-                      </strong>
+                      <strong>{data.participantCount}</strong>
                       <small>/{data.limits.total}</small>
                     </TableCell>
                   </TableRow>
@@ -306,7 +297,7 @@ export default function StatsPage() {
             <Typography gutterBottom variant="h2">
               Karte
             </Typography>
-            <Map addresses={data.fuzzyAddresses} />
+            <ParticipantMap addresses={data.fuzzyAddresses} />
           </Box>
         </Stack>
       </Container>
