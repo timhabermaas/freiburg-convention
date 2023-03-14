@@ -8,11 +8,13 @@ interface ChipInputProps<T> {
 }
 
 export function ChipInput<T>(props: ChipInputProps<T>) {
+  const selected = props.value === props.currentValue;
+
   return (
     <Chip
       label={props.label}
-      variant={props.value === props.currentValue ? "filled" : "outlined"}
-      color="primary"
+      variant={selected ? "filled" : "outlined"}
+      color={selected ? "primary" : undefined}
       onClick={() => {
         props.onClick(props.value);
       }}
