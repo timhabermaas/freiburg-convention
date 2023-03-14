@@ -4,19 +4,21 @@ import { v4 as uuid } from "uuid";
 import {
   Accommodation,
   Address,
+  AgeCategory,
   Day,
+  Duration,
   Limits,
   PaidStatus,
   Participant,
   Registration,
+  SupporterCategory,
   Ticket,
   TShirtSize,
 } from "~/domain/types";
-import { TICKETS } from "./tickets";
+import { price, stayFromDuration, TICKETS } from "./tickets";
 import { MailSender } from "~/services/email/interface";
 import {
   assertNever,
-  finalPriceModifier,
   formatTicket,
   paymentReasonForRegistrationCount,
   ticketPrice,
@@ -108,26 +110,18 @@ export class App {
     participants: {
       fullName: string;
       address: Address;
-      ticketId: string;
       birthday: Day;
+      ageCategory: AgeCategory;
+      duration: Duration;
       accommodation: Accommodation;
-      priceModifier?: "Supporter" | "Cheaper";
+      supporterCategory: SupporterCategory;
       tShirtSize?: TShirtSize;
     }[],
     comment: string
   ) {
     return this.lock.acquire("mutate", async () => {
       const persistedParticipants = participants.map((p) => {
-        const ticket = this.findTicketOrThrow(p.ticketId);
-
-        const pM =
-          p.priceModifier === "Supporter"
-            ? 1000
-            : p.priceModifier === "Cheaper"
-            ? -1000
-            : 0;
-
-        const priceModifier = finalPriceModifier(ticket, pM);
+        const pr = price(p.ageCategory, p.duration, p.supporterCategory);
 
         return {
           participantId: uuid(),
@@ -135,8 +129,11 @@ export class App {
           address: p.address,
           tShirtSize: p.tShirtSize,
           ticket: {
-            ...ticket,
-            priceModifier,
+            ageCategory: p.ageCategory,
+            price: pr,
+            supporterCategory: p.supporterCategory,
+            from: stayFromDuration(p.duration)[0],
+            to: stayFromDuration(p.duration)[1],
           },
           birthday: p.birthday,
           accommodation: p.accommodation,
@@ -162,7 +159,7 @@ export class App {
           persistedParticipants[0].fullName,
           paymentReason,
           persistedParticipants.map((p) => ({
-            name: formatTicket(this.findTicketOrThrow(p.ticket.ticketId), "de"),
+            name: formatTicket(p.ticket, "de"),
             fullPrice: ticketPrice(p.ticket),
           })),
           comment
@@ -280,10 +277,7 @@ export class App {
             participants[0].fullName,
             registration.paymentReason,
             participants.map((p) => ({
-              name: formatTicket(
-                this.findTicketOrThrow(p.ticket.ticketId),
-                "de"
-              ),
+              name: formatTicket(p.ticket, "de"),
               fullPrice: ticketPrice(p.ticket),
             }))
           )
@@ -413,13 +407,16 @@ export class App {
     });
   }
 
+  // TODO: Fix me
   public getSupporterSoliRatio(): { soli: number; support: number } {
     const participants = this.getAllActualParticipants();
 
     const support = participants.filter(
-      (p) => p.ticket.priceModifier > 0
+      (p) => p.ticket.supporterCategory === "Supporter"
     ).length;
-    const soli = participants.filter((p) => p.ticket.priceModifier < 0).length;
+    const soli = participants.filter(
+      (p) => p.ticket.supporterCategory === "Cheaper"
+    ).length;
 
     return { support, soli };
   }

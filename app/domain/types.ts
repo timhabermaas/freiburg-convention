@@ -13,6 +13,8 @@ export type AgeCategory = "Baby" | "Child" | "OlderThan12";
 
 export type SupporterCategory = "Normal" | "Supporter" | "Cheaper";
 
+export type Duration = "Fr-Mo" | "Fr-Su" | "Sa-Mo";
+
 export type TShirtSize = "S" | "M" | "L" | "XL";
 
 export const T_SHIRT_SIZES: TShirtSize[] = ["S", "M", "L", "XL"];
@@ -102,8 +104,15 @@ export class Day {
 
     return Math.floor((selfUtc - otherUtc) / msPerDay);
   }
+
+  public addDays(days: number): Day {
+    const date = this.toUtcDate();
+    date.setDate(date.getDate() + days);
+    return Day.fromDate(date);
+  }
 }
 
+// TODO: Do we need Ticket?
 export interface Ticket {
   ticketId: string;
   ageCategory: AgeCategory;
@@ -113,12 +122,11 @@ export interface Ticket {
 }
 
 export interface OrderedTicket {
-  ticketId: string;
   ageCategory: AgeCategory;
   from: Day;
   to: Day;
   price: Cents;
-  priceModifier: Cents;
+  supporterCategory: SupporterCategory;
 }
 
 export interface Mail {

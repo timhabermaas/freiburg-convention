@@ -8,7 +8,6 @@ import { useTranslation } from "~/hooks/useTranslation";
 import { z } from "zod";
 import {
   errorsForPath,
-  finalPriceModifier,
   getObject,
   getValue,
   IntSchema,
@@ -17,9 +16,17 @@ import {
 } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { DateInput } from "~/components/DateInput";
-import { useEffect, useState } from "react";
-import { Accommodation, Address, Day, TShirtSize } from "~/domain/types";
-import { TICKETS } from "~/domain/tickets";
+import { useState } from "react";
+import {
+  Accommodation,
+  Address,
+  AgeCategory,
+  Day,
+  Duration,
+  SupporterCategory,
+  TShirtSize,
+} from "~/domain/types";
+import { price } from "~/domain/tickets";
 import { App } from "~/domain/app";
 import * as i18n from "~/i18n";
 import {
@@ -40,11 +47,17 @@ import {
   IconButton,
   FormHelperText,
   Link,
+  CardContent,
+  CardActions,
+  Card,
+  CardHeader,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { TicketCard } from "~/components/TicketCard";
+import StarIcon from "@mui/icons-material/StarBorder";
 import { CountrySelect } from "~/components/CountrySelect";
 import { useActionData, useLoaderData } from "@remix-run/react";
+import { ChipInput } from "~/components/ChipInput";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string().nonempty(),
@@ -67,16 +80,37 @@ const AccommodationSchema: z.ZodSchema<Accommodation, z.ZodTypeDef, unknown> =
 const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
   z.union([z.literal("S"), z.literal("M"), z.literal("L"), z.literal("XL")]);
 
+const AgeCategorySchema: z.ZodSchema<AgeCategory, z.ZodTypeDef, unknown> =
+  z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
+
+const DurationSchema: z.ZodSchema<Duration, z.ZodTypeDef, unknown> = z.union([
+  z.literal("Fr-Mo"),
+  z.literal("Fr-Su"),
+  z.literal("Sa-Mo"),
+]);
+
+const SupporterCategorySchema: z.ZodSchema<
+  SupporterCategory,
+  z.ZodTypeDef,
+  unknown
+> = z.union([
+  z.literal("Supporter"),
+  z.literal("Cheaper"),
+  z.literal("Normal"),
+]);
+
 const ParticipantSchema = z.object({
   fullName: z.string().nonempty(),
   birthday: DaySchema,
   address: AddressSchema,
-  ticketId: z.string(),
+  supporterCategory: SupporterCategorySchema,
   priceModifier: z.optional(
     z.union([z.literal("Supporter"), z.literal("Cheaper")])
   ),
   accommodation: AccommodationSchema,
   tShirtSize: TShirtSizeSchema.optional(),
+  ageCategory: AgeCategorySchema,
+  duration: DurationSchema,
 });
 
 const Form = z.object({
@@ -128,11 +162,36 @@ interface ParticipantFormProps {
 
 function ParticipantForm(props: ParticipantFormProps) {
   const { locale } = useLocale();
+  const [age, setAge] = useState<AgeCategory | null>(
+    getValue(props.defaultParticipant ?? {}, "ageCategory") === "Baby"
+      ? "Baby"
+      : getValue(props.defaultParticipant ?? {}, "ageCategory") === "Child"
+      ? "Child"
+      : getValue(props.defaultParticipant ?? {}, "ageCategory") ===
+        "OlderThan12"
+      ? "OlderThan12"
+      : null
+  );
+  const [duration, setDuration] = useState<Duration | null>(
+    getValue(props.defaultParticipant ?? {}, "duration") === "Fr-Mo"
+      ? "Fr-Mo"
+      : getValue(props.defaultParticipant ?? {}, "duration") === "Fr-Su"
+      ? "Fr-Su"
+      : getValue(props.defaultParticipant ?? {}, "duration") === "Sa-Mo"
+      ? "Sa-Mo"
+      : null
+  );
   const [tShirtSelected, setTShirtSelected] = useState<boolean>(
     getValue(props.defaultParticipant ?? {}, "tShirtSize") !== undefined
   );
-  const [selectedTicketId, setSelectedTicketId] = useState<string | undefined>(
-    undefined
+  const [supporterCategory, setSupporterCategory] = useState<SupporterCategory>(
+    getValue(props.defaultParticipant ?? {}, "supporterCategory") ===
+      "Supporter"
+      ? "Supporter"
+      : getValue(props.defaultParticipant ?? {}, "supporterCategory") ===
+        "Cheaper"
+      ? "Cheaper"
+      : "Normal"
   );
   const [supporterOrCheaper, setSupporterOrCheaper] = useState<
     "Supporter" | "Cheaper" | undefined
@@ -150,13 +209,40 @@ function ParticipantForm(props: ParticipantFormProps) {
       ? -1000
       : 0;
 
-  useEffect(() => {
-    setSelectedTicketId(getValue(props.defaultParticipant ?? {}, "ticketId"));
-  }, [getValue(props.defaultParticipant ?? {}, "ticketId")]);
-
   const t = useTranslation();
   const withPrefix = (name: string): string =>
     `participants.${props.index}.${name}`;
+
+  const tiers = [
+    {
+      title: t(i18n.soliTicketTitle),
+      price: age && duration && price(age, duration, "Cheaper"),
+      description: i18n.ticketFeatures[locale],
+      buttonText: t(i18n.select),
+      buttonVariant: "outlined",
+      supporterCategory: "Cheaper",
+      selected: supporterCategory === "Cheaper",
+    },
+    {
+      title: "Regular",
+      subheader: "Most popular",
+      price: age && duration && price(age, duration, "Normal"),
+      description: i18n.ticketFeatures[locale],
+      buttonText: i18n.select[locale],
+      buttonVariant: "contained",
+      supporterCategory: "Normal",
+      selected: supporterCategory === "Normal",
+    },
+    {
+      title: "Supporter",
+      price: age && duration && price(age, duration, "Supporter"),
+      description: i18n.ticketFeatures[locale],
+      buttonText: i18n.select[locale],
+      buttonVariant: "outlined",
+      supporterCategory: "Supporter",
+      selected: supporterCategory === "Supporter",
+    },
+  ] as const;
 
   return (
     <Grid container>
@@ -356,81 +442,205 @@ function ParticipantForm(props: ParticipantFormProps) {
         </Grid>
       </Grid>
       <Grid item xs={12} sx={{ mb: 2 }}>
-        <Typography variant="h4" component="h5">
-          {t(i18n.ticketField)}
-        </Typography>
-      </Grid>
-      <Grid item xs={12} sx={{ mb: 3 }}>
-        <FormControl component="fieldset" variant="standard">
-          <FormLabel component="legend" sx={{ mb: 1 }}>
-            {t(i18n.transformToSupportSoli)}
-          </FormLabel>
-          <Alert severity="info" sx={{ mb: 1 }}>
-            {t(i18n.soliNote)}
-          </Alert>
-          <FormGroup>
-            <FormControlLabel
-              control={<Switch checked={supporterOrCheaper === "Supporter"} />}
-              label={`Supporter (+${i18n.formatCurrency(1000, "EUR", locale)})`}
-              onChange={(_e, checked) =>
-                checked
-                  ? setSupporterOrCheaper("Supporter")
-                  : setSupporterOrCheaper(undefined)
-              }
-            />
-            <FormControlLabel
-              control={<Switch checked={supporterOrCheaper === "Cheaper"} />}
-              label={`Soli (${i18n.formatCurrency(-1000, "EUR", locale)})`}
-              onChange={(_e, checked) =>
-                checked
-                  ? setSupporterOrCheaper("Cheaper")
-                  : setSupporterOrCheaper(undefined)
-              }
-            />
-          </FormGroup>
-        </FormControl>
-        {supporterOrCheaper && (
-          <input
-            type="hidden"
-            value={supporterOrCheaper}
-            name={withPrefix("priceModifier")}
-          />
-        )}
-      </Grid>
-      <Grid container item xs={12} spacing={3} sx={{ mb: 2 }}>
-        {TICKETS.map((ticket) => (
-          <Grid item key={ticket.ticketId} xs={12} sm={6} md={4}>
-            <TicketCard
-              priceModifier={finalPriceModifier(ticket, priceModifier)}
-              ticket={ticket}
-              locale={locale}
-              selected={ticket.ticketId === selectedTicketId}
-              name={withPrefix("ticketId")}
-              onClick={() => setSelectedTicketId(ticket.ticketId)}
-            />
+        <FormControl
+          fullWidth
+          error={
+            props.errors &&
+            errorsForPath(withPrefix("ageCategory"), props.errors, locale)
+              .length > 0
+          }
+        >
+          <FormLabel sx={{ mb: 1 }}>{t(i18n.ageField)}</FormLabel>
+          <Grid
+            container
+            direction={{ sm: "row", xs: "column" }}
+            spacing={2}
+            justifyContent={{ sm: "center" }}
+          >
+            <Grid item>
+              <ChipInput
+                label="0–3 Jahre"
+                value={"Baby"}
+                currentValue={age}
+                onClick={() => {
+                  setAge("Baby");
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <ChipInput
+                label="4–12 Jahre"
+                value={"Child"}
+                currentValue={age}
+                onClick={() => {
+                  setAge("Child");
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <ChipInput
+                label="> 12 Jahre"
+                value={"OlderThan12"}
+                onClick={() => setAge("OlderThan12")}
+                currentValue={age}
+              />
+            </Grid>
+            {age && (
+              <input
+                type="hidden"
+                value={age}
+                name={withPrefix("ageCategory")}
+              />
+            )}
           </Grid>
-        ))}
-        {selectedTicketId && (
-          <input
-            type="hidden"
-            value={selectedTicketId}
-            name={withPrefix("ticketId")}
-          />
-        )}
+          {props.errors &&
+            errorsForPath(withPrefix("ageCategory"), props.errors, locale) && (
+              <FormHelperText>
+                {errorsForPath(withPrefix("ageCategory"), props.errors, locale)}
+              </FormHelperText>
+            )}
+        </FormControl>
       </Grid>
-      <FormControl
-        error={
-          props.errors &&
-          errorsForPath(withPrefix("ticketId"), props.errors, locale).length > 0
-        }
-      >
-        {props.errors &&
-          errorsForPath(withPrefix("ticketId"), props.errors, locale) && (
-            <FormHelperText>
-              {errorsForPath(withPrefix("ticketId"), props.errors, locale)}
-            </FormHelperText>
-          )}
-      </FormControl>
+      <Grid item xs={12} sx={{ mb: 2 }}>
+        <FormControl
+          fullWidth
+          error={
+            props.errors &&
+            errorsForPath(withPrefix("duration"), props.errors, locale).length >
+              0
+          }
+        >
+          <FormLabel sx={{ mb: 1 }}>{t(i18n.durationField)}</FormLabel>
+          <Grid
+            container
+            direction={{ sm: "row", xs: "column" }}
+            spacing={2}
+            justifyContent={{ sm: "center" }}
+          >
+            <Grid item>
+              <ChipInput
+                label="4 Tage (Freitag – Montag)"
+                value={"Fr-Mo"}
+                currentValue={duration}
+                onClick={() => {
+                  setDuration("Fr-Mo");
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <ChipInput
+                label="3 Tage (Freitag – Sonntag)"
+                value={"Fr-Su"}
+                currentValue={duration}
+                onClick={() => {
+                  setDuration("Fr-Su");
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <ChipInput
+                label="3 Tage (Samstag – Montag)"
+                value={"Sa-Mo"}
+                currentValue={duration}
+                onClick={() => {
+                  setDuration("Sa-Mo");
+                }}
+              />
+            </Grid>
+            {duration && (
+              <input
+                type="hidden"
+                value={duration}
+                name={withPrefix("duration")}
+              />
+            )}
+          </Grid>
+          {props.errors &&
+            errorsForPath(withPrefix("duration"), props.errors, locale) && (
+              <FormHelperText>
+                {errorsForPath(withPrefix("duration"), props.errors, locale)}
+              </FormHelperText>
+            )}
+        </FormControl>
+      </Grid>
+      <Grid item xs={12} sx={{ mb: 2 }}>
+        <Box sx={{ mb: 2 }}>
+          <FormLabel>{t(i18n.ticketField)}</FormLabel>
+        </Box>
+        <Grid container spacing={5} alignItems="flex-start" sx={{ mb: 2 }}>
+          {tiers.map((tier) => (
+            <Grid item key={tier.title} xs={12} sm={6} md={4}>
+              <Card elevation={2} variant="elevation">
+                <CardHeader
+                  title={tier.title}
+                  titleTypographyProps={{
+                    align: "center",
+                    color: tier.selected ? "primary.contrastText" : "primary",
+                  }}
+                  action={tier.title === "Pro" ? <StarIcon /> : null}
+                  subheaderTypographyProps={{
+                    align: "center",
+                  }}
+                  sx={{
+                    backgroundColor: tier.selected ? "primary.main" : undefined,
+                  }}
+                />
+                <CardContent>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "baseline",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      component="h2"
+                      variant="h3"
+                      color="text.primary"
+                    >
+                      {tier.price !== null
+                        ? i18n.formatCurrency(tier.price, "EUR", locale)
+                        : "–"}
+                    </Typography>
+                  </Box>
+                  <Box textAlign="center">
+                    {tier.description.map((line) => (
+                      <Typography
+                        color="textSecondary"
+                        variant="subtitle1"
+                        component="p"
+                        key={line}
+                      >
+                        {line}
+                      </Typography>
+                    ))}
+                  </Box>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    fullWidth
+                    variant={tier.selected ? "contained" : "outlined"}
+                    onClick={() => {
+                      setSupporterCategory(tier.supporterCategory);
+                    }}
+                  >
+                    {tier.buttonText}
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+        <Alert severity="info" sx={{ mb: 1 }}>
+          {t(i18n.soliNote)}
+        </Alert>
+        <input
+          type="hidden"
+          value={supporterCategory}
+          name={withPrefix("supporterCategory")}
+        />
+      </Grid>
       <Grid item xs={12} sx={{ mb: 3, mt: 3 }}>
         <FormControl component="fieldset" variant="standard">
           <FormLabel component="legend">{t(i18n.tShirtField)}</FormLabel>
@@ -498,8 +708,8 @@ export default function NewRegistration() {
             color="text.secondary"
             textAlign="center"
           >
-            {dateFormatter.format(Date.parse("2022-05-26"))} –{" "}
-            {dateFormatter.format(Date.parse("2022-05-29"))}
+            {dateFormatter.format(Date.parse("2023-05-26"))} –{" "}
+            {dateFormatter.format(Date.parse("2023-05-29"))}
           </Typography>
         </Grid>
       </Grid>

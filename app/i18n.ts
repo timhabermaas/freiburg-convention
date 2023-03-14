@@ -45,6 +45,14 @@ export const ticketField = {
   "en-US": "Ticket",
   de: "Festivalticket",
 };
+export const ageField = {
+  "en-US": "Age",
+  de: "Alter",
+};
+export const durationField = {
+  "en-US": "Duration",
+  de: "Tage",
+};
 export const accommodationField = {
   "en-US": "Accommodation",
   de: "Unterkunft",
@@ -141,8 +149,8 @@ export const sum = {
   de: "Summe",
 };
 export const registrationTitle = {
-  "en-US": "Registration for Freiburg Juggling Convention 2022",
-  de: "Anmeldung zur Freiburger Jonglierconvention 2022",
+  "en-US": "Registration for Freiburg Juggling Convention 2023",
+  de: "Anmeldung zur Freiburger Jonglierconvention 2023",
 };
 export const conventionFull = {
   "en-US": "Unfortunately the convention is already fully booked.",
@@ -178,6 +186,18 @@ export const soliNote = {
   "en-US":
     "Feel free to take the solidarity ticket if you're short on cash right now. We won't ask any questions nor ask for proof.",
   de: "Fühl dich frei das Soli-Ticket in Anspruch zu nehmen, wenn du gerade knapp bei Kasse bist. Wir verlangen beim Soli-Ticket keine Nachweise und stellen auch keine Fragen.",
+};
+export const soliTicketTitle = {
+  "en-US": "Soli",
+  de: "Soli",
+};
+export const regularTicketTitle = {
+  "en-US": "Regular",
+  de: "Regular",
+};
+export const supporterTicketTitle = {
+  "en-US": "Supporter",
+  de: "Supporter",
 };
 export const someValidationErrors = {
   "en-US": "There are some validation errors, check them out below.",
