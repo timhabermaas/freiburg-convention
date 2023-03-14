@@ -120,7 +120,7 @@ const Form = z.object({
   bot: z.string().refine((b) => b.length === 0),
 });
 
-export const action: ActionFunction = async ({ params, context, request }) => {
+export const action: ActionFunction = async ({ context, request }) => {
   const app = context.app as App;
   const formData = await request.formData();
 
@@ -162,6 +162,16 @@ interface ParticipantFormProps {
 
 function ParticipantForm(props: ParticipantFormProps) {
   const { locale } = useLocale();
+  const [accommodation, setAccommodation] = useState<Accommodation | null>(
+    getValue(props.defaultParticipant ?? {}, "accommodation") === "gym"
+      ? "gym"
+      : getValue(props.defaultParticipant ?? {}, "accommodation") === "tent"
+      ? "tent"
+      : getValue(props.defaultParticipant ?? {}, "accommodation") ===
+        "selfOrganized"
+      ? "selfOrganized"
+      : null
+  );
   const [age, setAge] = useState<AgeCategory | null>(
     getValue(props.defaultParticipant ?? {}, "ageCategory") === "Baby"
       ? "Baby"
@@ -193,21 +203,6 @@ function ParticipantForm(props: ParticipantFormProps) {
       ? "Cheaper"
       : "Normal"
   );
-  const [supporterOrCheaper, setSupporterOrCheaper] = useState<
-    "Supporter" | "Cheaper" | undefined
-  >(
-    getValue(props.defaultParticipant ?? {}, "priceModifier") === "Supporter"
-      ? "Supporter"
-      : getValue(props.defaultParticipant ?? {}, "priceModifier") === "Cheaper"
-      ? "Cheaper"
-      : undefined
-  );
-  const priceModifier =
-    supporterOrCheaper === "Supporter"
-      ? 1000
-      : supporterOrCheaper === "Cheaper"
-      ? -1000
-      : 0;
 
   const t = useTranslation();
   const withPrefix = (name: string): string =>
@@ -395,47 +390,56 @@ function ParticipantForm(props: ParticipantFormProps) {
             }
           />
         </Grid>
-        <Grid item xs={12}>
-          <FormControl
-            error={
-              props.errors &&
-              errorsForPath(withPrefix("accommodation"), props.errors, locale)
-                .length > 0
-            }
+      </Grid>
+      <Grid item xs={12} sx={{ mb: 2 }}>
+        <FormControl
+          fullWidth
+          error={
+            props.errors &&
+            errorsForPath(withPrefix("accommodation"), props.errors, locale)
+              .length > 0
+          }
+        >
+          <FormLabel sx={{ mb: 1 }}>{t(i18n.accommodationField)}</FormLabel>
+          <Grid
+            container
+            direction={{ sm: "row", xs: "column" }}
+            spacing={2}
+            justifyContent={{ sm: "center" }}
           >
-            <FormLabel>{t(i18n.accommodationField)}</FormLabel>
-            <RadioGroup
-              defaultValue={getValue(
-                props.defaultParticipant ?? {},
-                "accommodation"
-              )}
-              name={withPrefix("accommodation")}
-            >
-              {props.availableAccommodations.map((accommodation) => (
-                <FormControlLabel
-                  value={accommodation}
-                  control={<Radio />}
-                  label={t(i18n.accommodationFieldType(accommodation))}
-                  key={accommodation}
+            {props.availableAccommodations.map((acc) => (
+              <Grid item>
+                <ChipInput
+                  label={t(i18n.accommodationFieldType(acc))}
+                  value={acc}
+                  onClick={() => setAccommodation(acc)}
+                  currentValue={accommodation}
                 />
-              ))}
-            </RadioGroup>
-            {props.errors &&
-              errorsForPath(
-                withPrefix("accommodation"),
-                props.errors,
-                locale
-              ) && (
-                <FormHelperText>
-                  {errorsForPath(
-                    withPrefix("accommodation"),
-                    props.errors,
-                    locale
-                  )}
-                </FormHelperText>
-              )}
-          </FormControl>
-        </Grid>
+              </Grid>
+            ))}
+            {accommodation && (
+              <input
+                type="hidden"
+                value={accommodation}
+                name={withPrefix("accommodation")}
+              />
+            )}
+          </Grid>
+          {props.errors &&
+            errorsForPath(
+              withPrefix("accommodation"),
+              props.errors,
+              locale
+            ) && (
+              <FormHelperText>
+                {errorsForPath(
+                  withPrefix("accommodation"),
+                  props.errors,
+                  locale
+                )}
+              </FormHelperText>
+            )}
+        </FormControl>
       </Grid>
       <Grid item xs={12} sx={{ mb: 2 }}>
         <FormControl
