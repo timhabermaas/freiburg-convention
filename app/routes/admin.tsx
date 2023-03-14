@@ -50,7 +50,7 @@ export default function Admin() {
       <AppBar position="static" sx={{ mb: 2 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Freiburg 2022
+            Freiburg 2023
           </Typography>
           {data.user === "admin" && (
             <Box sx={{ flexGrow: 1, display: { md: "flex" } }}>

@@ -9,7 +9,7 @@ import {
 import type { MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
-  return { title: "Freiburger Jonglierconvention 2022" };
+  return { title: "Freiburger Jonglierconvention 2023" };
 };
 
 export default function App() {

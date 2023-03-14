@@ -12,10 +12,9 @@ import {
   Participant,
   Registration,
   SupporterCategory,
-  Ticket,
   TShirtSize,
 } from "~/domain/types";
-import { price, stayFromDuration, TICKETS } from "./tickets";
+import { price, stayFromDuration } from "./tickets";
 import { MailSender } from "~/services/email/interface";
 import {
   assertNever,
@@ -607,16 +606,6 @@ export class App {
     );
 
     this.apply(eventEnvelope);
-  }
-
-  public findTicketOrThrow(ticketId: string): Ticket {
-    const ticket = TICKETS.find((t) => t.ticketId === ticketId);
-
-    if (!ticket) {
-      throw new Error(`couldn't find ticket ${ticketId}`);
-    }
-
-    return ticket;
   }
 
   private pushEventToRegistration(
