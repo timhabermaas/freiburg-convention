@@ -5,16 +5,16 @@ import { logger as baseLogger } from "~/logger";
 import pkg from "aws-sdk";
 const { S3 } = pkg;
 
-const BUCKET_NAME = "jonglieren-in-freiburg-dev";
-
 const logger = baseLogger.child({ module: "S3Store" });
 
 export class S3Store implements EventStore {
   private s3: pkg.S3;
   private objectName: string;
+  private bucketName: string;
 
-  constructor(objectName: string) {
+  constructor(objectName: string, bucketName: string) {
     this.objectName = objectName;
+    this.bucketName = bucketName;
     this.s3 = new S3({
       apiVersion: "2006-03-01",
       region: "eu-central-1",
@@ -29,27 +29,27 @@ export class S3Store implements EventStore {
   async readAll(): Promise<EventEnvelope<Event>[]> {
     try {
       logger.info(
-        `Reading ${BUCKET_NAME}/${this.withExtension(this.objectName)} from S3`
+        `Reading ${this.bucketName}/${this.withExtension(
+          this.objectName
+        )} from S3`
       );
 
       const response = await this.s3
         .getObject({
-          Bucket: BUCKET_NAME,
+          Bucket: this.bucketName,
           Key: this.withExtension(this.objectName),
         })
         .promise();
 
       if (response.$response.data) {
         logger.info(
-          `Finished reading ${
-            response.ContentLength
-          } bytes from ${BUCKET_NAME}/${this.withExtension(
-            this.objectName
-          )} from S3`
+          `Finished reading ${response.ContentLength} bytes from ${
+            this.bucketName
+          }/${this.withExtension(this.objectName)} from S3`
         );
       } else {
         logger.error(
-          `Failed reading ${BUCKET_NAME}/${this.withExtension(
+          `Failed reading ${this.bucketName}/${this.withExtension(
             this.objectName
           )} from S3: ${response.$response.error}`
         );
@@ -65,14 +65,14 @@ export class S3Store implements EventStore {
       // @ts-ignore
       if (typeof e === "object" && e.code === "NoSuchKey") {
         logger.warn(
-          `No key found under ${BUCKET_NAME}/${this.withExtension(
+          `No key found under ${this.bucketName}/${this.withExtension(
             this.objectName
           )}, returning empty array`
         );
         return [];
       } else {
         logger.error(
-          `Failed reading ${BUCKET_NAME}/${this.withExtension(
+          `Failed reading ${this.bucketName}/${this.withExtension(
             this.objectName
           )}: ${e}`
         );
@@ -98,43 +98,39 @@ export class S3Store implements EventStore {
     const blob = JSON.stringify(all);
 
     logger.info(
-      `Writing ${blob.length} bytes to ${BUCKET_NAME}/${this.withExtension(
+      `Writing ${blob.length} bytes to ${this.bucketName}/${this.withExtension(
         this.objectName
       )} from S3`
     );
     try {
       const response = await this.s3
         .putObject({
-          Bucket: BUCKET_NAME,
+          Bucket: this.bucketName,
           Key: this.withExtension(this.objectName),
           Body: JSON.stringify(all),
         })
         .promise();
       if (response.$response.data) {
         logger.info(
-          `Finished writing ${
-            blob.length
-          } bytes to ${BUCKET_NAME}/${this.withExtension(
-            this.objectName
-          )} from S3`
+          `Finished writing ${blob.length} bytes to ${
+            this.bucketName
+          }/${this.withExtension(this.objectName)} from S3`
         );
       } else {
         logger.error(
-          `Failed writing ${
-            blob.length
-          } bytes to ${BUCKET_NAME}/${this.withExtension(
-            this.objectName
-          )} from S3: ${response.$response.error}`
+          `Failed writing ${blob.length} bytes to ${
+            this.bucketName
+          }/${this.withExtension(this.objectName)} from S3: ${
+            response.$response.error
+          }`
         );
         throw response.$response.error;
       }
     } catch (e) {
       logger.error(
-        `Failed writing ${
-          blob.length
-        } bytes to ${BUCKET_NAME}/${this.withExtension(
-          this.objectName
-        )} from S3: ${e}`
+        `Failed writing ${blob.length} bytes to ${
+          this.bucketName
+        }/${this.withExtension(this.objectName)} from S3: ${e}`
       );
       throw e;
     }
@@ -143,7 +139,7 @@ export class S3Store implements EventStore {
   }
 
   async backup(): Promise<void> {
-    const source = `${BUCKET_NAME}/${this.withExtension(this.objectName)}`;
+    const source = `${this.bucketName}/${this.withExtension(this.objectName)}`;
 
     const currentTime = new Date().toISOString();
     const destination = this.withExtension(
@@ -154,7 +150,7 @@ export class S3Store implements EventStore {
       logger.info(`Backing up ${source} to ${destination}`);
       await this.s3
         .copyObject({
-          Bucket: BUCKET_NAME,
+          Bucket: this.bucketName,
           CopySource: source,
           Key: destination,
         })

@@ -3,6 +3,7 @@ import { assertDefined } from "./utils";
 export interface Config {
   mailSender: "SES" | "CONSOLE";
   eventStore: "file_store" | "s3_store";
+  bucketName: string;
   eventStorePath: string;
   adminPassword: string;
   sessionSecret: string;
@@ -25,6 +26,8 @@ function getConfigFromEnv(): Config {
     sessionSecret: assertDefined(process.env.SESSION_SECRET, "SESSION_SECRET"),
     statsAccessKey: process.env.STATS_ACCESS_KEY,
     printAccessKey: process.env.PRINT_ACCESS_KEY,
+    bucketName:
+      process.env.EVENT_STORE_BUCKET_NAME ?? "jonglieren-in-freiburg-dev",
   };
 }
 
