@@ -65,8 +65,8 @@ function initState(): State {
     payments: [],
     eventsPerRegistration: new Map(),
     limits: {
-      total: 250,
-      gym: 64,
+      total: 350,
+      gym: 154,
       tent: 150,
     },
     registrationTimes: [],
