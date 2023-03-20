@@ -162,7 +162,7 @@ export default function StatsPage() {
                       ))}
                       <TableCell align="right">
                         <strong>
-                          {data.accommodationDayCount[accommodation]}
+                          {data.accommodationDayCount[accommodation] ?? 0}
                         </strong>
                         <small>
                           /{getLimitFor(accommodation, data.limits) ?? "∞"}

@@ -104,27 +104,6 @@ export function accommodationFieldShort(accommodation: Accommodation) {
       assertNever(accommodation);
   }
 }
-export function accommodationFieldTypeShort(accommodation: Accommodation) {
-  switch (accommodation) {
-    case "gym":
-      return {
-        "en-US": "Gym",
-        de: "Schlafhalle",
-      };
-    case "tent":
-      return {
-        "en-US": "Tent",
-        de: "Zelt",
-      };
-    case "selfOrganized":
-      return {
-        "en-US": "Self-organized",
-        de: "Woanders",
-      };
-    default:
-      assertNever(accommodation);
-  }
-}
 export const tShirtField = {
   "en-US": "Are you going to buy a T-shirt? (non-binding, costs about 15€)",
   de: "Kannst du dir vorstellen ein T-Shirt zu kaufen? (nicht verbindlich, Kosten etwa 15€)",

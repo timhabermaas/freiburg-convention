@@ -148,9 +148,9 @@ export default function Participants() {
                   <td>{formatTicket(participant.ticket, "de")}</td>
                   <td>
                     {
-                      i18n.accommodationFieldTypeShort(
-                        participant.accommodation
-                      )["de"]
+                      i18n.accommodationFieldShort(participant.accommodation)[
+                        "de"
+                      ]
                     }
                   </td>
                   <td>
