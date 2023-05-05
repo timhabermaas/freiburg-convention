@@ -434,11 +434,7 @@ export class App {
     const result: [Day, number][] = [];
 
     for (const date of this.state.registrationTimes) {
-      const newDay = new Day(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate()
-      );
+      const newDay = Day.fromDate(date);
       const prev = result.pop();
       if (prev === undefined) {
         result.push([newDay, 1]);
