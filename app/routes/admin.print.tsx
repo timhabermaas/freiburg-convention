@@ -103,9 +103,8 @@ export default function PrintPage() {
                   etc. übernommen werden kann. Dies gilt auch für alle
                   Zwischenfälle während der Anfahrt oder Rückreise. Weiterhin
                   bestätige ich, dass ich ausreichend versichert bin (Haft- und
-                  Unfallversicherung), die Hallenordnung und das Hygienekonzept
-                  anerkenne und den Anweisungen der OrganisatorInnen Folge
-                  leiste.
+                  Unfallversicherung) und die Hallenordnung anerkenne und den
+                  Anweisungen der OrganisatorInnen Folge leiste.
                   <br />
                   <strong>Erklärung zur Bildnutzung: </strong>
                   Mit meiner Unterschrift erkläre ich mich einverstanden, dass
