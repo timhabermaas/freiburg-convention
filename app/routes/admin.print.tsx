@@ -4,7 +4,7 @@ import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app";
 import { AccommodationSchema, DaySchema } from "~/domain/events";
-import { formatTicket, PaidStatusSchema } from "~/utils";
+import { formatTicket, lastName, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
 import styles from "~/styles/print_override.css";
@@ -63,7 +63,9 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     };
   });
   participants.sort((a, b) => {
-    return a.fullName.localeCompare(b.fullName);
+    const lastNameA = lastName(a.fullName);
+    const lastNameB = lastName(b.fullName);
+    return lastNameA.localeCompare(lastNameB);
   });
 
   const data: LoaderData = {
