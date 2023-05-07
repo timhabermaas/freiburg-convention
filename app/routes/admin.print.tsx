@@ -142,7 +142,7 @@ export default function PrintPage() {
                   <td style={{ minWidth: "200px" }}></td>
                 </tr>
               ))}
-              {Array(150)
+              {Array(250)
                 .fill(0)
                 .map((_x, i) => data.participants.length + i)
                 .map((i) => (
