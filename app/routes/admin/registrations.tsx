@@ -186,6 +186,10 @@ export const action: ActionFunction = async ({ context, request }) => {
   return { success: true };
 };
 
+function formatReminderSliderValue(days: number): string {
+  return `${days} Tage und mehr`;
+}
+
 export default function Registrations() {
   const [searchText, setSearchText] = useState<string>("");
   const [hideCancelled, setHideCancelled] = useState<boolean>(true);
@@ -339,6 +343,8 @@ export default function Registrations() {
               <Slider
                 aria-label="Volume"
                 value={daysAgoForReminder}
+                valueLabelFormat={formatReminderSliderValue}
+                getAriaValueText={formatReminderSliderValue}
                 valueLabelDisplay="auto"
                 onChange={(_e, value) => setDaysAgoForReminder(value as number)}
               />
