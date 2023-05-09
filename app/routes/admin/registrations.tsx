@@ -194,6 +194,7 @@ export default function Registrations() {
     useState<boolean>(false);
   const [daysAgoForReminder, setDaysAgoForReminder] = useState<number>(10);
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
+  const { locale } = useLocale();
   const fetcher = useFetcher();
 
   const fuse = new Fuse(data.registrations, {
@@ -332,7 +333,9 @@ export default function Registrations() {
         <>
           <Grid container>
             <Grid item md={6}>
-              <Typography gutterBottom>Tage seit Anmeldung</Typography>
+              <Typography gutterBottom>
+                Vergangene Tage seit Anmeldung
+              </Typography>
               <Slider
                 aria-label="Volume"
                 value={daysAgoForReminder}
@@ -343,7 +346,16 @@ export default function Registrations() {
           </Grid>
           <ul>
             {registrationsForPaymentReminder.map((r) => (
-              <li key={r.registrationId}>{r.email}</li>
+              <li key={r.registrationId}>
+                <strong>{r.paymentReason}</strong>: {r.email} (
+                <small>
+                  {r.participants.map((p) => p.fullName).join(", ")}
+                </small>
+                ){" "}
+                <strong>
+                  {i18n.formatCurrency(r.ticketSum, "EUR", locale)}
+                </strong>
+              </li>
             ))}
           </ul>
           <Button
