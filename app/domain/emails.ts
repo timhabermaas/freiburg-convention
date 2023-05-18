@@ -156,8 +156,6 @@ Zur Erinnerung, du hattest folgende Tickets bestellt:
 ${ticketLines}
 
 Bitte überweise das Geld dafür bis zum 23.05.2023 auf unser Konto.
-Falls das Geld bis dahin nicht auf unserem Konto eingegangen ist, müssen wir dir leider
-vor Ort den vollen Preis (ohne Voranmeldung) berechnen.
 
 Empfänger: Jonglieren in Freiburg e.V.
 Bank: Sparkasse Freiburg Nördlicher Breisgau
@@ -166,7 +164,7 @@ BIC: FRSPDE66XXX
 Betrag: ${totalPrice}
 Verwendungszweck: ${paymentReason}
 
-Wir freuen uns Dich auf dem Festival zu sehen.
+Wir freuen uns Dich auf dem Festival zu sehen!
 Viele Grüße,
 Dein Orgateam
 
@@ -184,8 +182,6 @@ You ordered the following tickets for the Freiburg Juggling Convention:
 ${ticketLines}
 
 Please transfer the money to our account by May 23rd, 2023.
-If the money is not in our account by then, we will have to charge you the full price (without pre-registration discount)
-on site.
 
 Recipient: Jonglieren in Freiburg e.V.
 Bank: Sparkasse Freiburg Nördlicher Breisgau
