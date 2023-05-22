@@ -35,7 +35,26 @@ export default function Public() {
   }, [prefersDarkMode]);
 
   const theme = useMemo(() => {
-    return createTheme({ palette: { mode } });
+    return createTheme({
+      palette: { mode },
+      components: {
+        // Fixes the unreadable text boxes on Safari when using autofill.
+        MuiTextField: {
+          styleOverrides: {
+            root: {
+              input: {
+                "&:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0 100px #E0D98C inset",
+                  WebkitTextFillColor: "default",
+                  backgroundColor: "#fafafa",
+                  backgroundClip: "content-box",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   }, [mode]);
 
   const currentLocale: SupportedLocales =
