@@ -1,9 +1,13 @@
-import { formatCurrency } from "~/i18n";
+import { formatCurrency, formatLongDate } from "~/i18n";
 import { Cents, Mail } from "./types";
+import { Day } from "./types";
+import { assertNever } from "~/utils";
+import { SupportedLocales } from "~/i18n";
 
 const MAIL_FROM =
   "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>";
 const MAIL_CC = MAIL_FROM;
+const BANK_TRANSFER_DEADLINE = new Day(2023, 5, 22);
 
 export function buildMail(
   toMailAddress: string,
@@ -40,14 +44,7 @@ ${ticketLines}
 
 Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
 
-Bitte überweise das Geld dafür bis zum 22.05.2023 auf unser Konto:
-
-Empfänger: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
-Betrag: ${totalPrice}
-Verwendungszweck: ${paymentReason}
+${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "de")}
 
 Wir freuen uns Dich auf dem Festival zu sehen.
 Viele Grüße,
@@ -65,14 +62,7 @@ ${ticketLines}
 
 You sent us the following comment: ${comment}
 
-Please transfer the money to our account until May 22nd, 2023:
-
-Recipient: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
-Amount: ${totalPrice}
-Reference: ${paymentReason}
+${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "en-US")}
 
 We're looking forward to meeting you at the festival!
 Cheers!
@@ -155,14 +145,7 @@ Zur Erinnerung, du hattest folgende Tickets bestellt:
 
 ${ticketLines}
 
-Bitte überweise das Geld dafür bis zum 23.05.2023 auf unser Konto.
-
-Empfänger: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
-Betrag: ${totalPrice}
-Verwendungszweck: ${paymentReason}
+${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "de")}
 
 Wir freuen uns Dich auf dem Festival zu sehen!
 Viele Grüße,
@@ -181,14 +164,7 @@ You ordered the following tickets for the Freiburg Juggling Convention:
 
 ${ticketLines}
 
-Please transfer the money to our account by May 23rd, 2023.
-
-Recipient: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
-Amount: ${totalPrice}
-Reference: ${paymentReason}
+${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "en-US")}
 
 We're looking forward to meeting you at the festival!
 Cheers!
@@ -202,4 +178,67 @@ Your orga team
     to: [toMailAddress],
     cc: [MAIL_CC],
   };
+}
+
+function bankDetails(
+  totalPrice: string,
+  paymentReason: string,
+  language: SupportedLocales
+): string {
+  switch (language) {
+    case "de":
+      return `Empfänger: Jonglieren in Freiburg e.V.
+Bank: Sparkasse Freiburg Nördlicher Breisgau
+IBAN: DE26 6805 0101 0012 0917 91
+BIC: FRSPDE66XXX
+Betrag: ${totalPrice}
+Verwendungszweck: ${paymentReason}`;
+    case "en-US":
+      return `Recipient: Jonglieren in Freiburg e.V.
+Bank: Sparkasse Freiburg Nördlicher Breisgau
+IBAN: DE26 6805 0101 0012 0917 91
+BIC: FRSPDE66XXX
+Amount: ${totalPrice}
+Reference: ${paymentReason}`;
+    default:
+      assertNever(language);
+  }
+}
+
+function maybeWireTransfer(
+  deadline: Day,
+  totalPrice: string,
+  paymentReason: string,
+  language: SupportedLocales
+): string {
+  const shouldPayBeforehand = deadline.gt(Day.now());
+  if (shouldPayBeforehand) {
+    switch (language) {
+      case "de":
+        return `Bitte überweise das Geld dafür bis zum ${formatLongDate(
+          deadline,
+          "de"
+        )} auf unser Konto:
+
+${bankDetails(totalPrice, paymentReason, language)}`;
+      case "en-US":
+        return `Please transfer the money to our account by ${formatLongDate(
+          deadline,
+          "en-US"
+        )}:
+
+${bankDetails(totalPrice, paymentReason, language)}`;
+      default:
+        assertNever(language);
+    }
+  } else {
+    switch (language) {
+      case "de":
+        return "Bitte bezahle den Betrag vor Ort.";
+      case "en-US":
+        return `Please pay the amount at the site`;
+      default:
+        assertNever(language);
+    }
+  }
 }

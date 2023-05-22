@@ -4,6 +4,7 @@ import {
   Accommodation,
   SupporterCategory,
   Duration,
+  Day,
 } from "./domain/types";
 import { assertNever } from "./utils";
 
@@ -264,6 +265,12 @@ export function formatCurrency(
     style: "currency",
     currency: currency,
   }).format(n / 100);
+}
+
+export function formatLongDate(day: Day, locale: SupportedLocales): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(
+    day.toUtcDate()
+  );
 }
 
 export function sortedCountryList(

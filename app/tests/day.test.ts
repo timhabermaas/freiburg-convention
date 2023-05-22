@@ -33,3 +33,19 @@ test("isWithin", () => {
   expect(new Day(2023, 11, 14).isWithin(from, to)).toBe(true);
   expect(new Day(2023, 11, 15).isWithin(from, to)).toBe(false);
 });
+
+test("lt", () => {
+  const a = new Day(2023, 11, 10);
+
+  expect(a.lt(new Day(2023, 11, 14))).toBe(true);
+  expect(a.lt(new Day(2023, 11, 9))).toBe(false);
+  expect(a.lt(new Day(2023, 11, 10))).toBe(false);
+});
+
+test("gt", () => {
+  const a = new Day(2023, 11, 10);
+
+  expect(a.gt(new Day(2023, 11, 14))).toBe(false);
+  expect(a.gt(new Day(2023, 11, 9))).toBe(true);
+  expect(a.gt(new Day(2023, 11, 10))).toBe(false);
+});

@@ -109,6 +109,14 @@ export class Day {
     return Math.floor((selfUtc - otherUtc) / msPerDay);
   }
 
+  public lt(other: Day): boolean {
+    return this.diffInDays(other) < 0;
+  }
+
+  public gt(other: Day): boolean {
+    return this.diffInDays(other) > 0;
+  }
+
   public addDays(days: number): Day {
     const date = this.toUtcDate();
     date.setDate(date.getDate() + days);
