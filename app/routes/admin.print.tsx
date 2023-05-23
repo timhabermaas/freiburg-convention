@@ -146,7 +146,7 @@ export default function PrintPage() {
                 .fill(0)
                 .map((_x, i) => data.participants.length + i)
                 .map((i) => (
-                  <tr key={i} style={{ lineHeight: "35px" }}>
+                  <tr key={i} style={{ lineHeight: "60px" }}>
                     <td className="text-right">{i + 1}</td>
                     <td></td>
                     <td></td>
