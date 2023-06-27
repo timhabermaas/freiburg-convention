@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: freiburg-convention
+  labels:
+    name: freiburg-convention
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: freiburg-convention
+          env:
+            - name: SESSION_SECRET
+              value: "abc"
+            - name: AWS_ACCESS_KEY_ID
+              value: "AKIA6C6XE26VI3VO6CME"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "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"
+            - name: MAIL_SENDER
+              value: "CONSOLE"
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - mountPath: /frontend/temp
+              name: database
+      volumes:
+        - name: database
+          persistentVolumeClaim:
+            claimName: pvc-database
