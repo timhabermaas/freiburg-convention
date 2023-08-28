@@ -32,6 +32,7 @@ import {
 } from "@mui/material";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { ParticipantForm } from "~/components/ParticipantForm";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string().nonempty(),
@@ -133,6 +134,7 @@ export default function NewRegistration() {
   // TODO: Typing
   const actionData = useActionData();
   const data = useLoaderData();
+  const eventConfig = useEventConfig();
 
   const [participantCount, setParticipantCount] = useState<number>(
     actionData?.values?.participants ? actionData.values.participants.length : 1
@@ -141,12 +143,12 @@ export default function NewRegistration() {
   return (
     <>
       <Grid container justifyContent="center" spacing={1} sx={{ mb: 3 }}>
-        <Grid item>
+        <Grid item xs={12}>
           <Typography variant="h4" component="h1" textAlign="center">
-            {t(i18n.registrationTitle)}
+            {t(i18n.registrationTitle(eventConfig.name))}
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item xs={12}>
           <Typography
             variant="h5"
             component="h2"
@@ -165,7 +167,7 @@ export default function NewRegistration() {
           </Alert>
           <Button
             component={Link}
-            href="https://jonglieren-in-freiburg.de/?page_id=43"
+            href={eventConfig.eventHomepage}
             target="_parent"
             variant="contained"
           >

@@ -1,0 +1,17 @@
+{
+  "name": {
+    "de": "24. Freiburger Jonglierfestival",
+    "en-US": "Freiburg Juggling Convention 2023"
+  },
+  "preferredArticle": {
+    "de": "das",
+    "en-US": "the"
+  },
+  "start": "2023-05-26",
+  "end": "2023-05-29",
+  "senderMail": {
+    "displayName": "Jonglieren in Freiburg e.V.",
+    "address": "orga@jonglieren-in-freiburg.de"
+  },
+  "eventHomepage": "https://jonglieren-in-freiburg.de/?page_id=43"
+}

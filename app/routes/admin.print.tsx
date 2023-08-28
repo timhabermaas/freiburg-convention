@@ -8,6 +8,7 @@ import { formatTicket, lastName, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
 import styles from "~/styles/print_override.css";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 export function links() {
   return [
@@ -78,6 +79,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 export default function PrintPage() {
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
   const { dateFormatter, locale } = useLocale();
+  const eventConfig = useEventConfig();
 
   return (
     <div className="container-fluid">
@@ -86,8 +88,7 @@ export default function PrintPage() {
         <div className="col-md-12">
           <div className="fixed-header">
             <h3 className="text-center">
-              Anmeldeliste 24. Freiburger Jonglierfestival – 26. Mai bis 29. Mai
-              2023
+              Anmeldeliste {eventConfig.name.de} – 26. Mai bis 29. Mai 2023
             </h3>
           </div>
         </div>

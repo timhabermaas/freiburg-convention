@@ -129,10 +129,12 @@ export const sum = {
   "en-US": "Sum",
   de: "Summe",
 };
-export const registrationTitle = {
-  "en-US": "Registration for Freiburg Juggling Convention 2023",
-  de: "Anmeldung zur Freiburger Jonglierconvention 2023",
-};
+export function registrationTitle(eventName: LocaleMap) {
+  return {
+    "en-US": `Registration for ${eventName["en-US"]}`,
+    de: `Anmeldung für ${eventName.de}`,
+  };
+}
 export const conventionFull = {
   "en-US": "Unfortunately the convention is already fully booked.",
   de: "Leider sind alle Plätze schon belegt.",

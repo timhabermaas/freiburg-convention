@@ -30,7 +30,7 @@ import {
   composePaymentReceivedMail,
   composePaymentReminderMail,
   composeRegistrationMail,
-} from "./emails";
+} from "./emails.server";
 
 interface State {
   latestVersion: number;

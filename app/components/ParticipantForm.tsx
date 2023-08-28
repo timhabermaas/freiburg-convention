@@ -295,7 +295,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
             justifyContent={{ sm: "center" }}
           >
             {props.availableAccommodations.map((acc) => (
-              <Grid item>
+              <Grid item key={acc}>
                 <ChipInput
                   label={t(i18n.accommodationFieldType(acc))}
                   value={acc}

@@ -141,7 +141,10 @@ const ActionSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("payRegistration"),
     registrationId: z.string(),
-    amountInCents: IntSchema,
+    // Numbers are sent as strings over the wire when using form submits. The
+    // union with `z.number()` exists to also allow defining numbers when
+    // creating actions.
+    amountInCents: z.union([IntSchema, z.number()]),
   }),
   z.object({
     type: z.literal("undoPayment"),
@@ -158,10 +161,12 @@ const ActionSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+type Action = z.infer<typeof ActionSchema>;
+
 export const action: ActionFunction = async ({ context, request }) => {
   const app = context.app as App;
   const formData = parseFormData(await request.formData());
-  const data = ActionSchema.parse(formData);
+  const data: Action = ActionSchema.parse(formData);
 
   switch (data.type) {
     case "cancelRegistration":
@@ -229,55 +234,48 @@ export default function Registrations() {
   }
 
   const handleCancel = (registrationId: string) => {
-    fetcher.submit(
-      { type: "cancelRegistration", registrationId },
-      { method: "post" }
-    );
+    const cancelAction: Action = {
+      type: "cancelRegistration",
+      registrationId,
+    };
+    fetcher.submit(cancelAction, { method: "post" });
   };
 
   const handlePay = (registrationId: string, amountInCents: number) => {
-    fetcher.submit(
-      {
-        type: "payRegistration",
-        registrationId,
-        amountInCents: amountInCents.toString(),
-      },
-      { method: "post" }
-    );
+    const payAction: Action = {
+      type: "payRegistration",
+      registrationId,
+      amountInCents: amountInCents,
+    };
+    fetcher.submit(payAction, { method: "post" });
   };
 
   const handleUndoPay = (paymentId: string) => {
-    fetcher.submit(
-      {
-        type: "undoPayment",
-        paymentId,
-      },
-      { method: "post" }
-    );
+    const undoPayAction: Action = {
+      type: "undoPayment",
+      paymentId,
+    };
+    fetcher.submit(undoPayAction, { method: "post" });
   };
 
   const handleAccommodationChange = (
     participantId: string,
     newAccommodation: Accommodation
   ) => {
-    fetcher.submit(
-      {
-        type: "changeAccommodation",
-        participantId,
-        newAccommodation,
-      },
-      { method: "post" }
-    );
+    const changeAccommodationAction: Action = {
+      type: "changeAccommodation",
+      participantId,
+      newAccommodation,
+    };
+    fetcher.submit(changeAccommodationAction, { method: "post" });
   };
 
   const handleSendReminderMail = (registrationIds: string[]) => {
-    fetcher.submit(
-      {
-        type: "sendReminderMail",
-        registrationIds: registrationIds.join(","),
-      },
-      { method: "post" }
-    );
+    const reminderAction = {
+      type: "sendReminderMail",
+      registrationIds: registrationIds.join(","),
+    };
+    fetcher.submit(reminderAction, { method: "post" });
   };
 
   return (

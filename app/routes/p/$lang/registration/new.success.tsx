@@ -1,10 +1,11 @@
 import { Button, Link, Typography } from "@mui/material";
-import { ORGA_EMAIL } from "~/constants";
+import { useEventConfig } from "~/hooks/useEventConfig";
 import { useTranslation } from "~/hooks/useTranslation";
 import * as i18n from "~/i18n";
 
 export default function RegistrationSuccessful() {
   const t = useTranslation();
+  const eventConfig = useEventConfig();
 
   return (
     <div>
@@ -13,12 +14,15 @@ export default function RegistrationSuccessful() {
       </Typography>
       <Typography gutterBottom variant="body1" component="p">
         {t(i18n.successMessage)}{" "}
-        <Link href={`mailto:${ORGA_EMAIL}`}>{ORGA_EMAIL}</Link>.
+        <Link href={`mailto:${eventConfig.senderMailAddress}`}>
+          {eventConfig.senderMailAddress}
+        </Link>
+        .
       </Typography>
 
       <Button
         component={Link}
-        href="https://jonglieren-in-freiburg.de/?page_id=43"
+        href={eventConfig.eventHomepage}
         target="_parent"
         variant="contained"
       >

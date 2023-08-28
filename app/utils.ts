@@ -276,6 +276,8 @@ export function ticketSumForParticipants(participants: Participant[]): number {
 
 export const IntSchema = z.string().regex(/^\d+$/).transform(Number);
 
+export const DaySchema = z.coerce.date().transform((d) => Day.fromDate(d));
+
 export function lastName(name: string): string {
   const nameParts = name.trim().split(" ");
   if (nameParts.length === 0) {

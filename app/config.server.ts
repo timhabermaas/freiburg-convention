@@ -1,4 +1,18 @@
-import { assertDefined } from "./utils";
+import { DaySchema, assertDefined } from "./utils";
+import * as fs from "fs";
+import { z } from "zod";
+
+const translatedSchema = z.object({ de: z.string(), "en-US": z.string() });
+
+const eventConfigSchema = z.object({
+  name: translatedSchema,
+  preferredArticle: translatedSchema,
+  start: DaySchema,
+  end: DaySchema,
+  senderMail: z.object({ displayName: z.string(), address: z.string() }),
+  eventHomepage: z.string(),
+});
+type EventConfig = z.infer<typeof eventConfigSchema>;
 
 export interface Config {
   mailSender: "SES" | "CONSOLE";
@@ -9,9 +23,14 @@ export interface Config {
   sessionSecret: string;
   statsAccessKey?: string;
   printAccessKey?: string;
+  event: EventConfig;
 }
 
-function getConfigFromEnv(): Config {
+function getConfigFromEnvAndFile(): Config {
+  const eventConfig = eventConfigSchema.parse(
+    JSON.parse(fs.readFileSync("./config/eventConfig.json").toString())
+  );
+
   return {
     mailSender: process.env.MAIL_SENDER === "SES" ? "SES" : "CONSOLE",
     eventStore:
@@ -28,7 +47,8 @@ function getConfigFromEnv(): Config {
     printAccessKey: process.env.PRINT_ACCESS_KEY,
     bucketName:
       process.env.EVENT_STORE_BUCKET_NAME ?? "jonglieren-in-freiburg-dev",
+    event: eventConfig,
   };
 }
 
-export const CONFIG: Config = getConfigFromEnv();
+export const CONFIG: Config = getConfigFromEnvAndFile();

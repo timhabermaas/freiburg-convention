@@ -1,5 +1,5 @@
 import { assertNever } from "~/utils";
-import { AgeCategory, Day, Duration, SupporterCategory, Ticket } from "./types";
+import { AgeCategory, Day, Duration, SupporterCategory } from "./types";
 
 export function price(
   age: AgeCategory,

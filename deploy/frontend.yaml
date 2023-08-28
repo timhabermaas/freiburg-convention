@@ -16,7 +16,30 @@ spec:
     requests:
       storage: 1Gi
 ---
-
+apiVersion: v1
+data:
+  eventConfig.json: |
+    {
+      "name": {
+        "de": "24. Freiburger Jonglierfestival",
+        "en-US": "Freiburg Juggling Convention 2023"
+      },
+      "preferredArticle": {
+        "de": "das",
+        "en-US": "the"
+      },
+      "start": "2023-05-26",
+      "end": "2023-05-29",
+      "senderMail": {
+        "displayName": "Jonglieren in Freiburg e.V.",
+        "address": "orga@jonglieren-in-freiburg.de"
+      },
+      "eventHomepage": "https://jonglieren-in-freiburg.de/?page_id=43"
+    }
+kind: ConfigMap
+metadata:
+  name: event-config
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,7 +73,12 @@ spec:
           volumeMounts:
             - mountPath: /frontend/temp
               name: database
+            - mountPath: /frontend/config
+              name: config-volume
       volumes:
         - name: database
           persistentVolumeClaim:
             claimName: pvc-database
+        - name: config-volume
+          configMap:
+            name: event-config
