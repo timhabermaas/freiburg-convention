@@ -88,7 +88,15 @@ export default function PrintPage() {
         <div className="col-md-12">
           <div className="fixed-header">
             <h3 className="text-center">
-              Anmeldeliste {eventConfig.name.de} – 26. Mai bis 29. Mai 2023
+              Anmeldeliste {eventConfig.name.de},{" "}
+              {
+                // FIXME: requires newer TS version, but that conflicts with the remix version.
+                //@ts-ignore
+                dateFormatter.formatRange(
+                  eventConfig.start.toUtcDate(),
+                  eventConfig.end.toUtcDate()
+                )
+              }
             </h3>
           </div>
         </div>

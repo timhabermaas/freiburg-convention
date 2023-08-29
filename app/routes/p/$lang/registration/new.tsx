@@ -155,8 +155,8 @@ export default function NewRegistration() {
             color="text.secondary"
             textAlign="center"
           >
-            {dateFormatter.format(Date.parse("2023-05-26"))} –{" "}
-            {dateFormatter.format(Date.parse("2023-05-29"))}
+            {dateFormatter.format(eventConfig.start.toUtcDate())} –{" "}
+            {dateFormatter.format(eventConfig.end.toUtcDate())}
           </Typography>
         </Grid>
       </Grid>

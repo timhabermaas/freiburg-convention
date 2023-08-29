@@ -38,10 +38,11 @@ export function price(
   return result;
 }
 
-export function stayFromDuration(duration: Duration): [Day, Day] {
-  const firstDay = new Day(2023, 5, 26);
-  const lastDay = new Day(2023, 5, 29);
-
+export function stayFromDuration(
+  duration: Duration,
+  firstDay: Day,
+  lastDay: Day
+): [Day, Day] {
   switch (duration) {
     case "Fr-Mo":
       return [firstDay, lastDay];

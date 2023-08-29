@@ -128,8 +128,16 @@ export class App {
             ageCategory: p.ageCategory,
             price: pr,
             supporterCategory: p.supporterCategory,
-            from: stayFromDuration(p.duration)[0],
-            to: stayFromDuration(p.duration)[1],
+            from: stayFromDuration(
+              p.duration,
+              CONFIG.event.start,
+              CONFIG.event.end
+            )[0],
+            to: stayFromDuration(
+              p.duration,
+              CONFIG.event.start,
+              CONFIG.event.end
+            )[1],
           },
           birthday: p.birthday,
           accommodation: p.accommodation,
