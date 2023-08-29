@@ -2,7 +2,7 @@ import { LoaderFunction, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import * as i18n from "~/i18n";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import { AccommodationSchema, DaySchema } from "~/domain/events";
 import { formatTicket, lastName, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";

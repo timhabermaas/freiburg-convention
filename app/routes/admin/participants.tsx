@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { Col } from "~/components/Col";
 import { Row } from "~/components/Row";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
-import { App, CONVENTION_DAYS } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import { useLocale } from "~/hooks/useLocale";
 import * as i18n from "~/i18n";
 import { whenAuthorized } from "~/session";
@@ -17,6 +17,7 @@ import {
   ticketPrice,
 } from "~/utils";
 import { Accommodation, Limits } from "~/domain/types";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 function getLimitFor(
   accommodation: Accommodation,
@@ -69,6 +70,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 export default function Participants() {
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
   const { dateFormatter } = useLocale();
+  const eventConfig = useEventConfig();
 
   return (
     <>
@@ -84,7 +86,7 @@ export default function Participants() {
             <thead>
               <tr>
                 <th></th>
-                {CONVENTION_DAYS.map((day) => (
+                {eventConfig.conventionDays.map((day) => (
                   <th className="text-right">{formatWeekday(day, "de")}</th>
                 ))}
               </tr>
@@ -93,7 +95,7 @@ export default function Participants() {
               {ACCOMMODATIONS.map((accommodation) => (
                 <tr key={accommodation}>
                   <th>{i18n.accommodationFieldType(accommodation).de}</th>
-                  {CONVENTION_DAYS.map((day) => (
+                  {eventConfig.conventionDays.map((day) => (
                     <td className="text-right">
                       {data.accommodationDayCount[
                         accommodation + "-" + day.toJSON()
@@ -110,7 +112,7 @@ export default function Participants() {
               ))}
               <tr>
                 <td></td>
-                {CONVENTION_DAYS.map((day) => (
+                {eventConfig.conventionDays.map((day) => (
                   <td></td>
                 ))}
                 <td className="text-right">

@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import * as i18n from "~/i18n";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import {
   assertNever,
   formatTicket,

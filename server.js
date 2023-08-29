@@ -10,7 +10,7 @@ import { S3Store } from "./app/services/stores/s3-store";
 import { SesSender } from "./app/services/email/ses-sender";
 import { ConsoleSender } from "./app/services/email/console-sender";
 import { logger } from "./app/logger";
-import { App } from "./app/domain/app";
+import { App } from "./app/domain/app.server";
 import { CONFIG } from "./app/config.server";
 
 import * as build from "@remix-run/dev/server-build";

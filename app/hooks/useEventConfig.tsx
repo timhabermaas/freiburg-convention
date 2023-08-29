@@ -6,6 +6,7 @@ export interface ClientEventConfig {
   name: LocaleMap;
   start: Day;
   end: Day;
+  conventionDays: Day[];
   senderMailAddress: string;
   eventHomepage: string;
 }
@@ -14,6 +15,12 @@ export const EventConfigContext = React.createContext<ClientEventConfig>({
   name: { de: "Gute Convention", "en-US": "Good Convention" },
   start: new Day(2023, 5, 26),
   end: new Day(2023, 5, 29),
+  conventionDays: [
+    new Day(2023, 5, 26),
+    new Day(2023, 5, 27),
+    new Day(2023, 5, 28),
+    new Day(2023, 5, 29),
+  ],
   senderMailAddress: "orga@jonglieren-in-freiburg.de",
   eventHomepage: "https://jonglieren-in-freiburg.de",
 });

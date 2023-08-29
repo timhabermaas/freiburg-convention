@@ -122,6 +122,14 @@ export class Day {
     date.setDate(date.getDate() + days);
     return Day.fromDate(date);
   }
+
+  public nextDay(): Day {
+    return this.addDays(1);
+  }
+
+  public previousDay(): Day {
+    return this.addDays(-1);
+  }
 }
 
 // TODO: Do we need Ticket?

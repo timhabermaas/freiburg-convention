@@ -1,6 +1,7 @@
-import { DaySchema, assertDefined } from "./utils";
+import { DaySchema, assertDefined, dayRange } from "./utils";
 import * as fs from "fs";
 import { z } from "zod";
+import { Day } from "./domain/types";
 
 const translatedSchema = z.object({ de: z.string(), "en-US": z.string() });
 
@@ -12,7 +13,9 @@ const eventConfigSchema = z.object({
   senderMail: z.object({ displayName: z.string(), address: z.string() }),
   eventHomepage: z.string(),
 });
-type EventConfig = z.infer<typeof eventConfigSchema>;
+type EventConfig = z.infer<typeof eventConfigSchema> & {
+  conventionDays: Day[];
+};
 
 export interface Config {
   mailSender: "SES" | "CONSOLE";
@@ -27,9 +30,13 @@ export interface Config {
 }
 
 function getConfigFromEnvAndFile(): Config {
-  const eventConfig = eventConfigSchema.parse(
+  const parsedEventConfig = eventConfigSchema.parse(
     JSON.parse(fs.readFileSync("./config/eventConfig.json").toString())
   );
+  const eventConfig = {
+    ...parsedEventConfig,
+    conventionDays: dayRange(parsedEventConfig.start, parsedEventConfig.end),
+  };
 
   return {
     mailSender: process.env.MAIL_SENDER === "SES" ? "SES" : "CONSOLE",

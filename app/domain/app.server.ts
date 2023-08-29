@@ -31,6 +31,7 @@ import {
   composePaymentReminderMail,
   composeRegistrationMail,
 } from "./emails.server";
+import { CONFIG } from "~/config.server";
 
 interface State {
   latestVersion: number;
@@ -48,13 +49,6 @@ interface State {
   // Contains the registration date for each participant, ascending order
   registrationTimes: Date[];
 }
-
-export const CONVENTION_DAYS = [
-  new Day(2023, 5, 26),
-  new Day(2023, 5, 27),
-  new Day(2023, 5, 28),
-  new Day(2023, 5, 29),
-];
 
 function initState(): State {
   return {
@@ -469,7 +463,7 @@ export class App {
     const result: Record<string, number> = {};
 
     this.getAllActualParticipants().forEach((p) => {
-      CONVENTION_DAYS.forEach((day) => {
+      CONFIG.event.conventionDays.forEach((day) => {
         const accDayCount = result[p.accommodation + "-" + day.toJSON()] ?? 0;
         if (day.isWithin(p.ticket.from, p.ticket.to)) {
           result[p.accommodation + "-" + day.toJSON()] = accDayCount + 1;

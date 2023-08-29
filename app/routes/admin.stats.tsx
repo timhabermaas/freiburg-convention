@@ -21,8 +21,9 @@ import { Chart } from "~/components/Chart";
 import { ParticipantMap } from "~/components/ParticipantMap";
 import { CONFIG } from "~/config.server";
 import { ACCOMMODATIONS } from "~/domain/accommodation";
-import { App, CONVENTION_DAYS } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import { Accommodation, Limits, T_SHIRT_SIZES } from "~/domain/types";
+import { useEventConfig } from "~/hooks/useEventConfig";
 import * as i18n from "~/i18n";
 import { formatWeekday, isoDateString } from "~/utils";
 
@@ -122,6 +123,7 @@ const theme = createTheme();
 
 export default function StatsPage() {
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
+  const eventConfig = useEventConfig();
 
   return (
     <ThemeProvider theme={theme}>
@@ -139,7 +141,7 @@ export default function StatsPage() {
                 <TableHead>
                   <TableRow>
                     <TableCell></TableCell>
-                    {CONVENTION_DAYS.map((day) => (
+                    {eventConfig.conventionDays.map((day) => (
                       <TableCell align="right">
                         {formatWeekday(day, "de")}
                       </TableCell>
@@ -153,7 +155,7 @@ export default function StatsPage() {
                       <TableCell variant="head">
                         {i18n.accommodationFieldType(accommodation).de}
                       </TableCell>
-                      {CONVENTION_DAYS.map((day) => (
+                      {eventConfig.conventionDays.map((day) => (
                         <TableCell align="right">
                           {data.accommodationDayCount[
                             accommodation + "-" + day.toJSON()
@@ -172,7 +174,7 @@ export default function StatsPage() {
                   ))}
                   <TableRow>
                     <TableCell></TableCell>
-                    {CONVENTION_DAYS.map((day) => (
+                    {eventConfig.conventionDays.map((day) => (
                       <TableCell align="right">
                         <strong>
                           {data.accommodationDayCount[day.toJSON()] ?? 0}

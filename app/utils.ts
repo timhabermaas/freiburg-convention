@@ -285,3 +285,21 @@ export function lastName(name: string): string {
   }
   return nameParts[nameParts.length - 1];
 }
+
+export function dayRange(start: Day, end: Day): Day[] {
+  if (start.gt(end)) {
+    throw new Error(
+      `Can't generate array of days since start date is after end date. Given start: ${start}, given end: ${end}`
+    );
+  }
+
+  let days: Day[] = [];
+  let currentDay = start;
+
+  while (!currentDay.gt(end)) {
+    days.push(currentDay);
+    currentDay = currentDay.nextDay();
+  }
+
+  return days;
+}

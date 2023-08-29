@@ -18,7 +18,7 @@ import {
   SupporterCategory,
   TShirtSize,
 } from "~/domain/types";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import * as i18n from "~/i18n";
 import {
   Grid,
