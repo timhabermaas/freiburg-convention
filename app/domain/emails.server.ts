@@ -7,7 +7,7 @@ import { CONFIG } from "~/config.server";
 
 const MAIL_FROM = `${CONFIG.event.senderMail.displayName} <${CONFIG.event.senderMail.address}>`;
 const MAIL_CC = MAIL_FROM;
-const BANK_TRANSFER_DEADLINE = new Day(2023, 5, 22);
+const BANK_TRANSFER_DEADLINE = CONFIG.event.wireTransferDeadline;
 
 export function buildMail(
   toMailAddress: string,

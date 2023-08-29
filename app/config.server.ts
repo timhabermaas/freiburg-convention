@@ -10,6 +10,7 @@ const eventConfigSchema = z.object({
   preferredArticle: translatedSchema,
   start: DaySchema,
   end: DaySchema,
+  wireTransferDeadline: DaySchema,
   senderMail: z.object({ displayName: z.string(), address: z.string() }),
   eventHomepage: z.string(),
 });

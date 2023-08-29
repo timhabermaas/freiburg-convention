@@ -21,6 +21,7 @@ export const loader: LoaderFunction = () => {
     name: CONFIG.event.name,
     start: CONFIG.event.start,
     end: CONFIG.event.end,
+    wireTransferDeadline: CONFIG.event.wireTransferDeadline,
     conventionDays: CONFIG.event.conventionDays,
     senderMailAddress: CONFIG.event.senderMail.address,
     eventHomepage: CONFIG.event.eventHomepage,
@@ -35,6 +36,7 @@ export default function App() {
     ...config,
     start: Day.parse(config.start),
     end: Day.parse(config.end),
+    wireTransferDeadline: Day.parse(config.wireTransferDeadline),
     conventionDays: config.conventionDays.map((d) => Day.parse(d)),
   };
 

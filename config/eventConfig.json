@@ -9,6 +9,7 @@
   },
   "start": "2023-05-26",
   "end": "2023-05-29",
+  "wireTransferDeadline": "2023-05-22",
   "senderMail": {
     "displayName": "Jonglieren in Freiburg e.V.",
     "address": "orga@jonglieren-in-freiburg.de"
