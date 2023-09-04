@@ -11,6 +11,8 @@ export interface ClientEventConfig {
   senderMailAddress: string;
   eventHomepage: string;
   tickets: { id: string; from: Day; to: Day; price: number }[];
+  supporterTicket: boolean;
+  soliTicket: boolean;
 }
 
 export const EventConfigContext = React.createContext<ClientEventConfig>({
@@ -27,6 +29,8 @@ export const EventConfigContext = React.createContext<ClientEventConfig>({
   senderMailAddress: "orga@jonglieren-in-freiburg.de",
   eventHomepage: "https://jonglieren-in-freiburg.de",
   tickets: [],
+  supporterTicket: true,
+  soliTicket: true,
 });
 
 export function useEventConfig(): ClientEventConfig {

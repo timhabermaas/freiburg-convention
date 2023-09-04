@@ -26,6 +26,8 @@ export const loader: LoaderFunction = () => {
     senderMailAddress: CONFIG.event.senderMail.address,
     eventHomepage: CONFIG.event.eventHomepage,
     tickets: CONFIG.event.tickets,
+    supporterTicket: CONFIG.event.supporterTicket,
+    soliTicket: CONFIG.event.soliTicket,
   };
 
   return json(eventConfig);

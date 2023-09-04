@@ -91,15 +91,14 @@ export function ParticipantForm(props: ParticipantFormProps) {
   const withPrefix = (name: string): string =>
     `participants.${props.index}.${name}`;
 
-  const tiers = [
-    {
-      title: t(i18n.soliTicketTitle),
-      price: age && ticket && price(age, ticket.price, "Cheaper"),
-      description: i18n.ticketFeatures[locale],
-      buttonText: t(i18n.select),
-      supporterCategory: "Cheaper",
-      selected: supporterCategory === "Cheaper",
-    },
+  let tiers: {
+    title: string;
+    price: number | null;
+    description: string[];
+    buttonText: string;
+    supporterCategory: SupporterCategory;
+    selected: boolean;
+  }[] = [
     {
       title: t(i18n.regularTicketTitle),
       price: age && ticket && price(age, ticket.price, "Normal"),
@@ -108,15 +107,29 @@ export function ParticipantForm(props: ParticipantFormProps) {
       supporterCategory: "Normal",
       selected: supporterCategory === "Normal",
     },
-    {
+  ];
+
+  if (eventConfig.soliTicket) {
+    tiers.unshift({
+      title: t(i18n.soliTicketTitle),
+      price: age && ticket && price(age, ticket.price, "Cheaper"),
+      description: i18n.ticketFeatures[locale],
+      buttonText: t(i18n.select),
+      supporterCategory: "Cheaper",
+      selected: supporterCategory === "Cheaper",
+    });
+  }
+
+  if (eventConfig.supporterTicket) {
+    tiers.push({
       title: t(i18n.supporterTicketTitle),
       price: age && ticket && price(age, ticket.price, "Supporter"),
       description: i18n.ticketFeatures[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Supporter",
       selected: supporterCategory === "Supporter",
-    },
-  ] as const;
+    });
+  }
 
   return (
     <Grid container>
@@ -434,9 +447,11 @@ export function ParticipantForm(props: ParticipantFormProps) {
         <Box sx={{ mb: 2 }}>
           <FormLabel>{t(i18n.ticketField)}</FormLabel>
         </Box>
-        <Alert severity="info" sx={{ mb: 2 }}>
-          {t(i18n.soliNote)}
-        </Alert>
+        {eventConfig.soliTicket && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {t(i18n.soliNote)}
+          </Alert>
+        )}
         <Grid container spacing={5} alignItems="flex-start" sx={{ mb: 1 }}>
           {tiers.map((tier) => (
             <Grid item key={tier.title} xs={12} sm={6} md={4}>

@@ -27,6 +27,8 @@ const eventConfigSchema = z.object({
     bic: z.string(),
     bankName: z.string(),
   }),
+  supporterTicket: z.boolean(),
+  soliTicket: z.boolean(),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];

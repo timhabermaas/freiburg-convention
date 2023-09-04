@@ -25,5 +25,7 @@
     "iban": "DE15702202002968468118",
     "bic": "GENODEM1GLS",
     "bankName": "GLS Bank"
-  }
+  },
+  "supporterTicket": true,
+  "soliTicket": true
 }
