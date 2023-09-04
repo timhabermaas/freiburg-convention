@@ -193,17 +193,17 @@ function bankDetails(
 ): string {
   switch (language) {
     case "de":
-      return `Empfänger: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
+      return `Empfänger: ${CONFIG.event.bankDetails.accountHolder}
+Bank: ${CONFIG.event.bankDetails.bankName}
+IBAN: ${CONFIG.event.bankDetails.iban}
+BIC: ${CONFIG.event.bankDetails.bic}
 Betrag: ${totalPrice}
 Verwendungszweck: ${paymentReason}`;
     case "en-US":
-      return `Recipient: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
+      return `Recipient: ${CONFIG.event.bankDetails.accountHolder}
+Bank: ${CONFIG.event.bankDetails.bankName}
+IBAN: ${CONFIG.event.bankDetails.iban}
+BIC: ${CONFIG.event.bankDetails.bic}
 Amount: ${totalPrice}
 Reference: ${paymentReason}`;
     default:

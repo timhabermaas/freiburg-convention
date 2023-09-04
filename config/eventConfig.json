@@ -9,7 +9,7 @@
   },
   "start": "2023-05-26",
   "end": "2023-05-29",
-  "wireTransferDeadline": "2023-05-22",
+  "wireTransferDeadline": "2023-10-22",
   "senderMail": {
     "displayName": "Jonglieren in Freiburg e.V.",
     "address": "orga@jonglieren-in-freiburg.de"
@@ -19,5 +19,11 @@
     { "id": "1", "from": "2023-05-26", "to": "2023-05-29", "price": 4500 },
     { "id": "2", "from": "2023-05-26", "to": "2023-05-28", "price": 3500 },
     { "id": "3", "from": "2023-05-27", "to": "2023-05-29", "price": 3500 }
-  ]
+  ],
+  "bankDetails": {
+    "accountHolder": "Jonglieren in Freiburg e.V.",
+    "iban": "DE15702202002968468118",
+    "bic": "GENODEM1GLS",
+    "bankName": "GLS Bank"
+  }
 }

@@ -21,6 +21,12 @@ const eventConfigSchema = z.object({
       price: z.number(),
     })
   ),
+  bankDetails: z.object({
+    accountHolder: z.string(),
+    iban: z.string(),
+    bic: z.string(),
+    bankName: z.string(),
+  }),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];
