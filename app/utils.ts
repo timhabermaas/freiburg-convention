@@ -1,13 +1,6 @@
 import { z } from "zod";
-import {
-  Address,
-  Day,
-  OrderedTicket,
-  Participant,
-  Ticket,
-} from "./domain/types";
+import { Address, Day, OrderedTicket, Participant } from "./domain/types";
 import { LocaleMap, SupportedLocales, translateAgeCategory } from "./i18n";
-import * as i18n from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
@@ -199,13 +192,6 @@ export function formatTicket(
   return `${formatTimeSpan(ticket, locale)}, ${
     translateAgeCategory(ticket.ageCategory)[locale]
   }`;
-}
-
-export function formatDuration(
-  ticket: Ticket,
-  locale: SupportedLocales
-): string {
-  return `${ticket.to.diffInDays(ticket.from) + 1} ${i18n.days[locale]}`;
 }
 
 export function formatWeekday(day: Day, locale: SupportedLocales): string {

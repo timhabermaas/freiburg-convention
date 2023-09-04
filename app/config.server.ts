@@ -13,8 +13,16 @@ const eventConfigSchema = z.object({
   wireTransferDeadline: DaySchema,
   senderMail: z.object({ displayName: z.string(), address: z.string() }),
   eventHomepage: z.string(),
+  tickets: z.array(
+    z.object({
+      id: z.string(),
+      from: DaySchema,
+      to: DaySchema,
+      price: z.number(),
+    })
+  ),
 });
-type EventConfig = z.infer<typeof eventConfigSchema> & {
+type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];
 };
 

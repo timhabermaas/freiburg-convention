@@ -25,6 +25,7 @@ export const loader: LoaderFunction = () => {
     conventionDays: CONFIG.event.conventionDays,
     senderMailAddress: CONFIG.event.senderMail.address,
     eventHomepage: CONFIG.event.eventHomepage,
+    tickets: CONFIG.event.tickets,
   };
 
   return json(eventConfig);
@@ -38,6 +39,11 @@ export default function App() {
     end: Day.parse(config.end),
     wireTransferDeadline: Day.parse(config.wireTransferDeadline),
     conventionDays: config.conventionDays.map((d) => Day.parse(d)),
+    tickets: config.tickets.map((t) => ({
+      ...t,
+      from: Day.parse(t.from),
+      to: Day.parse(t.to),
+    })),
   };
 
   return (

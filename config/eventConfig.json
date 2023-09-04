@@ -14,5 +14,10 @@
     "displayName": "Jonglieren in Freiburg e.V.",
     "address": "orga@jonglieren-in-freiburg.de"
   },
-  "eventHomepage": "https://jonglieren-in-freiburg.de/?page_id=43"
+  "eventHomepage": "https://jonglieren-in-freiburg.de/?page_id=43",
+  "tickets": [
+    { "id": "1", "from": "2023-05-26", "to": "2023-05-29", "price": 4500 },
+    { "id": "2", "from": "2023-05-26", "to": "2023-05-28", "price": 3500 },
+    { "id": "3", "from": "2023-05-27", "to": "2023-05-29", "price": 3500 }
+  ]
 }

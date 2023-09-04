@@ -240,9 +240,9 @@ ${bankDetails(totalPrice, paymentReason, language)}`;
   } else {
     switch (language) {
       case "de":
-        return "Bitte bezahle den Betrag vor Ort.";
+        return "Bitte bezahle den Betrag vor Ort in bar.";
       case "en-US":
-        return `Please pay the amount at the site`;
+        return `Please pay the amount at the site in cash`;
       default:
         assertNever(language);
     }

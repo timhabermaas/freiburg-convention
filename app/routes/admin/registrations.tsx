@@ -101,6 +101,7 @@ const LoaderDataSchema = z.object({
             to: DaySchema,
             price: z.number(),
             supporterCategory: SupporterCategorySchema,
+            ticketId: z.string(),
           }),
         })
       ),

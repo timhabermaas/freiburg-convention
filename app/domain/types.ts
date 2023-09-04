@@ -13,8 +13,6 @@ export type AgeCategory = "Baby" | "Child" | "OlderThan12";
 
 export type SupporterCategory = "Normal" | "Supporter" | "Cheaper";
 
-export type Duration = "Fr-Mo" | "Fr-Su" | "Sa-Mo";
-
 export type TShirtSize = "S" | "M" | "L" | "XL";
 
 export const T_SHIRT_SIZES: TShirtSize[] = ["S", "M", "L", "XL"];
@@ -132,16 +130,8 @@ export class Day {
   }
 }
 
-// TODO: Do we need Ticket?
-export interface Ticket {
-  ticketId: string;
-  ageCategory: AgeCategory;
-  from: Day;
-  to: Day;
-  price: Cents;
-}
-
 export interface OrderedTicket {
+  ticketId: string;
   ageCategory: AgeCategory;
   from: Day;
   to: Day;

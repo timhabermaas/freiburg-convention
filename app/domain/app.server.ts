@@ -6,7 +6,6 @@ import {
   Address,
   AgeCategory,
   Day,
-  Duration,
   Limits,
   PaidStatus,
   Participant,
@@ -14,9 +13,10 @@ import {
   SupporterCategory,
   TShirtSize,
 } from "~/domain/types";
-import { price, stayFromDuration } from "./tickets";
+import { price } from "./tickets";
 import { MailSender } from "~/services/email/interface";
 import {
+  assertDefined,
   assertNever,
   formatTicket,
   paymentReasonForRegistrationCount,
@@ -35,7 +35,8 @@ import { CONFIG } from "~/config.server";
 
 interface State {
   latestVersion: number;
-  /** Counts all registrations, used for payment reason. Should never be reduced over time to avoid conflicts. */
+  /** Counts all registrations, used for payment reason. Should never be reduced
+   *  over time to avoid conflicts. */
   registrationCount: number;
   participants: Participant[];
   registrations: Registration[];
@@ -46,7 +47,7 @@ interface State {
   }[];
   eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
   limits: Limits;
-  // Contains the registration date for each participant, ascending order
+  /** Contains the registration date for each participant, ascending order */
   registrationTimes: Date[];
 }
 
@@ -108,7 +109,7 @@ export class App {
       address: Address;
       birthday: Day;
       ageCategory: AgeCategory;
-      duration: Duration;
+      ticketId: string;
       accommodation: Accommodation;
       supporterCategory: SupporterCategory;
       tShirtSize?: TShirtSize;
@@ -117,7 +118,11 @@ export class App {
   ) {
     return this.lock.acquire("mutate", async () => {
       const persistedParticipants = participants.map((p) => {
-        const pr = price(p.ageCategory, p.duration, p.supporterCategory);
+        const ticket = assertDefined(
+          CONFIG.event.tickets.find((t) => t.id === p.ticketId),
+          `ticket for id ${p.ticketId}`
+        );
+        const pr = price(p.ageCategory, ticket.price, p.supporterCategory);
 
         return {
           participantId: uuid(),
@@ -128,16 +133,9 @@ export class App {
             ageCategory: p.ageCategory,
             price: pr,
             supporterCategory: p.supporterCategory,
-            from: stayFromDuration(
-              p.duration,
-              CONFIG.event.start,
-              CONFIG.event.end
-            )[0],
-            to: stayFromDuration(
-              p.duration,
-              CONFIG.event.start,
-              CONFIG.event.end
-            )[1],
+            from: ticket.from,
+            to: ticket.to,
+            ticketId: ticket.id,
           },
           birthday: p.birthday,
           accommodation: p.accommodation,

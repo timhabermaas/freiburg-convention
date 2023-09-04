@@ -14,7 +14,6 @@ import {
   Address,
   AgeCategory,
   Day,
-  Duration,
   SupporterCategory,
   TShirtSize,
 } from "~/domain/types";
@@ -58,12 +57,6 @@ const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
 const AgeCategorySchema: z.ZodSchema<AgeCategory, z.ZodTypeDef, unknown> =
   z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
 
-const DurationSchema: z.ZodSchema<Duration, z.ZodTypeDef, unknown> = z.union([
-  z.literal("Fr-Mo"),
-  z.literal("Fr-Su"),
-  z.literal("Sa-Mo"),
-]);
-
 const SupporterCategorySchema: z.ZodSchema<
   SupporterCategory,
   z.ZodTypeDef,
@@ -85,7 +78,7 @@ const ParticipantSchema = z.object({
   accommodation: AccommodationSchema,
   tShirtSize: TShirtSizeSchema.optional(),
   ageCategory: AgeCategorySchema,
-  duration: DurationSchema,
+  ticketId: z.string(),
 });
 
 const Form = z.object({

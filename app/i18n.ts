@@ -3,7 +3,6 @@ import {
   Cents,
   Accommodation,
   SupporterCategory,
-  Duration,
   Day,
 } from "./domain/types";
 import { assertNever } from "./utils";
@@ -221,26 +220,19 @@ export function translateAgeCategory(ageCategory: AgeCategory): LocaleMap {
   }
 }
 
-export function translateDurationCategory(duration: Duration): LocaleMap {
-  switch (duration) {
-    case "Fr-Mo":
-      return {
-        de: "4 Tage (Freitag – Montag)",
-        "en-US": "4 days (Friday to Monday)",
-      };
-    case "Fr-Su":
-      return {
-        de: "3 Tage (Freitag – Sonntag)",
-        "en-US": "3 days (Friday to Sunday)",
-      };
-    case "Sa-Mo":
-      return {
-        de: "3 Tage (Samstag – Montag)",
-        "en-US": "3 days (Saturday to Monday)",
-      };
-    default:
-      assertNever(duration);
-  }
+export function translateTicketDuration(from: Day, to: Day): LocaleMap {
+  const days = to.diffInDays(from) + 1;
+  const formatterDe = Intl.DateTimeFormat("de", { weekday: "long" });
+  const formatterEn = Intl.DateTimeFormat("en-US", { weekday: "long" });
+
+  return {
+    de: `${days} Tage (${formatterDe.format(
+      from.toUtcDate()
+    )} – ${formatterDe.format(to.toUtcDate())})`,
+    "en-US": `${days} days (${formatterEn.format(
+      from.toUtcDate()
+    )} to ${formatterEn.format(to.toUtcDate())})`,
+  };
 }
 
 export function translateSupporter(

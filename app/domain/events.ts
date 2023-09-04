@@ -107,6 +107,7 @@ const TicketSchema: z.ZodSchema<OrderedTicket, z.ZodTypeDef, unknown> =
     price: z.number(),
     ageCategory: AgeCategorySchema,
     supporterCategory: SupporterCategorySchema,
+    ticketId: z.string(),
   });
 
 const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
