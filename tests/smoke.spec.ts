@@ -69,7 +69,7 @@ test.describe("smoke tests", () => {
       `http://localhost:${PORT}/p/de/registration/new/success`
     );
 
-    expect(page.locator("h1")).toHaveText("Danke für deine Anmeldung!");
+    await expect(page.locator("h1")).toHaveText("Danke für deine Anmeldung!");
   });
 
   test("canceling registration should lead to it no longer being there", async ({
