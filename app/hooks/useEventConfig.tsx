@@ -14,6 +14,7 @@ export interface ClientEventConfig {
   supporterTicket: boolean;
   soliTicket: boolean;
   ticketDescription: LocaleMapT<string[]>;
+  tShirt: boolean;
 }
 
 export const EventConfigContext = React.createContext<ClientEventConfig>({
@@ -33,6 +34,7 @@ export const EventConfigContext = React.createContext<ClientEventConfig>({
   supporterTicket: true,
   soliTicket: true,
   ticketDescription: { de: [], "en-US": [] },
+  tShirt: true,
 });
 
 export function useEventConfig(): ClientEventConfig {

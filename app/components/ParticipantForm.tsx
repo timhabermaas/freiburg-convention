@@ -478,19 +478,21 @@ export function ParticipantForm(props: ParticipantFormProps) {
           name={withPrefix("supporterCategory")}
         />
       </Grid>
-      <Grid item xs={12} sx={{ mb: 3, mt: 3 }}>
-        <FormControl component="fieldset" variant="standard">
-          <FormLabel component="legend">{t(i18n.tShirtField)}</FormLabel>
-          <FormGroup>
-            <FormControlLabel
-              label={t(i18n.yes)}
-              control={<Switch checked={tShirtSelected} />}
-              onChange={(_e, checked) => setTShirtSelected(checked)}
-            />
-          </FormGroup>
-        </FormControl>
-      </Grid>
-      {tShirtSelected && (
+      {eventConfig.tShirt && (
+        <Grid item xs={12} sx={{ mb: 3, mt: 3 }}>
+          <FormControl component="fieldset" variant="standard">
+            <FormLabel component="legend">{t(i18n.tShirtField)}</FormLabel>
+            <FormGroup>
+              <FormControlLabel
+                label={t(i18n.yes)}
+                control={<Switch checked={tShirtSelected} />}
+                onChange={(_e, checked) => setTShirtSelected(checked)}
+              />
+            </FormGroup>
+          </FormControl>
+        </Grid>
+      )}
+      {eventConfig.tShirt && tShirtSelected && (
         <Grid item xs={12} sx={{ pl: 2, mb: 3 }}>
           <FormControl>
             <FormLabel>{t(i18n.tShirtSizeField)}</FormLabel>

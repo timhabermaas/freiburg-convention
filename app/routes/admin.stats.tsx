@@ -193,37 +193,39 @@ export default function StatsPage() {
               </Table>
             </TableContainer>
           </Box>
-          <Box>
-            <Typography gutterBottom variant="h2">
-              T-Shirts
-            </Typography>
-            <TableContainer component={Paper} elevation={2}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    {T_SHIRT_SIZES.map((size) => (
-                      <TableCell key={size} variant="head" align="right">
-                        {size}
+          {eventConfig.tShirt && (
+            <Box>
+              <Typography gutterBottom variant="h2">
+                T-Shirts
+              </Typography>
+              <TableContainer component={Paper} elevation={2}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      {T_SHIRT_SIZES.map((size) => (
+                        <TableCell key={size} variant="head" align="right">
+                          {size}
+                        </TableCell>
+                      ))}
+                      <TableCell variant="head" align="right">
+                        Summe
                       </TableCell>
-                    ))}
-                    <TableCell variant="head" align="right">
-                      Summe
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    {T_SHIRT_SIZES.map((size) => (
-                      <TableCell align="right" key={size}>
-                        {data.tshirts[size]}
-                      </TableCell>
-                    ))}
-                    <TableCell align="right">{data.tshirts.total}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      {T_SHIRT_SIZES.map((size) => (
+                        <TableCell align="right" key={size}>
+                          {data.tshirts[size]}
+                        </TableCell>
+                      ))}
+                      <TableCell align="right">{data.tshirts.total}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
           <Box>
             <Typography gutterBottom variant="h2">
               Supporter-/Soli-Verhältnis

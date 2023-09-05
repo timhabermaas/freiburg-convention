@@ -29,6 +29,7 @@ export const loader: LoaderFunction = () => {
     supporterTicket: CONFIG.event.supporterTicket,
     soliTicket: CONFIG.event.soliTicket,
     ticketDescription: CONFIG.event.ticketDescription,
+    tShirt: CONFIG.event.tShirt,
   };
 
   return json(eventConfig);
