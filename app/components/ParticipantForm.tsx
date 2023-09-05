@@ -5,7 +5,6 @@ import * as i18n from "~/i18n";
 import {
   Accommodation,
   AgeCategory,
-  Duration,
   SupporterCategory,
   T_SHIRT_SIZES,
 } from "~/domain/types";
@@ -38,6 +37,7 @@ import { price } from "~/domain/tickets";
 import { ChipInput } from "~/components/ChipInput";
 import { CountrySelect } from "~/components/CountrySelect";
 import { DateInput } from "~/components/DateInput";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 interface ParticipantFormProps {
   index: number;
@@ -49,6 +49,7 @@ interface ParticipantFormProps {
 
 export function ParticipantForm(props: ParticipantFormProps) {
   const { locale } = useLocale();
+  const eventConfig = useEventConfig();
   const [accommodation, setAccommodation] = useState<Accommodation | null>(
     getValue(props.defaultParticipant ?? {}, "accommodation") === "gym"
       ? "gym"
@@ -69,15 +70,10 @@ export function ParticipantForm(props: ParticipantFormProps) {
       ? "OlderThan12"
       : null
   );
-  const [duration, setDuration] = useState<Duration | null>(
-    getValue(props.defaultParticipant ?? {}, "duration") === "Fr-Mo"
-      ? "Fr-Mo"
-      : getValue(props.defaultParticipant ?? {}, "duration") === "Fr-Su"
-      ? "Fr-Su"
-      : getValue(props.defaultParticipant ?? {}, "duration") === "Sa-Mo"
-      ? "Sa-Mo"
-      : null
+  const [ticketId, setTicketId] = useState<string | null>(
+    getValue(props.defaultParticipant ?? {}, "ticketId") ?? null
   );
+  const ticket = eventConfig.tickets.find((t) => t.id === ticketId) ?? null;
   const [tShirtSelected, setTShirtSelected] = useState<boolean>(
     getValue(props.defaultParticipant ?? {}, "tShirtSize") !== undefined
   );
@@ -95,32 +91,45 @@ export function ParticipantForm(props: ParticipantFormProps) {
   const withPrefix = (name: string): string =>
     `participants.${props.index}.${name}`;
 
-  const tiers = [
-    {
-      title: t(i18n.soliTicketTitle),
-      price: age && duration && price(age, duration, "Cheaper"),
-      description: i18n.ticketFeatures[locale],
-      buttonText: t(i18n.select),
-      supporterCategory: "Cheaper",
-      selected: supporterCategory === "Cheaper",
-    },
+  let tiers: {
+    title: string;
+    price: number | null;
+    description: string[];
+    buttonText: string;
+    supporterCategory: SupporterCategory;
+    selected: boolean;
+  }[] = [
     {
       title: t(i18n.regularTicketTitle),
-      price: age && duration && price(age, duration, "Normal"),
-      description: i18n.ticketFeatures[locale],
+      price: age && ticket && price(age, ticket.price, "Normal"),
+      description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Normal",
       selected: supporterCategory === "Normal",
     },
-    {
+  ];
+
+  if (eventConfig.soliTicket) {
+    tiers.unshift({
+      title: t(i18n.soliTicketTitle),
+      price: age && ticket && price(age, ticket.price, "Cheaper"),
+      description: eventConfig.ticketDescription[locale],
+      buttonText: t(i18n.select),
+      supporterCategory: "Cheaper",
+      selected: supporterCategory === "Cheaper",
+    });
+  }
+
+  if (eventConfig.supporterTicket) {
+    tiers.push({
       title: t(i18n.supporterTicketTitle),
-      price: age && duration && price(age, duration, "Supporter"),
-      description: i18n.ticketFeatures[locale],
+      price: age && ticket && price(age, ticket.price, "Supporter"),
+      description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Supporter",
       selected: supporterCategory === "Supporter",
-    },
-  ] as const;
+    });
+  }
 
   return (
     <Grid container>
@@ -295,7 +304,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
             justifyContent={{ sm: "center" }}
           >
             {props.availableAccommodations.map((acc) => (
-              <Grid item>
+              <Grid item key={acc}>
                 <ChipInput
                   label={t(i18n.accommodationFieldType(acc))}
                   value={acc}
@@ -393,7 +402,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
           fullWidth
           error={
             props.errors &&
-            errorsForPath(withPrefix("duration"), props.errors, locale).length >
+            errorsForPath(withPrefix("ticketId"), props.errors, locale).length >
               0
           }
         >
@@ -404,48 +413,32 @@ export function ParticipantForm(props: ParticipantFormProps) {
             spacing={2}
             justifyContent={{ sm: "center" }}
           >
-            <Grid item>
-              <ChipInput
-                label={t(i18n.translateDurationCategory("Fr-Mo"))}
-                value={"Fr-Mo"}
-                currentValue={duration}
-                onClick={() => {
-                  setDuration("Fr-Mo");
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <ChipInput
-                label={t(i18n.translateDurationCategory("Fr-Su"))}
-                value={"Fr-Su"}
-                currentValue={duration}
-                onClick={() => {
-                  setDuration("Fr-Su");
-                }}
-              />
-            </Grid>
-            <Grid item>
-              <ChipInput
-                label={t(i18n.translateDurationCategory("Sa-Mo"))}
-                value={"Sa-Mo"}
-                currentValue={duration}
-                onClick={() => {
-                  setDuration("Sa-Mo");
-                }}
-              />
-            </Grid>
-            {duration && (
+            {eventConfig.tickets.map((ticket) => (
+              <Grid item key={ticket.id}>
+                <ChipInput
+                  label={t(
+                    i18n.translateTicketDuration(ticket.from, ticket.to)
+                  )}
+                  value={ticket.id}
+                  currentValue={ticketId}
+                  onClick={() => {
+                    setTicketId(ticket.id);
+                  }}
+                />
+              </Grid>
+            ))}
+            {ticketId && (
               <input
                 type="hidden"
-                value={duration}
-                name={withPrefix("duration")}
+                value={ticketId}
+                name={withPrefix("ticketId")}
               />
             )}
           </Grid>
           {props.errors &&
-            errorsForPath(withPrefix("duration"), props.errors, locale) && (
+            errorsForPath(withPrefix("ticketId"), props.errors, locale) && (
               <FormHelperText>
-                {errorsForPath(withPrefix("duration"), props.errors, locale)}
+                {errorsForPath(withPrefix("ticketId"), props.errors, locale)}
               </FormHelperText>
             )}
         </FormControl>
@@ -454,9 +447,11 @@ export function ParticipantForm(props: ParticipantFormProps) {
         <Box sx={{ mb: 2 }}>
           <FormLabel>{t(i18n.ticketField)}</FormLabel>
         </Box>
-        <Alert severity="info" sx={{ mb: 2 }}>
-          {t(i18n.soliNote)}
-        </Alert>
+        {eventConfig.soliTicket && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {t(i18n.soliNote)}
+          </Alert>
+        )}
         <Grid container spacing={5} alignItems="flex-start" sx={{ mb: 1 }}>
           {tiers.map((tier) => (
             <Grid item key={tier.title} xs={12} sm={6} md={4}>

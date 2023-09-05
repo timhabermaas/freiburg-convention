@@ -3,7 +3,6 @@ import {
   Cents,
   Accommodation,
   SupporterCategory,
-  Duration,
   Day,
 } from "./domain/types";
 import { assertNever } from "./utils";
@@ -16,7 +15,8 @@ export const Languages = [
 
 export type SupportedLocales = typeof Languages[number]["locale"];
 
-export type LocaleMap = Record<SupportedLocales, string>;
+export type LocaleMapT<T> = Record<SupportedLocales, T>;
+export type LocaleMap = LocaleMapT<string>;
 
 export const email = { "en-US": "Email", de: "E-Mail" };
 export const fullNameField = {
@@ -129,10 +129,12 @@ export const sum = {
   "en-US": "Sum",
   de: "Summe",
 };
-export const registrationTitle = {
-  "en-US": "Registration for Freiburg Juggling Convention 2023",
-  de: "Anmeldung zur Freiburger Jonglierconvention 2023",
-};
+export function registrationTitle(eventName: LocaleMap) {
+  return {
+    "en-US": `Registration for ${eventName["en-US"]}`,
+    de: `Anmeldung für ${eventName.de}`,
+  };
+}
 export const conventionFull = {
   "en-US": "Unfortunately the convention is already fully booked.",
   de: "Leider sind alle Plätze schon belegt.",
@@ -154,14 +156,6 @@ export const backToOverview = {
 export const select = {
   "en-US": "Select",
   de: "Auswählen",
-};
-export const ticketFeatures = {
-  "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"],
-  de: ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
-};
-export const transformToSupportSoli = {
-  "en-US": "Make your ticket a supporter or solidarity ticket:",
-  de: "Mach dein Ticket zu einem Supporter- oder Soli-Ticket:",
 };
 export const soliNote = {
   "en-US":
@@ -219,26 +213,19 @@ export function translateAgeCategory(ageCategory: AgeCategory): LocaleMap {
   }
 }
 
-export function translateDurationCategory(duration: Duration): LocaleMap {
-  switch (duration) {
-    case "Fr-Mo":
-      return {
-        de: "4 Tage (Freitag – Montag)",
-        "en-US": "4 days (Friday to Monday)",
-      };
-    case "Fr-Su":
-      return {
-        de: "3 Tage (Freitag – Sonntag)",
-        "en-US": "3 days (Friday to Sunday)",
-      };
-    case "Sa-Mo":
-      return {
-        de: "3 Tage (Samstag – Montag)",
-        "en-US": "3 days (Saturday to Monday)",
-      };
-    default:
-      assertNever(duration);
-  }
+export function translateTicketDuration(from: Day, to: Day): LocaleMap {
+  const days = to.diffInDays(from) + 1;
+  const formatterDe = Intl.DateTimeFormat("de", { weekday: "long" });
+  const formatterEn = Intl.DateTimeFormat("en-US", { weekday: "long" });
+
+  return {
+    de: `${days} Tage (${formatterDe.format(
+      from.toUtcDate()
+    )} – ${formatterDe.format(to.toUtcDate())})`,
+    "en-US": `${days} days (${formatterEn.format(
+      from.toUtcDate()
+    )} to ${formatterEn.format(to.toUtcDate())})`,
+  };
 }
 
 export function translateSupporter(

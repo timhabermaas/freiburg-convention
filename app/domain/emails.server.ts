@@ -3,11 +3,11 @@ import { Cents, Mail } from "./types";
 import { Day } from "./types";
 import { assertNever } from "~/utils";
 import { SupportedLocales } from "~/i18n";
+import { CONFIG } from "~/config.server";
 
-const MAIL_FROM =
-  "Jonglieren in Freiburg e.V. <orga@jonglieren-in-freiburg.de>";
+const MAIL_FROM = `${CONFIG.event.senderMail.displayName} <${CONFIG.event.senderMail.address}>`;
 const MAIL_CC = MAIL_FROM;
-const BANK_TRANSFER_DEADLINE = new Day(2023, 5, 22);
+const BANK_TRANSFER_DEADLINE = CONFIG.event.wireTransferDeadline;
 
 export function buildMail(
   toMailAddress: string,
@@ -29,7 +29,7 @@ export function composeRegistrationMail(
     "EUR",
     "de"
   );
-  const subject = "Bestellbestätigung Freiburger Jonglierfestival";
+  const subject = `Bestellbestätigung ${CONFIG.event.name.de}`;
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
@@ -38,7 +38,9 @@ export function composeRegistrationMail(
 
 Liebe/r ${fullName},
 
-du hast für das 24. Freiburger Jonglierfestival folgende Tickets bestellt:
+du hast für ${CONFIG.event.preferredArticle.de} ${
+    CONFIG.event.name.de
+  } folgende Tickets bestellt:
 
 ${ticketLines}
 
@@ -46,7 +48,7 @@ Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
 
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "de")}
 
-Wir freuen uns Dich auf dem Festival zu sehen.
+Wir freuen uns Dich auf der Convention zu sehen.
 Viele Grüße,
 Dein Orgateam
 
@@ -56,7 +58,7 @@ Dein Orgateam
 
 Dear ${fullName},
 
-you ordered the following tickets for the Freiburg Juggling Convention:
+you ordered the following tickets for ${CONFIG.event.name["en-US"]}:
 
 ${ticketLines}
 
@@ -64,7 +66,7 @@ You sent us the following comment: ${comment}
 
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "en-US")}
 
-We're looking forward to meeting you at the festival!
+We're looking forward to meeting you at the convention!
 Cheers!
 Your orga team
 `;
@@ -84,7 +86,7 @@ export function composePaymentReceivedMail(
   amount: number
 ): Mail {
   const receivedAmount = formatCurrency(amount, "EUR", "de");
-  const subject = "Freiburger Jonglierfestival: Bezahlung erhalten";
+  const subject = `${CONFIG.event.name.de}: Bezahlung erhalten`;
 
   const body = `(English version below)
 
@@ -92,7 +94,7 @@ Liebe/r ${fullName},
 
 wir haben deine Zahlung über ${receivedAmount} erhalten. Vielen Dank!
 
-Wir freuen uns Dich auf dem Festival zu sehen.
+Wir freuen uns Dich auf der Convention zu sehen.
 Viele Grüße,
 Dein Orgateam
 
@@ -104,7 +106,7 @@ Dear ${fullName},
 
 we've received your payment of ${receivedAmount}.
 
-We're looking forward to meeting you at the festival!
+We're looking forward to meeting you at the convention!
 Cheers!
 Your orga team
 `;
@@ -129,7 +131,7 @@ export function composePaymentReminderMail(
     "EUR",
     "de"
   );
-  const subject = "Zahlungserinnerung Freiburger Jonglierfestival";
+  const subject = `Zahlungserinnerung ${CONFIG.event.name.de}`;
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
@@ -138,7 +140,9 @@ export function composePaymentReminderMail(
 
 Liebe/r ${fullName},
 
-das 24. Freiburger Jonglierfestival steht vor der Tür, bitte denk daran uns noch den Teilnahmebeitrag zu überweisen.
+${CONFIG.event.preferredArticle.de} ${
+    CONFIG.event.name.de
+  } steht vor der Tür, bitte denk daran uns noch den Teilnahmebeitrag zu überweisen.
 Falls du doch nicht kommen kannst oder eigentlich schon überwiesen hast, gib uns bitte Bescheid.
 
 Zur Erinnerung, du hattest folgende Tickets bestellt:
@@ -147,7 +151,7 @@ ${ticketLines}
 
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "de")}
 
-Wir freuen uns Dich auf dem Festival zu sehen!
+Wir freuen uns Dich auf der Convention zu sehen!
 Viele Grüße,
 Dein Orgateam
 
@@ -157,16 +161,18 @@ Dein Orgateam
 
 Dear ${fullName},
 
-the Freiburg Juggling Convention is right around the corner. Please remember to pay your tickets.
+${CONFIG.event.preferredArticle["en-US"]} ${
+    CONFIG.event.name["en-US"]
+  } is right around the corner. Please remember to pay your tickets.
 If you can't make it to the convention or if you have already paid, please drop us a line.
 
-You ordered the following tickets for the Freiburg Juggling Convention:
+You ordered the following tickets:
 
 ${ticketLines}
 
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "en-US")}
 
-We're looking forward to meeting you at the festival!
+We're looking forward to meeting you at the convention!
 Cheers!
 Your orga team
 `;
@@ -187,17 +193,17 @@ function bankDetails(
 ): string {
   switch (language) {
     case "de":
-      return `Empfänger: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
+      return `Empfänger: ${CONFIG.event.bankDetails.accountHolder}
+Bank: ${CONFIG.event.bankDetails.bankName}
+IBAN: ${CONFIG.event.bankDetails.iban}
+BIC: ${CONFIG.event.bankDetails.bic}
 Betrag: ${totalPrice}
 Verwendungszweck: ${paymentReason}`;
     case "en-US":
-      return `Recipient: Jonglieren in Freiburg e.V.
-Bank: Sparkasse Freiburg Nördlicher Breisgau
-IBAN: DE26 6805 0101 0012 0917 91
-BIC: FRSPDE66XXX
+      return `Recipient: ${CONFIG.event.bankDetails.accountHolder}
+Bank: ${CONFIG.event.bankDetails.bankName}
+IBAN: ${CONFIG.event.bankDetails.iban}
+BIC: ${CONFIG.event.bankDetails.bic}
 Amount: ${totalPrice}
 Reference: ${paymentReason}`;
     default:
@@ -234,9 +240,9 @@ ${bankDetails(totalPrice, paymentReason, language)}`;
   } else {
     switch (language) {
       case "de":
-        return "Bitte bezahle den Betrag vor Ort.";
+        return "Bitte bezahle den Betrag vor Ort in bar.";
       case "en-US":
-        return `Please pay the amount at the site`;
+        return `Please pay the amount at the site in cash`;
       default:
         assertNever(language);
     }

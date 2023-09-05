@@ -1,13 +1,6 @@
 import { z } from "zod";
-import {
-  Address,
-  Day,
-  OrderedTicket,
-  Participant,
-  Ticket,
-} from "./domain/types";
+import { Address, Day, OrderedTicket, Participant } from "./domain/types";
 import { LocaleMap, SupportedLocales, translateAgeCategory } from "./i18n";
-import * as i18n from "./i18n";
 
 function setValueInPath(paths: string[], value: string, object: any) {
   if (paths.length === 1) {
@@ -201,13 +194,6 @@ export function formatTicket(
   }`;
 }
 
-export function formatDuration(
-  ticket: Ticket,
-  locale: SupportedLocales
-): string {
-  return `${ticket.to.diffInDays(ticket.from) + 1} ${i18n.days[locale]}`;
-}
-
 export function formatWeekday(day: Day, locale: SupportedLocales): string {
   return new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
     day.toUtcDate()
@@ -276,10 +262,30 @@ export function ticketSumForParticipants(participants: Participant[]): number {
 
 export const IntSchema = z.string().regex(/^\d+$/).transform(Number);
 
+export const DaySchema = z.coerce.date().transform((d) => Day.fromDate(d));
+
 export function lastName(name: string): string {
   const nameParts = name.trim().split(" ");
   if (nameParts.length === 0) {
     return name;
   }
   return nameParts[nameParts.length - 1];
+}
+
+export function dayRange(start: Day, end: Day): Day[] {
+  if (start.gt(end)) {
+    throw new Error(
+      `Can't generate array of days since start date is after end date. Given start: ${start}, given end: ${end}`
+    );
+  }
+
+  let days: Day[] = [];
+  let currentDay = start;
+
+  while (!currentDay.gt(end)) {
+    days.push(currentDay);
+    currentDay = currentDay.nextDay();
+  }
+
+  return days;
 }

@@ -1,4 +1,40 @@
-import { assertDefined } from "./utils";
+import { DaySchema, assertDefined, dayRange } from "./utils";
+import * as fs from "fs";
+import { ZodTypeAny, z } from "zod";
+import { Day } from "./domain/types";
+
+function translated<T extends ZodTypeAny>(innerSchema: T) {
+  return z.object({ de: innerSchema, "en-US": innerSchema });
+}
+const eventConfigSchema = z.object({
+  name: translated(z.string()),
+  preferredArticle: translated(z.string()),
+  start: DaySchema,
+  end: DaySchema,
+  wireTransferDeadline: DaySchema,
+  senderMail: z.object({ displayName: z.string(), address: z.string() }),
+  eventHomepage: z.string(),
+  tickets: z.array(
+    z.object({
+      id: z.string(),
+      from: DaySchema,
+      to: DaySchema,
+      price: z.number(),
+    })
+  ),
+  bankDetails: z.object({
+    accountHolder: z.string(),
+    iban: z.string(),
+    bic: z.string(),
+    bankName: z.string(),
+  }),
+  supporterTicket: z.boolean(),
+  soliTicket: z.boolean(),
+  ticketDescription: translated(z.array(z.string())),
+});
+type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
+  conventionDays: Day[];
+};
 
 export interface Config {
   mailSender: "SES" | "CONSOLE";
@@ -9,9 +45,18 @@ export interface Config {
   sessionSecret: string;
   statsAccessKey?: string;
   printAccessKey?: string;
+  event: EventConfig;
 }
 
-function getConfigFromEnv(): Config {
+function getConfigFromEnvAndFile(): Config {
+  const parsedEventConfig = eventConfigSchema.parse(
+    JSON.parse(fs.readFileSync("./config/eventConfig.json").toString())
+  );
+  const eventConfig = {
+    ...parsedEventConfig,
+    conventionDays: dayRange(parsedEventConfig.start, parsedEventConfig.end),
+  };
+
   return {
     mailSender: process.env.MAIL_SENDER === "SES" ? "SES" : "CONSOLE",
     eventStore:
@@ -28,7 +73,8 @@ function getConfigFromEnv(): Config {
     printAccessKey: process.env.PRINT_ACCESS_KEY,
     bucketName:
       process.env.EVENT_STORE_BUCKET_NAME ?? "jonglieren-in-freiburg-dev",
+    event: eventConfig,
   };
 }
 
-export const CONFIG: Config = getConfigFromEnv();
+export const CONFIG: Config = getConfigFromEnvAndFile();

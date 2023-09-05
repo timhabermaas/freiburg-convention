@@ -10,6 +10,7 @@ export function useLocale(): {
   countryFormatter: Intl.DisplayNames;
 } {
   const locale = useContext(LocaleContext);
+
   return {
     locale,
     dateFormatter: new Intl.DateTimeFormat(locale),

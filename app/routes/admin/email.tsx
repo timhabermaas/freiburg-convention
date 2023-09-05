@@ -1,5 +1,5 @@
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import { whenAuthorized } from "~/session";
 import * as z from "zod";
 import { parseFormData } from "~/utils";

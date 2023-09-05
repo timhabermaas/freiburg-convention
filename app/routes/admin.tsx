@@ -13,6 +13,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { LoaderFunction } from "@remix-run/node";
 import { CONFIG } from "~/config.server";
 import { getUser } from "~/session";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 export function links() {
   return [
@@ -44,13 +45,15 @@ const theme = createTheme();
 export default function Admin() {
   const data = useLoaderData<LoaderData>();
 
+  const eventConfig = useEventConfig();
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="static" sx={{ mb: 2 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Freiburg 2023
+            {eventConfig.name.de}
           </Typography>
           {data.user === "admin" && (
             <Box sx={{ flexGrow: 1, display: { md: "flex" } }}>

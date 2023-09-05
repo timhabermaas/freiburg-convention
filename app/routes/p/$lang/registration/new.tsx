@@ -14,11 +14,10 @@ import {
   Address,
   AgeCategory,
   Day,
-  Duration,
   SupporterCategory,
   TShirtSize,
 } from "~/domain/types";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import * as i18n from "~/i18n";
 import {
   Grid,
@@ -32,6 +31,7 @@ import {
 } from "@mui/material";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { ParticipantForm } from "~/components/ParticipantForm";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
   street: z.string().nonempty(),
@@ -57,12 +57,6 @@ const TShirtSizeSchema: z.ZodSchema<TShirtSize, z.ZodTypeDef, unknown> =
 const AgeCategorySchema: z.ZodSchema<AgeCategory, z.ZodTypeDef, unknown> =
   z.union([z.literal("Baby"), z.literal("Child"), z.literal("OlderThan12")]);
 
-const DurationSchema: z.ZodSchema<Duration, z.ZodTypeDef, unknown> = z.union([
-  z.literal("Fr-Mo"),
-  z.literal("Fr-Su"),
-  z.literal("Sa-Mo"),
-]);
-
 const SupporterCategorySchema: z.ZodSchema<
   SupporterCategory,
   z.ZodTypeDef,
@@ -84,7 +78,7 @@ const ParticipantSchema = z.object({
   accommodation: AccommodationSchema,
   tShirtSize: TShirtSizeSchema.optional(),
   ageCategory: AgeCategorySchema,
-  duration: DurationSchema,
+  ticketId: z.string(),
 });
 
 const Form = z.object({
@@ -133,6 +127,7 @@ export default function NewRegistration() {
   // TODO: Typing
   const actionData = useActionData();
   const data = useLoaderData();
+  const eventConfig = useEventConfig();
 
   const [participantCount, setParticipantCount] = useState<number>(
     actionData?.values?.participants ? actionData.values.participants.length : 1
@@ -141,20 +136,20 @@ export default function NewRegistration() {
   return (
     <>
       <Grid container justifyContent="center" spacing={1} sx={{ mb: 3 }}>
-        <Grid item>
+        <Grid item xs={12}>
           <Typography variant="h4" component="h1" textAlign="center">
-            {t(i18n.registrationTitle)}
+            {t(i18n.registrationTitle(eventConfig.name))}
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item xs={12}>
           <Typography
             variant="h5"
             component="h2"
             color="text.secondary"
             textAlign="center"
           >
-            {dateFormatter.format(Date.parse("2023-05-26"))} –{" "}
-            {dateFormatter.format(Date.parse("2023-05-29"))}
+            {dateFormatter.format(eventConfig.start.toUtcDate())} –{" "}
+            {dateFormatter.format(eventConfig.end.toUtcDate())}
           </Typography>
         </Grid>
       </Grid>
@@ -165,7 +160,7 @@ export default function NewRegistration() {
           </Alert>
           <Button
             component={Link}
-            href="https://jonglieren-in-freiburg.de/?page_id=43"
+            href={eventConfig.eventHomepage}
             target="_parent"
             variant="contained"
           >

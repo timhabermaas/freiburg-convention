@@ -1,5 +1,3 @@
-export const ORGA_EMAIL = "orga@jonglieren-in-freiburg.de";
-
 // ISO-3166 Alpha 2 code as of 2022-03-29.
 export const COUNTRIES: string[] = [
   "AF",

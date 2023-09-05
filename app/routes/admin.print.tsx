@@ -2,12 +2,13 @@ import { LoaderFunction, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import * as i18n from "~/i18n";
-import { App } from "~/domain/app";
+import { App } from "~/domain/app.server";
 import { AccommodationSchema, DaySchema } from "~/domain/events";
 import { formatTicket, lastName, PaidStatusSchema } from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
 import styles from "~/styles/print_override.css";
+import { useEventConfig } from "~/hooks/useEventConfig";
 
 export function links() {
   return [
@@ -78,6 +79,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
 export default function PrintPage() {
   const data = LoaderDataSchema.parse(useLoaderData<unknown>());
   const { dateFormatter, locale } = useLocale();
+  const eventConfig = useEventConfig();
 
   return (
     <div className="container-fluid">
@@ -86,8 +88,15 @@ export default function PrintPage() {
         <div className="col-md-12">
           <div className="fixed-header">
             <h3 className="text-center">
-              Anmeldeliste 24. Freiburger Jonglierfestival – 26. Mai bis 29. Mai
-              2023
+              Anmeldeliste {eventConfig.name.de},{" "}
+              {
+                // FIXME: requires newer TS version, but that conflicts with the remix version.
+                //@ts-ignore
+                dateFormatter.formatRange(
+                  eventConfig.start.toUtcDate(),
+                  eventConfig.end.toUtcDate()
+                )
+              }
             </h3>
           </div>
         </div>
