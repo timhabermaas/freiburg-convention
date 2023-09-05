@@ -28,14 +28,8 @@ async function fillOutRegistrationForm(page: Page) {
     .selectOption("1997");
 
   await page
-    .locator('input[name="participants\\.0\\.address\\.street"]')
-    .fill("Fake Street 123");
-  await page
     .locator('input[name="participants\\.0\\.address\\.postalCode"]')
     .fill("51351");
-  await page
-    .locator('input[name="participants\\.0\\.address\\.city"]')
-    .fill("Münchhausen");
 
   await page
     .locator('input[name="participants\\.0\\.address\\.country"]')

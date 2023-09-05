@@ -1,8 +1,6 @@
 export interface Address {
-  street: string;
-  postalCode: string;
-  city: string;
-  country: string;
+  postalCode: string | null;
+  country: string | null;
 }
 
 export type Cents = number;

@@ -38,7 +38,7 @@ function setCache(url: string, latlon: [number, number] | null): void {
 }
 
 interface MapProps {
-  addresses: { postalCode: string; city: string; country: string }[];
+  addresses: { postalCode: string | null; country: string | null }[];
 }
 
 export function ParticipantMap(props: MapProps) {
@@ -64,16 +64,24 @@ export function ParticipantMap(props: MapProps) {
 
     const cb = async () => {
       const urls = props.addresses.map((a) => {
-        const query = new URLSearchParams({
-          postalcode: a.postalCode,
-          country: a.country,
-          format: "json",
-        });
+        if (a.country && a.postalCode) {
+          const query = new URLSearchParams({
+            postalcode: a.postalCode,
+            country: a.country,
+            format: "json",
+          });
 
-        return `https://nominatim.openstreetmap.org/search?${query}`;
+          return `https://nominatim.openstreetmap.org/search?${query}`;
+        } else {
+          return null;
+        }
       });
 
       for (const url of urls) {
+        if (url === null) {
+          continue;
+        }
+
         const cache = getCache(url);
         if (cache === undefined) {
           console.log("no cache entry found");

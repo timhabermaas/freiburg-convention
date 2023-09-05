@@ -72,10 +72,8 @@ export const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, string> = z
   .transform((s) => Day.parse(s));
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
-  street: z.string(),
-  postalCode: z.string(),
-  city: z.string(),
-  country: z.string(),
+  postalCode: z.string().nullable(),
+  country: z.string().nullable(),
 });
 
 export const AccommodationSchema: z.ZodSchema<

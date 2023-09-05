@@ -78,7 +78,10 @@ const LoaderDataSchema = z.object({
     missingInCents: z.number(),
   }),
   fuzzyAddresses: z.array(
-    z.object({ postalCode: z.string(), city: z.string(), country: z.string() })
+    z.object({
+      postalCode: z.string().nullable(),
+      country: z.string().nullable(),
+    })
   ),
   histogram: z.array(z.tuple([isoDateString, z.number()])),
 });
@@ -142,7 +145,7 @@ export default function StatsPage() {
                   <TableRow>
                     <TableCell></TableCell>
                     {eventConfig.conventionDays.map((day) => (
-                      <TableCell align="right">
+                      <TableCell align="right" key={day.toJSON()}>
                         {formatWeekday(day, "de")}
                       </TableCell>
                     ))}
@@ -156,7 +159,7 @@ export default function StatsPage() {
                         {i18n.accommodationFieldType(accommodation).de}
                       </TableCell>
                       {eventConfig.conventionDays.map((day) => (
-                        <TableCell align="right">
+                        <TableCell align="right" key={day.toJSON()}>
                           {data.accommodationDayCount[
                             accommodation + "-" + day.toJSON()
                           ] ?? 0}
@@ -175,7 +178,7 @@ export default function StatsPage() {
                   <TableRow>
                     <TableCell></TableCell>
                     {eventConfig.conventionDays.map((day) => (
-                      <TableCell align="right">
+                      <TableCell align="right" key={day.toJSON()}>
                         <strong>
                           {data.accommodationDayCount[day.toJSON()] ?? 0}
                         </strong>

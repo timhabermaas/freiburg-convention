@@ -34,10 +34,8 @@ import { ParticipantForm } from "~/components/ParticipantForm";
 import { useEventConfig } from "~/hooks/useEventConfig";
 
 const AddressSchema: z.ZodSchema<Address> = z.object({
-  street: z.string().nonempty(),
-  postalCode: z.string().nonempty(),
-  city: z.string().nonempty(),
-  country: z.string().nonempty(),
+  postalCode: z.string().transform((s) => (s.trim() === "" ? null : s)),
+  country: z.string().transform((s) => (s.trim() === "" ? null : s)),
 });
 
 const DaySchema: z.ZodSchema<Day, z.ZodTypeDef, unknown> = z
@@ -178,6 +176,7 @@ export default function NewRegistration() {
             )}
             <Grid item xs={12} md={8}>
               <TextField
+                required
                 label={t(i18n.email)}
                 name="email"
                 autoComplete="email"

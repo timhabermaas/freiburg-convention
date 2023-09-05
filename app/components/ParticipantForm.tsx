@@ -156,6 +156,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
       <Grid container item xs={12} md={8} spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12}>
           <TextField
+            required
             fullWidth
             name={withPrefix("fullName")}
             label={t(i18n.fullNameField)}
@@ -177,32 +178,6 @@ export function ParticipantForm(props: ParticipantFormProps) {
             label={t(i18n.birthdayField)}
             name={withPrefix("birthday")}
             defaultDate={getObject(props.defaultParticipant ?? {}, "birthday")}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            name={withPrefix("address.street")}
-            label={t(i18n.streetField)}
-            defaultValue={getValue(
-              props.defaultParticipant ?? {},
-              "address",
-              "street"
-            )}
-            error={
-              props.errors &&
-              errorsForPath(withPrefix("address.street"), props.errors, locale)
-                .length > 0
-            }
-            helperText={
-              props.errors
-                ? errorsForPath(
-                    withPrefix("address.street"),
-                    props.errors,
-                    locale
-                  )
-                : undefined
-            }
           />
         </Grid>
         <Grid item xs={12} sm={4}>
@@ -235,32 +210,6 @@ export function ParticipantForm(props: ParticipantFormProps) {
           />
         </Grid>
         <Grid item xs={12} sm={8}>
-          <TextField
-            fullWidth
-            name={withPrefix("address.city")}
-            label={t(i18n.cityField)}
-            defaultValue={getValue(
-              props.defaultParticipant ?? {},
-              "address",
-              "city"
-            )}
-            error={
-              props.errors &&
-              errorsForPath(withPrefix("address.city"), props.errors, locale)
-                .length > 0
-            }
-            helperText={
-              props.errors
-                ? errorsForPath(
-                    withPrefix("address.city"),
-                    props.errors,
-                    locale
-                  )
-                : undefined
-            }
-          />
-        </Grid>
-        <Grid item xs={12}>
           <CountrySelect
             name={withPrefix("address.country")}
             label={t(i18n.countryField)}
@@ -296,7 +245,9 @@ export function ParticipantForm(props: ParticipantFormProps) {
               .length > 0
           }
         >
-          <FormLabel sx={{ mb: 1 }}>{t(i18n.accommodationField)}</FormLabel>
+          <FormLabel required sx={{ mb: 1 }}>
+            {t(i18n.accommodationField)}
+          </FormLabel>
           <Grid
             container
             direction={{ sm: "row", xs: "column" }}
@@ -346,7 +297,9 @@ export function ParticipantForm(props: ParticipantFormProps) {
               .length > 0
           }
         >
-          <FormLabel sx={{ mb: 1 }}>{t(i18n.ageField)}</FormLabel>
+          <FormLabel required sx={{ mb: 1 }}>
+            {t(i18n.ageField)}
+          </FormLabel>
           <Grid
             container
             direction={{ sm: "row", xs: "column" }}
@@ -406,7 +359,9 @@ export function ParticipantForm(props: ParticipantFormProps) {
               0
           }
         >
-          <FormLabel sx={{ mb: 1 }}>{t(i18n.durationField)}</FormLabel>
+          <FormLabel required sx={{ mb: 1 }}>
+            {t(i18n.durationField)}
+          </FormLabel>
           <Grid
             container
             direction={{ sm: "row", xs: "column" }}
@@ -445,7 +400,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
       </Grid>
       <Grid item xs={12} sx={{ mb: 1 }}>
         <Box sx={{ mb: 2 }}>
-          <FormLabel>{t(i18n.ticketField)}</FormLabel>
+          <FormLabel required>{t(i18n.ticketField)}</FormLabel>
         </Box>
         {eventConfig.soliTicket && (
           <Alert severity="info" sx={{ mb: 2 }}>

@@ -222,11 +222,11 @@ export function formatAddress(
   address: Address,
   locale: SupportedLocales
 ): string {
-  let country = address.country;
+  let country = address.country ?? "unknown";
   try {
     const translatedCountry = new Intl.DisplayNames(locale, {
       type: "region",
-    }).of(address.country);
+    }).of(country);
     if (translatedCountry) {
       country = translatedCountry;
     }
@@ -234,7 +234,7 @@ export function formatAddress(
     // Ignoring invalid_argument exception when translating country
   }
 
-  return `${address.street}, ${address.postalCode} ${address.city} (${country})`;
+  return `${address.postalCode}, ${country}`;
 }
 
 export const isoDateString = z

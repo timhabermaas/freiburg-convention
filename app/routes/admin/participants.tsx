@@ -87,7 +87,9 @@ export default function Participants() {
               <tr>
                 <th></th>
                 {eventConfig.conventionDays.map((day) => (
-                  <th className="text-right">{formatWeekday(day, "de")}</th>
+                  <th className="text-right" key={day.toJSON()}>
+                    {formatWeekday(day, "de")}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -96,7 +98,7 @@ export default function Participants() {
                 <tr key={accommodation}>
                   <th>{i18n.accommodationFieldType(accommodation).de}</th>
                   {eventConfig.conventionDays.map((day) => (
-                    <td className="text-right">
+                    <td className="text-right" key={day.toJSON()}>
                       {data.accommodationDayCount[
                         accommodation + "-" + day.toJSON()
                       ] ?? 0}
@@ -113,7 +115,7 @@ export default function Participants() {
               <tr>
                 <td></td>
                 {eventConfig.conventionDays.map((day) => (
-                  <td></td>
+                  <td key={day.toJSON()}></td>
                 ))}
                 <td className="text-right">
                   <strong>{data.participants.length}</strong>

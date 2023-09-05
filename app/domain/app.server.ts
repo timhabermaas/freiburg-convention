@@ -396,14 +396,12 @@ export class App {
   }
 
   public getFuzzyAddresses(): {
-    postalCode: string;
-    city: string;
-    country: string;
+    postalCode: string | null;
+    country: string | null;
   }[] {
     return this.state.participants.map((p) => {
       return {
         postalCode: p.address.postalCode,
-        city: p.address.city,
         country: p.address.country,
       };
     });

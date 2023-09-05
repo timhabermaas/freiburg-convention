@@ -28,7 +28,7 @@ export function DateInput(props: DateInputProps) {
 
   return (
     <FormControl fullWidth>
-      <FormLabel>{props.label}</FormLabel>
+      <FormLabel required>{props.label}</FormLabel>
       <Grid container spacing={1}>
         <Grid item xs={12} sm={3}>
           <FormControl fullWidth>
