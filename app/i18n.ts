@@ -15,7 +15,8 @@ export const Languages = [
 
 export type SupportedLocales = typeof Languages[number]["locale"];
 
-export type LocaleMap = Record<SupportedLocales, string>;
+export type LocaleMapT<T> = Record<SupportedLocales, T>;
+export type LocaleMap = LocaleMapT<string>;
 
 export const email = { "en-US": "Email", de: "E-Mail" };
 export const fullNameField = {
@@ -155,14 +156,6 @@ export const backToOverview = {
 export const select = {
   "en-US": "Select",
   de: "Auswählen",
-};
-export const ticketFeatures = {
-  "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"],
-  de: ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
-};
-export const transformToSupportSoli = {
-  "en-US": "Make your ticket a supporter or solidarity ticket:",
-  de: "Mach dein Ticket zu einem Supporter- oder Soli-Ticket:",
 };
 export const soliNote = {
   "en-US":

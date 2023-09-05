@@ -102,7 +102,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
     {
       title: t(i18n.regularTicketTitle),
       price: age && ticket && price(age, ticket.price, "Normal"),
-      description: i18n.ticketFeatures[locale],
+      description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Normal",
       selected: supporterCategory === "Normal",
@@ -113,7 +113,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
     tiers.unshift({
       title: t(i18n.soliTicketTitle),
       price: age && ticket && price(age, ticket.price, "Cheaper"),
-      description: i18n.ticketFeatures[locale],
+      description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Cheaper",
       selected: supporterCategory === "Cheaper",
@@ -124,7 +124,7 @@ export function ParticipantForm(props: ParticipantFormProps) {
     tiers.push({
       title: t(i18n.supporterTicketTitle),
       price: age && ticket && price(age, ticket.price, "Supporter"),
-      description: i18n.ticketFeatures[locale],
+      description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Supporter",
       selected: supporterCategory === "Supporter",

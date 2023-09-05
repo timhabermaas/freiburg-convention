@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Day } from "~/domain/types";
-import { LocaleMap } from "~/i18n";
+import { LocaleMap, LocaleMapT } from "~/i18n";
 
 export interface ClientEventConfig {
   name: LocaleMap;
@@ -13,6 +13,7 @@ export interface ClientEventConfig {
   tickets: { id: string; from: Day; to: Day; price: number }[];
   supporterTicket: boolean;
   soliTicket: boolean;
+  ticketDescription: LocaleMapT<string[]>;
 }
 
 export const EventConfigContext = React.createContext<ClientEventConfig>({
@@ -31,6 +32,7 @@ export const EventConfigContext = React.createContext<ClientEventConfig>({
   tickets: [],
   supporterTicket: true,
   soliTicket: true,
+  ticketDescription: { de: [], "en-US": [] },
 });
 
 export function useEventConfig(): ClientEventConfig {

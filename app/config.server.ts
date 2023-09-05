@@ -1,13 +1,14 @@
 import { DaySchema, assertDefined, dayRange } from "./utils";
 import * as fs from "fs";
-import { z } from "zod";
+import { ZodTypeAny, z } from "zod";
 import { Day } from "./domain/types";
 
-const translatedSchema = z.object({ de: z.string(), "en-US": z.string() });
-
+function translated<T extends ZodTypeAny>(innerSchema: T) {
+  return z.object({ de: innerSchema, "en-US": innerSchema });
+}
 const eventConfigSchema = z.object({
-  name: translatedSchema,
-  preferredArticle: translatedSchema,
+  name: translated(z.string()),
+  preferredArticle: translated(z.string()),
   start: DaySchema,
   end: DaySchema,
   wireTransferDeadline: DaySchema,
@@ -29,6 +30,7 @@ const eventConfigSchema = z.object({
   }),
   supporterTicket: z.boolean(),
   soliTicket: z.boolean(),
+  ticketDescription: translated(z.array(z.string())),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];

@@ -27,5 +27,9 @@
     "bankName": "GLS Bank"
   },
   "supporterTicket": true,
-  "soliTicket": true
+  "soliTicket": true,
+  "ticketDescription": {
+    "de": ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
+    "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"]
+  }
 }
