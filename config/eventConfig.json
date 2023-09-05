@@ -32,5 +32,9 @@
     "de": ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
     "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"]
   },
-  "tShirt": false
+  "tShirt": false,
+  "limits": {
+    "gym": 10,
+    "tent": 5
+  }
 }

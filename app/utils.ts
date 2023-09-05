@@ -275,7 +275,7 @@ export function lastName(name: string): string {
 export function dayRange(start: Day, end: Day): Day[] {
   if (start.gt(end)) {
     throw new Error(
-      `Can't generate array of days since start date is after end date. Given start: ${start}, given end: ${end}`
+      `Can't generate array of days since start date is after end date. Given start: ${start.toJSON()}, given end: ${end.toJSON()}`
     );
   }
 

@@ -186,7 +186,7 @@ export default function StatsPage() {
                     ))}
                     <TableCell align="right">
                       <strong>{data.participantCount}</strong>
-                      <small>/{data.limits.total}</small>
+                      <small>/{data.limits.total ?? "∞"}</small>
                     </TableCell>
                   </TableRow>
                 </TableBody>

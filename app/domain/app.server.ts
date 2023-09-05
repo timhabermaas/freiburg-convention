@@ -46,7 +46,6 @@ interface State {
     registrationId: string;
   }[];
   eventsPerRegistration: Map<string, EventEnvelope<Event>[]>;
-  limits: Limits;
   /** Contains the registration date for each participant, ascending order */
   registrationTimes: Date[];
 }
@@ -59,11 +58,6 @@ function initState(): State {
     registrations: [],
     payments: [],
     eventsPerRegistration: new Map(),
-    limits: {
-      total: 350,
-      gym: 154,
-      tent: 150,
-    },
     registrationTimes: [],
   };
 }
@@ -328,12 +322,12 @@ export class App {
   }
 
   public getLimits(): Limits {
-    return this.state.limits;
+    return CONFIG.event.limits;
   }
 
   public getAvailableAccommodations(): Accommodation[] {
     return ACCOMMODATIONS.filter((a) => {
-      const limit = this.state.limits[a];
+      const limit = CONFIG.event.limits[a];
       if (limit === undefined) {
         return true;
       }
@@ -343,10 +337,10 @@ export class App {
   }
 
   public isConventionFull(): boolean {
-    if (this.state.limits.total === undefined) {
+    if (CONFIG.event.limits.total === undefined) {
       return false;
     }
-    return this.getAllActualParticipants().length >= this.state.limits.total;
+    return this.getAllActualParticipants().length >= CONFIG.event.limits.total;
   }
 
   public getPaidStatus(registrationId: string): PaidStatus {

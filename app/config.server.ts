@@ -32,6 +32,12 @@ const eventConfigSchema = z.object({
   soliTicket: z.boolean(),
   ticketDescription: translated(z.array(z.string())),
   tShirt: z.boolean(),
+  limits: z.object({
+    total: z.number().optional(),
+    tent: z.number().optional(),
+    gym: z.number().optional(),
+    selfOrganized: z.number().optional(),
+  }),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];
