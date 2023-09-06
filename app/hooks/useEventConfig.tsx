@@ -11,8 +11,8 @@ export interface ClientEventConfig {
   senderMailAddress: string;
   eventHomepage: string;
   tickets: { id: string; from: Day; to: Day; price: number }[];
-  supporterTicket: boolean;
-  soliTicket: boolean;
+  supporterTicket: number | null;
+  soliTicket: number | null;
   ticketDescription: LocaleMapT<string[]>;
   tShirt: boolean;
 }
@@ -31,8 +31,8 @@ export const EventConfigContext = React.createContext<ClientEventConfig>({
   senderMailAddress: "orga@jonglieren-in-freiburg.de",
   eventHomepage: "https://jonglieren-in-freiburg.de",
   tickets: [],
-  supporterTicket: true,
-  soliTicket: true,
+  supporterTicket: 1000,
+  soliTicket: -1000,
   ticketDescription: { de: [], "en-US": [] },
   tShirt: true,
 });

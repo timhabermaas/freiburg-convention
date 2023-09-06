@@ -116,7 +116,13 @@ export class App {
           CONFIG.event.tickets.find((t) => t.id === p.ticketId),
           `ticket for id ${p.ticketId}`
         );
-        const pr = price(p.ageCategory, ticket.price, p.supporterCategory);
+        const pr = price(
+          p.ageCategory,
+          ticket.price,
+          p.supporterCategory,
+          CONFIG.event.soliTicket,
+          CONFIG.event.supporterTicket
+        );
 
         return {
           participantId: uuid(),

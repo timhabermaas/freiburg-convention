@@ -28,8 +28,8 @@ const eventConfigSchema = z.object({
     bic: z.string(),
     bankName: z.string(),
   }),
-  supporterTicket: z.boolean(),
-  soliTicket: z.boolean(),
+  supporterTicket: z.number().nullable(),
+  soliTicket: z.number().nullable(),
   ticketDescription: translated(z.array(z.string())),
   tShirt: z.boolean(),
   limits: z.object({

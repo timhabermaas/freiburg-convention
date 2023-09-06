@@ -7,8 +7,8 @@
     "de": "das",
     "en-US": "the"
   },
-  "start": "2023-05-26",
-  "end": "2023-05-29",
+  "start": "2023-10-20",
+  "end": "2023-10-22",
   "wireTransferDeadline": "2023-10-22",
   "senderMail": {
     "displayName": "Jonglieren in Freiburg e.V.",
@@ -16,9 +16,7 @@
   },
   "eventHomepage": "https://jonglieren-in-freiburg.de/?page_id=43",
   "tickets": [
-    { "id": "1", "from": "2023-05-26", "to": "2023-05-29", "price": 4500 },
-    { "id": "2", "from": "2023-05-26", "to": "2023-05-28", "price": 3500 },
-    { "id": "3", "from": "2023-05-27", "to": "2023-05-29", "price": 3500 }
+    { "id": "1", "from": "2023-10-20", "to": "2023-10-22", "price": 3000 }
   ],
   "bankDetails": {
     "accountHolder": "Jonglieren in Freiburg e.V.",
@@ -26,8 +24,8 @@
     "bic": "GENODEM1GLS",
     "bankName": "GLS Bank"
   },
-  "supporterTicket": true,
-  "soliTicket": true,
+  "supporterTicket": 500,
+  "soliTicket": -1000,
   "ticketDescription": {
     "de": ["Übernachtung", "Frühstück", "Gala-Show & Open-Stage"],
     "en-US": ["Accommodation", "Breakfast", "Gala Show & Open Stage"]

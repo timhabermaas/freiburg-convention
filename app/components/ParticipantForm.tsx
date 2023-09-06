@@ -101,7 +101,16 @@ export function ParticipantForm(props: ParticipantFormProps) {
   }[] = [
     {
       title: t(i18n.regularTicketTitle),
-      price: age && ticket && price(age, ticket.price, "Normal"),
+      price:
+        age &&
+        ticket &&
+        price(
+          age,
+          ticket.price,
+          "Normal",
+          eventConfig.soliTicket,
+          eventConfig.supporterTicket
+        ),
       description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Normal",
@@ -112,7 +121,16 @@ export function ParticipantForm(props: ParticipantFormProps) {
   if (eventConfig.soliTicket) {
     tiers.unshift({
       title: t(i18n.soliTicketTitle),
-      price: age && ticket && price(age, ticket.price, "Cheaper"),
+      price:
+        age &&
+        ticket &&
+        price(
+          age,
+          ticket.price,
+          "Cheaper",
+          eventConfig.soliTicket,
+          eventConfig.supporterTicket
+        ),
       description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Cheaper",
@@ -123,7 +141,16 @@ export function ParticipantForm(props: ParticipantFormProps) {
   if (eventConfig.supporterTicket) {
     tiers.push({
       title: t(i18n.supporterTicketTitle),
-      price: age && ticket && price(age, ticket.price, "Supporter"),
+      price:
+        age &&
+        ticket &&
+        price(
+          age,
+          ticket.price,
+          "Supporter",
+          eventConfig.soliTicket,
+          eventConfig.supporterTicket
+        ),
       description: eventConfig.ticketDescription[locale],
       buttonText: t(i18n.select),
       supporterCategory: "Supporter",
