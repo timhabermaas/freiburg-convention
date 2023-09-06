@@ -44,9 +44,9 @@ du hast für ${CONFIG.event.preferredArticle.de} ${
 
 ${ticketLines}
 
-Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
-
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "de")}
+
+Außerdem hast du uns folgenden Kommentar hinterlassen: ${comment}
 
 Wir freuen uns Dich auf der Convention zu sehen.
 Viele Grüße,
@@ -62,9 +62,9 @@ you ordered the following tickets for ${CONFIG.event.name["en-US"]}:
 
 ${ticketLines}
 
-You sent us the following comment: ${comment}
-
 ${maybeWireTransfer(BANK_TRANSFER_DEADLINE, totalPrice, paymentReason, "en-US")}
+
+You sent us the following comment: ${comment}
 
 We're looking forward to meeting you at the convention!
 Cheers!
@@ -242,7 +242,7 @@ ${bankDetails(totalPrice, paymentReason, language)}`;
       case "de":
         return "Bitte bezahle den Betrag vor Ort in bar.";
       case "en-US":
-        return `Please pay the amount at the site in cash`;
+        return `Please pay the amount at the site in cash.`;
       default:
         assertNever(language);
     }
