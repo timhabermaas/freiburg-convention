@@ -38,6 +38,7 @@ const eventConfigSchema = z.object({
     gym: z.number().optional(),
     selfOrganized: z.number().optional(),
   }),
+  orderNumberPrefix: z.string(),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];

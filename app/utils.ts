@@ -210,8 +210,11 @@ export function formatTimeSpan(
   return `${from}.–${to}.`;
 }
 
-export function paymentReasonForRegistrationCount(count: number): string {
-  return `JIF-${101 + count}`;
+export function paymentReasonForRegistrationCount(
+  count: number,
+  prefix: string
+): string {
+  return `${prefix}-${101 + count}`;
 }
 
 function capitalize(s: string): string {

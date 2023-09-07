@@ -34,5 +34,6 @@
   "limits": {
     "gym": 10,
     "tent": 5
-  }
+  },
+  "orderNumberPrefix": "JIF"
 }

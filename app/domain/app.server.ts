@@ -143,7 +143,8 @@ export class App {
       });
 
       const paymentReason = paymentReasonForRegistrationCount(
-        this.state.registrationCount
+        this.state.registrationCount,
+        CONFIG.event.orderNumberPrefix
       );
 
       await this.saveEvent({
@@ -208,7 +209,8 @@ export class App {
             composePaymentReceivedMail(
               registration.email,
               participants[0].fullName,
-              amountInCents
+              amountInCents,
+              registration.paymentReason
             )
           );
         }

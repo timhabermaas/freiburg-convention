@@ -29,7 +29,7 @@ export function composeRegistrationMail(
     "EUR",
     "de"
   );
-  const subject = `Bestellbestätigung ${CONFIG.event.name.de}`;
+  const subject = `Bestellbestätigung ${CONFIG.event.name.de} (${paymentReason})`;
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
@@ -83,10 +83,11 @@ Your orga team
 export function composePaymentReceivedMail(
   toMailAddress: string,
   fullName: string,
-  amount: number
+  amount: number,
+  paymentReason: string
 ): Mail {
   const receivedAmount = formatCurrency(amount, "EUR", "de");
-  const subject = `${CONFIG.event.name.de}: Bezahlung erhalten`;
+  const subject = `${CONFIG.event.name.de}: Bezahlung erhalten (${paymentReason})`;
 
   const body = `(English version below)
 
@@ -131,7 +132,7 @@ export function composePaymentReminderMail(
     "EUR",
     "de"
   );
-  const subject = `Zahlungserinnerung ${CONFIG.event.name.de}`;
+  const subject = `Zahlungserinnerung ${CONFIG.event.name.de} (${paymentReason})`;
   const ticketLines = tickets
     .map((t) => `* ${t.name}: ${formatCurrency(t.fullPrice, "EUR", "de")}`)
     .join("\n");
