@@ -67,8 +67,8 @@ export function accommodationFieldType(accommodation: Accommodation) {
   switch (accommodation) {
     case "gym":
       return {
-        "en-US": "Gym",
-        de: "Schlafhalle",
+        "en-US": "Classroom",
+        de: "Klassenzimmer",
       };
     case "tent":
       return {
@@ -88,8 +88,8 @@ export function accommodationFieldShort(accommodation: Accommodation) {
   switch (accommodation) {
     case "gym":
       return {
-        "en-US": "Gym",
-        de: "Schlafhalle",
+        "en-US": "Classroom",
+        de: "Klassenzimmer",
       };
     case "tent":
       return {
