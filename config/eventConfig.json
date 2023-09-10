@@ -35,5 +35,6 @@
     "gym": 10,
     "tent": 5
   },
-  "orderNumberPrefix": "JIF"
+  "orderNumberPrefix": "JIF",
+  "printoutOrder": "lastname"
 }

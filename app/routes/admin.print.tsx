@@ -4,7 +4,13 @@ import * as z from "zod";
 import * as i18n from "~/i18n";
 import { App } from "~/domain/app.server";
 import { AccommodationSchema, DaySchema } from "~/domain/events";
-import { formatTicket, lastName, PaidStatusSchema } from "~/utils";
+import {
+  assertNever,
+  formatTicket,
+  lastName,
+  PaidStatusSchema,
+  shuffle,
+} from "~/utils";
 import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
 import styles from "~/styles/print_override.css";
@@ -63,11 +69,17 @@ export const loader: LoaderFunction = async ({ context, request }) => {
       ticketPriceInCents: p.ticket.price,
     };
   });
-  participants.sort((a, b) => {
-    const lastNameA = lastName(a.fullName);
-    const lastNameB = lastName(b.fullName);
-    return lastNameA.localeCompare(lastNameB);
-  });
+  if (CONFIG.event.printoutOrder === "lastname") {
+    participants.sort((a, b) => {
+      const lastNameA = lastName(a.fullName);
+      const lastNameB = lastName(b.fullName);
+      return lastNameA.localeCompare(lastNameB);
+    });
+  } else if (CONFIG.event.printoutOrder === "random") {
+    shuffle(participants);
+  } else {
+    assertNever(CONFIG.event.printoutOrder);
+  }
 
   const data: LoaderData = {
     participants,
