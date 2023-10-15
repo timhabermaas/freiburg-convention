@@ -40,6 +40,7 @@ const eventConfigSchema = z.object({
   }),
   orderNumberPrefix: z.string(),
   printoutOrder: z.union([z.literal("lastname"), z.literal("random")]),
+  disclaimer: z.string(),
 });
 type EventConfig = Omit<z.infer<typeof eventConfigSchema>, "conventionDays"> & {
   conventionDays: Day[];

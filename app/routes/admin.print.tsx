@@ -118,26 +118,12 @@ export default function PrintPage() {
           <table className="table table-bordered table-sm">
             <thead>
               <tr>
-                <td colSpan={10}>
-                  <strong>Haftungsausschluss: </strong>Mit meiner Unterschrift
-                  bestätige ich, dass mir bekannt ist, dass auf dem
-                  Jonglierfestival Freiburg von den OrganisatorInnen keine
-                  Haftung für eventuell auftretende Verletzungen, Diebstähle
-                  etc. übernommen werden kann. Dies gilt auch für alle
-                  Zwischenfälle während der Anfahrt oder Rückreise. Weiterhin
-                  bestätige ich, dass ich ausreichend versichert bin (Haft- und
-                  Unfallversicherung) und die Hallenordnung anerkenne und den
-                  Anweisungen der OrganisatorInnen Folge leiste.
-                  <br />
-                  <strong>Erklärung zur Bildnutzung: </strong>
-                  Mit meiner Unterschrift erkläre ich mich einverstanden, dass
-                  Fotos, die während des Festivals von mir gemacht werden, auf
-                  der Webseite{" "}
-                  <a href="https://www.jonglieren-in-freiburg.de">
-                    https://www.jonglieren-in-freiburg.de
-                  </a>{" "}
-                  veröffentlicht und für Pressezwecke genutzt werden dürfen.
-                </td>
+                <td
+                  colSpan={10}
+                  dangerouslySetInnerHTML={{
+                    __html: eventConfig.disclaimer,
+                  }}
+                ></td>
               </tr>
               <tr>
                 <td></td>
