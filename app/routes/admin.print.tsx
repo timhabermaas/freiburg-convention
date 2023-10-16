@@ -41,6 +41,7 @@ const LoaderDataSchema = z.object({
       participantId: z.string(),
       ticketName: z.string(),
       ticketPriceInCents: z.number(),
+      paymentReason: z.string(),
     })
   ),
 });
@@ -59,8 +60,11 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   const app = context.app as App;
 
   const participants = app.getAllActualParticipants().map((p) => {
+    const paymentReason = app.getRegistration(p.registrationId).paymentReason;
+
     return {
       participantId: p.participantId,
+      paymentReason,
       fullName: p.fullName,
       accommodation: p.accommodation,
       birthday: p.birthday,
@@ -119,7 +123,7 @@ export default function PrintPage() {
             <thead>
               <tr>
                 <td
-                  colSpan={10}
+                  colSpan={6}
                   dangerouslySetInnerHTML={{
                     __html: eventConfig.disclaimer,
                   }}
@@ -128,7 +132,6 @@ export default function PrintPage() {
               <tr>
                 <td></td>
                 <td>Name</td>
-                <td>Geburtsdatum</td>
                 <td>Ticket</td>
                 <td>Wo?</td>
                 <td>Bezahlt?</td>
@@ -140,12 +143,14 @@ export default function PrintPage() {
                 <tr key={p.participantId} style={{ lineHeight: "35px" }}>
                   <td className="text-right">{i + 1}</td>
                   <td>{p.fullName}</td>
-                  <td>{dateFormatter.format(p.birthday.toUtcDate())}</td>
                   <td style={{ minWidth: "160px" }}>{p.ticketName}</td>
                   <td>
                     {i18n.accommodationFieldShort(p.accommodation)[locale]}
                   </td>
-                  <td>{p.paidStatus.type === "notPaid" ? "✘" : "✔"}</td>
+                  <td>
+                    {p.paidStatus.type === "notPaid" ? "✘" : "✔"} (
+                    {p.paymentReason})
+                  </td>
                   <td style={{ minWidth: "200px" }}></td>
                 </tr>
               ))}
@@ -155,7 +160,6 @@ export default function PrintPage() {
                 .map((i) => (
                   <tr key={i} style={{ lineHeight: "60px" }}>
                     <td className="text-right">{i + 1}</td>
-                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

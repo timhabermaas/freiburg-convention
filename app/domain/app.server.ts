@@ -451,6 +451,16 @@ export class App {
     return result;
   }
 
+  public getRegistration(registrationId: string): Registration {
+    const r = this.state.registrations.filter(
+      (r) => r.registrationId === registrationId
+    )[0];
+    if (r === undefined) {
+      throw new Error(`Couldn't find registration ${registrationId}`);
+    }
+    return r;
+  }
+
   public getAllRegistrations(): Registration[] {
     return this.state.registrations;
   }
