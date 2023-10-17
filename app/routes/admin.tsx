@@ -81,6 +81,13 @@ export default function Admin() {
               <Button
                 sx={{ my: 2, color: "white", display: "block" }}
                 component={Link}
+                to={`/admin/print-ref`}
+              >
+                Print Orders
+              </Button>
+              <Button
+                sx={{ my: 2, color: "white", display: "block" }}
+                component={Link}
                 to={"/admin/events"}
               >
                 Events
