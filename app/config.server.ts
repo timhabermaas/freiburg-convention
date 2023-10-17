@@ -54,7 +54,6 @@ export interface Config {
   adminPassword: string;
   sessionSecret: string;
   statsAccessKey?: string;
-  printAccessKey?: string;
   event: EventConfig;
 }
 
@@ -80,7 +79,6 @@ function getConfigFromEnvAndFile(): Config {
     adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
     sessionSecret: assertDefined(process.env.SESSION_SECRET, "SESSION_SECRET"),
     statsAccessKey: process.env.STATS_ACCESS_KEY,
-    printAccessKey: process.env.PRINT_ACCESS_KEY,
     bucketName:
       process.env.EVENT_STORE_BUCKET_NAME ?? "jonglieren-in-freiburg-dev",
     event: eventConfig,

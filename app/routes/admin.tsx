@@ -26,14 +26,12 @@ export function links() {
 
 interface LoaderData {
   user: "admin" | undefined;
-  printAccessKey: string | undefined;
   statsAccessKey: string | undefined;
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data: LoaderData = {
     user: await getUser(request),
-    printAccessKey: CONFIG.printAccessKey,
     statsAccessKey: CONFIG.statsAccessKey,
   };
 
@@ -74,14 +72,14 @@ export default function Admin() {
               <Button
                 sx={{ my: 2, color: "white", display: "block" }}
                 component={Link}
-                to={`/admin/print?accessKey=${data.printAccessKey}`}
+                to={"/admin/print"}
               >
                 Print
               </Button>
               <Button
                 sx={{ my: 2, color: "white", display: "block" }}
                 component={Link}
-                to={`/admin/print-ref`}
+                to={"/admin/print-ref"}
               >
                 Print Orders
               </Button>

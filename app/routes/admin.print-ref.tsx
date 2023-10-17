@@ -49,7 +49,6 @@ export const loader: LoaderFunction = async ({ context, request }) => {
           r.registrationId
         );
         return {
-          // "Fr—So., > 12 Jahre; 23 €"
           paymentReason: r.paymentReason,
           registrationId: r.registrationId,
           tickets: participants

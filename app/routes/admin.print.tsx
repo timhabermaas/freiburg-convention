@@ -1,4 +1,4 @@
-import { LoaderFunction, redirect } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import * as z from "zod";
 import * as i18n from "~/i18n";
@@ -15,6 +15,7 @@ import { useLocale } from "~/hooks/useLocale";
 import { CONFIG } from "~/config.server";
 import styles from "~/styles/print_override.css";
 import { useEventConfig } from "~/hooks/useEventConfig";
+import { whenAuthorized } from "~/session";
 
 export function links() {
   return [
@@ -49,47 +50,41 @@ const LoaderDataSchema = z.object({
 type LoaderData = z.TypeOf<typeof LoaderDataSchema>;
 
 export const loader: LoaderFunction = async ({ context, request }) => {
-  const url = new URL(request.url);
-  if (
-    CONFIG.printAccessKey &&
-    url.searchParams.get("accessKey") !== CONFIG.printAccessKey
-  ) {
-    return redirect("/admin");
-  }
+  return whenAuthorized<LoaderData>(request, () => {
+    const app = context.app as App;
 
-  const app = context.app as App;
+    const participants = app.getAllActualParticipants().map((p) => {
+      const paymentReason = app.getRegistration(p.registrationId).paymentReason;
 
-  const participants = app.getAllActualParticipants().map((p) => {
-    const paymentReason = app.getRegistration(p.registrationId).paymentReason;
-
-    return {
-      participantId: p.participantId,
-      paymentReason,
-      fullName: p.fullName,
-      accommodation: p.accommodation,
-      birthday: p.birthday,
-      paidStatus: app.getPaidStatus(p.registrationId),
-      ticketName: formatTicket(p.ticket, "de"),
-      ticketPriceInCents: p.ticket.price,
-    };
-  });
-  if (CONFIG.event.printoutOrder === "lastname") {
-    participants.sort((a, b) => {
-      const lastNameA = lastName(a.fullName);
-      const lastNameB = lastName(b.fullName);
-      return lastNameA.localeCompare(lastNameB);
+      return {
+        participantId: p.participantId,
+        paymentReason,
+        fullName: p.fullName,
+        accommodation: p.accommodation,
+        birthday: p.birthday,
+        paidStatus: app.getPaidStatus(p.registrationId),
+        ticketName: formatTicket(p.ticket, "de"),
+        ticketPriceInCents: p.ticket.price,
+      };
     });
-  } else if (CONFIG.event.printoutOrder === "random") {
-    shuffle(participants);
-  } else {
-    assertNever(CONFIG.event.printoutOrder);
-  }
+    if (CONFIG.event.printoutOrder === "lastname") {
+      participants.sort((a, b) => {
+        const lastNameA = lastName(a.fullName);
+        const lastNameB = lastName(b.fullName);
+        return lastNameA.localeCompare(lastNameB);
+      });
+    } else if (CONFIG.event.printoutOrder === "random") {
+      shuffle(participants);
+    } else {
+      assertNever(CONFIG.event.printoutOrder);
+    }
 
-  const data: LoaderData = {
-    participants,
-  };
+    const data: LoaderData = {
+      participants,
+    };
 
-  return data;
+    return data;
+  });
 };
 
 export default function PrintPage() {
